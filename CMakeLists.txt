@@ -2,7 +2,7 @@ project(particles)
 
 cmake_minimum_required(VERSION 2.8)
 
-add_definitions("-Wall -std=c++11")
+add_definitions("-Wall -std=c++14")
 
 enable_testing()
 macro(add_gtest test_name src libs)
