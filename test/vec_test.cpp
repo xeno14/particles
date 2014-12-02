@@ -32,8 +32,13 @@ TEST(VecTest, operators) {
   EXPECT_DOUBLE_EQ(6, result[1]);
   EXPECT_DOUBLE_EQ(10, result[2]);
 
-  result = v1 * 2.0;
-  EXPECT_DOUBLE_EQ(0, result[0]);
-  EXPECT_DOUBLE_EQ(2, result[1]);
+  result = v1 * 2.0 + v2;
+  EXPECT_DOUBLE_EQ(1, result[0]);
+  EXPECT_DOUBLE_EQ(4, result[1]);
+  EXPECT_DOUBLE_EQ(7, result[2]);
+
+  result = v1 / 2 + v2;
+  EXPECT_DOUBLE_EQ(1, result[0]);
+  EXPECT_DOUBLE_EQ(2.5, result[1]);
   EXPECT_DOUBLE_EQ(4, result[2]);
 }

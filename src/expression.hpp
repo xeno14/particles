@@ -47,14 +47,18 @@ struct Expression {
 };
 
 template <class L, class Op, class R>
-struct ExpressionCopy {
+struct ExpressionRCopy {
   const L& l;
   const R r;
 
-  ExpressionCopy(const L& l, const R& r) : l(l), r(r) {}
+  ExpressionRCopy(const L& l, const R& r) : l(l), r(r) {}
   auto operator[](std::size_t i) const { return Op::apply(l[i], r[i]); }
 };
 
+
+//
+// Operators
+//
 template <class T>
 struct Plus {
   static T apply(T l, T r) { return l + r; }
@@ -66,26 +70,35 @@ struct Minus {
 };
 
 template <class T>
-struct Multiple {
+struct Multiply {
   static T apply(T l, T r) { return l * r; }
 };
 
 template <class T>
+struct Divide {
+  static T apply(T l, T r) { return l / r; }
+};
+
+/**
+ * Scalar
+ * 
+ * Used for multiply and division.
+ */
+template <class T>
 struct Scalar {
   T value;
-  Scalar(T x) : value(x) {output("c");}
-  ~Scalar() {output("d");}
-  T operator[](std::size_t i) const { output("[]"); return value; }
-  void output(const char* s)const{std::cout << s << "@" << value << std::endl;}
+  Scalar(T value) : value(value) {}
+  T operator[](std::size_t i) const { return value; }
 };
 
 }  // namespace expression
 
 using expression::Expression;
-using expression::ExpressionCopy;
+using expression::ExpressionRCopy;
 using expression::Plus;
 using expression::Minus;
-using expression::Multiple;
+using expression::Multiply;
+using expression::Divide;
 
 template <class L, class R>
 inline auto operator+(const L& l, const R& r) {
@@ -101,8 +114,16 @@ inline auto operator-(const L& l, const R& r) {
 
 template <class L, class T>
 inline auto operator*(const L& l, T r) {
-  typedef expression::Scalar<T> Scalar;
-  return ExpressionCopy<L, Multiple<T>, Scalar>(l, Scalar(r));
+  typedef typename L::value_type value_type;
+  typedef expression::Scalar<value_type> Scalar;
+  return ExpressionRCopy<L, Multiply<value_type>, Scalar>(l, Scalar(r));
+}
+
+template <class L, class T>
+inline auto operator/(const L& l, T r) {
+  typedef typename L::value_type value_type;
+  typedef expression::Scalar<value_type> Scalar;
+  return ExpressionRCopy<L, Divide<value_type>, Scalar>(l, Scalar(r));
 }
 
 }  // namespace particles
