@@ -17,4 +17,10 @@ TEST(VecTest, operators) {
   EXPECT_DOUBLE_EQ(-1, result[0]);
   EXPECT_DOUBLE_EQ(0, result[1]);
   EXPECT_DOUBLE_EQ(1, result[2]);
+
+  result = v1 + v2;  // 1, 3, 5
+  result *= 2;
+  EXPECT_DOUBLE_EQ(2, result[0]);
+  EXPECT_DOUBLE_EQ(6, result[1]);
+  EXPECT_DOUBLE_EQ(10, result[2]);
 }
