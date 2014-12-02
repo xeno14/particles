@@ -9,6 +9,7 @@
 #include "expression.hpp"
 #include <array>
 #include <initializer_list>
+#include <cmath>
 
 namespace particles {
 
@@ -18,7 +19,7 @@ class Vec {
   typedef T value_type;
   typedef std::array<T, N> array_t;
 
-  Vec() : value_() {}
+  Vec() : value_() { value_.fill(0); }
   Vec(std::initializer_list<T> init_list);
   Vec(const Vec& v) : value_(v.value_) {}
 
@@ -27,7 +28,9 @@ class Vec {
   const T& operator[](std::size_t i) const { return value_[i]; }
   const T& operator()(std::size_t i) const { return (*this)[i]; }
   template <std::size_t I>
-  T& get() { return std::get<I>(value_); }
+  T& get() {
+    return std::get<I>(value_);
+  }
 
   template <class E>
   Vec& operator=(const E& r);
@@ -45,6 +48,17 @@ class Vec {
   auto rend() { value_.rend(); }
   auto crbegin() const { return value_.crbegin(); }
   auto crend() const { return value_.crend(); }
+
+  // Mathematical functions
+  static const Vec<T, N>& zero() {
+    static Vec<T, N> z;
+    return z;
+  }
+
+  T squared_distance(const Vec& v) const;
+  T squared_length() const;
+  T distance(const Vec& v) const;
+  T length() const;
 
  private:
   array_t value_;
@@ -88,6 +102,29 @@ template <class T, std::size_t N>
 inline Vec<T, N>& Vec<T, N>::operator/=(T x) {
   for (std::size_t i = 0; i < N; ++i) (*this)[i] /= x;
   return *this;
+}
+
+template <class T, std::size_t N>
+inline T Vec<T, N>::squared_distance(const Vec<T, N>& v) const {
+  T d = 0;
+  for (std::size_t i = 0; i < N; ++i)
+    d += ((*this)[i] - v[i]) * ((*this)[i] - v[i]);
+  return d;
+}
+
+template <class T, std::size_t N>
+inline T Vec<T, N>::squared_length() const {
+  return Vec<T, N>::squared_distance(Vec<T, N>::zero());
+}
+
+template <class T, std::size_t N>
+inline T Vec<T, N>::distance(const Vec<T, N>& v) const {
+  return std::sqrt(squared_distance(v));
+}
+
+template <class T, std::size_t N>
+inline T Vec<T, N>::length() const {
+  return std::sqrt(squared_length());
 }
 
 }  // namespace particles
