@@ -4,6 +4,22 @@
 #include <cstdlib>
 #include <iostream>
 
+
+namespace particles {
+  namespace expression {
+    template<class L,class Op, class R> struct Expression;
+  }
+}
+
+namespace std {
+
+template <size_t I, class L, class Op, class R>
+inline auto& get(particles::expression::Expression<L, Op, R>& e) {
+  return Op::apply(get<I>(e.l), get<I>(e.r));
+}
+
+}  // namespace std
+
 namespace particles {
 
 namespace expression {
@@ -74,12 +90,9 @@ inline Expression<L, Minus<typename R::value_type>, R> operator-(const L& l,
 
 }  // namespace particles
 
-template <std::size_t I, class T>
-inline T std::get(const particles::expression::Scalar<T>& s) {
-  return s.value;
-}
+//
+// template <size_t I, class L, class Op, class R>
+// inline const auto& get(const particles::expression::Expression<L, Op, R>& e) {
+//   return Op::apply(get<I>(e.l), get<I>(e.r));
+// }
 
-template <std::size_t I, class L, class Op, class R>
-inline auto std::get(const particles::expression::Expression<L, Op, R>& e) {
-  return Op::apply(std::get<I>(e.l), std::get<I>(e.r));
-}

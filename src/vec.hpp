@@ -60,9 +60,7 @@ Vec<T, N>::Vec(std::initializer_list<T> init_list) {
 template <class T, std::size_t N>
 template <class E>
 inline Vec<T, N>& Vec<T, N>::operator=(const E& r) {
-  // expression::Assign<N, array_t, E>
-  // TODO: Use template to expand this loop
-  for (std::size_t i = 0; i < N; i++) (*this)[i] = r[i];
+  expression::Assign<N, array_t, E>::apply(value_, r);
   return *this;
 }
 
