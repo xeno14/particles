@@ -22,7 +22,9 @@ class Vec {
   Vec(const Vec& v) : value_(v.value_) {}
 
   T& operator[](std::size_t i) { return value_[i]; }
+  T& operator()(std::size_t i) { return (*this)[i]; }
   const T& operator[](std::size_t i) const { return value_[i]; }
+  const T& operator()(std::size_t i) const { return (*this)[i]; }
 
   template <class E>
   Vec& operator=(const E& r);
@@ -63,7 +65,8 @@ inline Vec<T, N>& Vec<T, N>::operator=(const E& r) {
 
 template <class T, std::size_t N>
 inline Vec<T, N>& Vec<T, N>::operator=(const Vec<T, N>& v) {
-  for (std::size_t i = 0; i < N; ++i) (*this)[i] = v[i];
+  typedef decltype(value_) array_t;
+  expression::Assign<N, array_t, array_t>::apply(value_, v.value_);
   return *this;
 }
 

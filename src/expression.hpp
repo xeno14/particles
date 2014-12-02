@@ -1,11 +1,25 @@
 #pragma once
 
+#include <tuple>
 #include <cstdlib>
 #include <iostream>
 
 namespace particles {
 
 namespace expression {
+
+template <std::size_t N, class L, class R>
+struct Assign {
+  static void apply(L& l, const R& r) {
+    std::get<N>(l) = std::get<N>(r);
+    Assign<N - 1, L, R>(l, r);
+  }
+};
+
+template <class L, class R>
+struct Assign<0, L, R> {
+  static void apply(L& l, const R& r) { std::get<0>(l) = std::get<0>(r); }
+};
 
 template <class L, class Op, class R>
 struct Expression {
