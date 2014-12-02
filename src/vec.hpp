@@ -6,38 +6,30 @@
 
 #pragma once
 
+#include "expression.hpp"
+#include <array>
+
 namespace particles {
-template <class T = double>
-class Vec3 {
+
+template <class T, std::size_t N>
+class Vec {
  public:
-  T x, y, z;
+  typedef T value_type;
 
-  Vec3() : x(0), y(0), z(0) {}
-  Vec3(T x, T y, T z) : x(x), y(y), z(z) {}
-  Vec3(const Vec3<T>& v) { clone(); }
-  ~Vec3() {}
+  Vec() : value_() {}
 
-  // Operators
-  // TODO: Use expression template
-  Vec3 operator+(const Vec3& v) const;
-  Vec3 operator-(const Vec3& v) const;
-  Vec3 operator*(T a) const;
-  Vec3 operator/(T a) const;
-  Vec3& operator=(const Vec3& v);
-  Vec3& operator+=(const Vec3& v);
-  Vec3& operator-=(const Vec3& v);
-  Vec3& operator*=(T a);
-  Vec3& operator/=(T a);
+  T& operator[](std::size_t i) { return value_[i]; }
+  const T& operator[](std::size_t i) const { return value_[i]; }
 
-  static const T squared_length(const Vec3& v);
-  static const T squared_distace(const Vec3& u, const Vec3 v);
-  const T length() const;
-  const T distance(const Vec3& v) const;
-
-  static T dot(const Vec3& u, const Vec3& v);
+  template <class E>
+  Vec& operator=(const E& r) {
+    // TODO: Use template to expand
+    for (std::size_t i = 0; i < N; i++) (*this)[i] = r[i];
+    return *this;
+  }
 
  private:
-  Vec3<T>& clone(const Vec3<T>& v);
+  std::array<T, N> value_;
 };
 
 }  // namespace particles
