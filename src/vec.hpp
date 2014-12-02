@@ -16,6 +16,7 @@ template <class T, std::size_t N>
 class Vec {
  public:
   typedef T value_type;
+  typedef std::array<T, N> array_t;
 
   Vec() : value_() {}
   Vec(std::initializer_list<T> init_list);
@@ -25,10 +26,11 @@ class Vec {
   T& operator()(std::size_t i) { return (*this)[i]; }
   const T& operator[](std::size_t i) const { return value_[i]; }
   const T& operator()(std::size_t i) const { return (*this)[i]; }
+  template <std::size_t I>
+  T& get() { return std::get<I>(value_); }
 
   template <class E>
   Vec& operator=(const E& r);
-  Vec& operator=(const Vec& v);
   Vec& operator+=(const Vec& v);
   Vec& operator-=(const Vec& v);
   Vec& operator*=(T x);
@@ -45,7 +47,7 @@ class Vec {
   auto crend() const { return value_.crend(); }
 
  private:
-  std::array<T, N> value_;
+  array_t value_;
 };
 
 template <class T, std::size_t N>
@@ -58,15 +60,9 @@ Vec<T, N>::Vec(std::initializer_list<T> init_list) {
 template <class T, std::size_t N>
 template <class E>
 inline Vec<T, N>& Vec<T, N>::operator=(const E& r) {
+  // expression::Assign<N, array_t, E>
   // TODO: Use template to expand this loop
   for (std::size_t i = 0; i < N; i++) (*this)[i] = r[i];
-  return *this;
-}
-
-template <class T, std::size_t N>
-inline Vec<T, N>& Vec<T, N>::operator=(const Vec<T, N>& v) {
-  typedef decltype(value_) array_t;
-  expression::Assign<N, array_t, array_t>::apply(value_, v.value_);
   return *this;
 }
 
@@ -95,3 +91,12 @@ inline Vec<T, N>& Vec<T, N>::operator/=(T x) {
 }
 
 }  // namespace particles
+
+namespace std {
+
+template <size_t I, class T, size_t N>
+inline T& get(particles::Vec<T, N>& v) noexcept {
+  return v.get<I>();
+}
+
+}  // namespace std
