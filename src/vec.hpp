@@ -18,7 +18,7 @@ class Vec {
   typedef T value_type;
 
   Vec() : value_() {}
-  Vec(std::initializer_list<T> init_list);
+  Vec(constexpr std::initializer_list<T> init_list);
 
   T& operator[](std::size_t i) { return value_[i]; }
   const T& operator[](std::size_t i) const { return value_[i]; }
@@ -35,7 +35,8 @@ class Vec {
 };
 
 template <class T, std::size_t N>
-Vec<T, N>::Vec(std::initializer_list<T> init_list) {
+Vec<T, N>::Vec(constexpr std::initializer_list<T> init_list) {
+  static_assert(N == init_list.size(), "size");
   // TODO: size check
   auto it = value_.begin();
   for (auto x : init_list) *(it++) = x;
