@@ -5,10 +5,10 @@
 using particles::Vec;
 
 TEST(VecTest, operators) {
-  particles::Vec<double, 3> v1{0, 1, 2};
-  particles::Vec<double, 3> v2{1, 2, 3};
-  particles::Vec<double, 3> v3{2, 3, 4};
-  particles::Vec<double, 3> result;
+  Vec<double, 3> v1{0, 1, 2};
+  Vec<double, 3> v2{1, 2, 3};
+  Vec<double, 3> v3{2, 3, 4};
+  Vec<double, 3> result;
 
   auto zero = particles::Vec<double, 3>::zero();
 
