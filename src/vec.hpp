@@ -49,10 +49,7 @@ class Vec {
   auto crend() const { return value_.crend(); }
 
   // Mathematical functions
-  static const Vec<T, N>& zero() {
-    static Vec<T, N> z;
-    return z;
-  }
+  static const Vec<T, N>& zero() { static Vec<T, N> z; return z; }
 
   T squared_distance(const Vec& v) const;
   T squared_length() const;
