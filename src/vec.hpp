@@ -28,9 +28,8 @@ class Vec {
   const T& operator[](std::size_t i) const { return value_[i]; }
   const T& operator()(std::size_t i) const { return (*this)[i]; }
   template <std::size_t I>
-  T& get() {
-    return std::get<I>(value_);
-  }
+  T& get() { return std::get<I>(value_); }
+  void fill(const T val) { value_.fill(val); }
 
   template <class E>
   Vec& operator=(const E& r);
@@ -59,6 +58,7 @@ class Vec {
   T squared_length() const;
   T distance(const Vec& v) const;
   T length() const;
+  T dot(const Vec& v) const;
 
  private:
   array_t value_;
@@ -125,6 +125,13 @@ inline T Vec<T, N>::distance(const Vec<T, N>& v) const {
 template <class T, std::size_t N>
 inline T Vec<T, N>::length() const {
   return std::sqrt(squared_length());
+}
+
+template <class T, std::size_t N>
+inline T Vec<T, N>::dot(const Vec<T, N>& v) const {
+  T d = 0;
+  for (std::size_t i = 0; i < N; ++i) d += (*this)[i] * v[i];
+  return d;
 }
 
 }  // namespace particles

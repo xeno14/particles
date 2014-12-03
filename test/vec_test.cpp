@@ -16,6 +16,11 @@ TEST(VecTest, operators) {
   EXPECT_DOUBLE_EQ(0, zero[1]);
   EXPECT_DOUBLE_EQ(0, zero[2]);
 
+  result.fill(1);
+  EXPECT_DOUBLE_EQ(1, result[0]);
+  EXPECT_DOUBLE_EQ(1, result[1]);
+  EXPECT_DOUBLE_EQ(1, result[2]);
+
   result = v1;
   EXPECT_DOUBLE_EQ(0, result[0]);
   EXPECT_DOUBLE_EQ(1, result[1]);
@@ -59,4 +64,5 @@ TEST(VecTest, mathmatics) {
   EXPECT_DOUBLE_EQ(5, v1.length());
   EXPECT_DOUBLE_EQ(4, v1.squared_distance(v2));
   EXPECT_DOUBLE_EQ(2, v1.distance(v2));
+  EXPECT_DOUBLE_EQ(33, v1.dot(v2));
 }
