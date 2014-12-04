@@ -1,7 +1,7 @@
 /**
  * \file vec.hpp
  *
- *
+ * @todo add examples
  */
 
 #pragma once

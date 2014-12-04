@@ -1,7 +1,9 @@
 /**
  * @file range.hpp
  *
- * @todo prepare all types of iterator
+ * @todo check iterator concept
+ * @todo zip
+ * @todo enumerate
  */
 
 #pragma once

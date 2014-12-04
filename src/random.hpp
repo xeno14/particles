@@ -79,8 +79,10 @@ struct UniformDistribution<T, false, true> {
  * @tparam T real type
  * @tparam Engine engine
  * @example
+ * @code
  *  UniformRealRand<double>::set_range(-1,1);
  *  auto x = UniformRealRand<double>::get();
+ * @endcode
  */
 template <class T, class Engine = std::mt19937>
 class UniformRand

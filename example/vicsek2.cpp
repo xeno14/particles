@@ -45,6 +45,8 @@ int main() {
 
   output(particles.begin(), particles.end());
 
+  UniformRand<double>::set_range(-eta, eta);
+
   for (int t=0; t<1000; ++t) {
     searcher.search(adjacency_list, particles);
 
@@ -55,17 +57,18 @@ int main() {
       auto nx = p.position();
       auto nv = p.velocity();
 
+      // Calculate position and velocity at next step
       for(const auto* q : adjacency_list[i]) {
         nv += q->velocity();
       }
       nv /= adjacency_list[i].size();
-      UniformRand<double>::set_range(-eta, eta);
       nv(0) += UniformRand<double>::get();
       nv(1) += UniformRand<double>::get();
 
       nx = x + v;
       nv.normalize(v0);
 
+      // Set new values
       p.position() = nx;
       p.velocity() = nv;
     }
@@ -75,7 +78,7 @@ int main() {
     }
 
     output(particles.begin(), particles.end());
-    std::cout << std::endl << std::endl;
+    std::cout << "\n\n";
   }
 
   return 0;
