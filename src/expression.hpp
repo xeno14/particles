@@ -52,30 +52,30 @@ constexpr std::size_t even(std::size_t n) { return n*2 + 1; }
 
 /**
  * @brief expand assigning operators
- * @tparam N num of elements
+ * @tparam I index of elements
  * @tparam L substitute to
  * @tparam R substitute from
- * @tparam Opl N -> ?, such as Identity, Odd, Even
- * @tparam Opr N -> ?, such as Identity, Odd, Even
  */
 template <std::size_t I, class L, class R>
-struct Assign {
-  static void apply(L& l, const R& r) {
+struct AssignImpl {
+  template <class FL, class FR>
+  static void apply(L& l, const R& r, FL& fl, FR& fr) {
     std::get<I>(l) = std::get<I>(r);
-    Assign<I-1, L, R>::apply(l, r);
+    AssignImpl<I-1, L, R>::apply(l, r, fl, fr);
   }
 };
 
 template <class L, class R>
-struct Assign<0, L, R>  {
-  static void apply(L& l, const R& r) {
+struct AssignImpl<0, L, R>  {
+  template <class FL, class FR>
+  static void apply(L& l, const R& r, FL& fl, FR& fr) {
     std::get<0>(l) = std::get<0>(r);
   }
 }; 
 
 template <std::size_t N, class L, class R>
 inline void assign(L& l, const R& r) {
-  Assign<N-1, L, R>::apply(l, r);
+  AssignImpl<N-1, L, R>::apply(l, r, identity, identity);
 }
 
 template <class L, class Op, class R>
