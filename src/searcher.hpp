@@ -58,26 +58,39 @@ struct VecToPoint<Point, T, 3> {
   }
 };
 
+/**
+ * @brief Executes triangulation and creates adjacency list
+ * @tparam Delaunay triangulation
+ * @tparam T floating point
+ * @tparam N dimension
+ */
 template <class Delaunay, class T, std::size_t N>
 struct DelaunaySearchImpl {
   typedef typename Delaunay::Point Point;
   typedef typename Delaunay::Vertex_handle Vertex_handle;
 
-  template <class AdjacencyList, class Iterator>
+  /**
+   * @brief execute searching
+   * @tparam AdjacencyList
+   * @tparam Iterator random access iterator
+   */
+  template <class AdjacencyList, class Particles>
   static void search(Delaunay& delaunay, AdjacencyList& adjacency_list,
-                     Iterator first, Iterator last) {
+                     const Particles& particles) {
     // Triangulation
     std::vector<std::pair<Point, std::size_t>> point_info;
     std::size_t index = 0;
-    for (Iterator it = first; it != last; ++it) {
+    for (auto it = particles.begin(); it != particles.end(); ++it) {
       const auto& pos = it->position();
-      point_info.emplace_back(VecToPoint<Point, T, N>::generate(pos), index++);
+      auto point = VecToPoint<Point,T,N>::generate(pos);
+      point_info.emplace_back(point, index++);
     }
     delaunay.clear();
     delaunay.insert(point_info.begin(), point_info.end());
 
     // Set adjacent vertices
-    std::vector<Vertex_handle> adjacent_vertices(last-first);
+    adjacency_list.resize(particles.size());
+    std::vector<Vertex_handle> adjacent_vertices(particles.size());
     // // Loop for all vertices
     auto vit = delaunay.finite_vertices_begin();
     while (vit != delaunay.finite_vertices_end()) {
@@ -89,12 +102,7 @@ struct DelaunaySearchImpl {
           delaunay.finite_adjacent_vertices(vit, adjacent_vertices.begin());
       auto it = adjacent_vertices.begin();
       while (it != adjacent_end) {
-        // TODO: なぜかexpressionが使われる
-        // auto p_it = first + (*it)->info();
-        Iterator p_it = first;
-        auto n = (*it)->info();
-        while(n--) p_it++;
-        neighbors.push_back(&(*p_it));
+        neighbors.push_back(&(particles[(*it)->info()]));
         ++it;
       }
       ++vit;
@@ -114,16 +122,17 @@ class DelaunaySearcher<T, 3> : public SearcherBase<T, 3> {
   typedef CGAL::Triangulation_data_structure_3<Vb> Tds;
   typedef CGAL::Delaunay_triangulation_3<K, Tds, CGAL::Fast_location> Delaunay;
   typedef Delaunay::Point Point;
+
+ public:
   typedef typename SearcherBase<T, 3>::particle_type particle_type;
   typedef typename SearcherBase<T, 3>::adjacency_list_type adjacency_list_type;
 
- public:
   DelaunaySearcher<T, 3>() : delaunay_() {}
 
   void search(adjacency_list_type& adjacency_list,
               const std::vector<particle_type>& particles) {
-    DelaunaySearchImpl<Delaunay, T, 3>::search(
-        delaunay_, adjacency_list, particles.begin(), particles.end());
+    DelaunaySearchImpl<Delaunay, T, 3>::search(delaunay_, adjacency_list,
+                                               particles);
   }
 
  private:

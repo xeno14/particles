@@ -7,6 +7,9 @@ namespace particles {
 template <class T, std::size_t N>
 class Particle {
  public:
+  Particle(const Vec<T, N>& x, const Vec<T, N>& v, T m=1)
+      : position_(x), velocity_(v), mass_(m) {}
+
   Vec<T, N>& position() { return position_; }
   Vec<T, N>& velocity() { return velocity_; }
   T& mass() { return mass_; }
