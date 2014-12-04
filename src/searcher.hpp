@@ -29,7 +29,7 @@ class SearcherBase {
 
   virtual ~SearcherBase() {}
   /**
-   * @TODO use iterator
+   * @todo use iterator
    */
   virtual void search(adjacency_list_type& adjacency_list,
                       const std::vector<particle_type>& particles) = 0;
@@ -38,7 +38,7 @@ class SearcherBase {
 namespace {
 
 /**
- * @TODO call constructor using tuple expansion
+ * @todo call constructor using tuple expansion
  * @brief generates Point from Vec<T,N>
  */
 template <class Point, class T, std::size_t N>
@@ -91,7 +91,7 @@ struct DelaunaySearchImpl {
     // Set adjacent vertices
     adjacency_list.resize(particles.size());
     std::vector<Vertex_handle> adjacent_vertices(particles.size());
-    // // Loop for all vertices
+    // Loop for all vertices
     auto vit = delaunay.finite_vertices_begin();
     while (vit != delaunay.finite_vertices_end()) {
       auto& neighbors = adjacency_list[vit->info()];
@@ -112,6 +112,13 @@ struct DelaunaySearchImpl {
 
 }  // namespace
 
+
+/**
+ * @todo 2-d
+ * @brief searchs adjacencies using Delaunay triangulation
+ * @tparam T floating point
+ * @tparam N dimension
+ */
 template <class T, std::size_t N>
 class DelaunaySearcher;
 

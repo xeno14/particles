@@ -7,9 +7,11 @@
 #pragma once
 
 #include "expression.hpp"
+
 #include <array>
-#include <initializer_list>
 #include <cmath>
+#include <initializer_list>
+#include <ostream>
 
 namespace particles {
 
@@ -63,7 +65,7 @@ class Vec {
 
 template <class T, std::size_t N>
 Vec<T, N>::Vec(std::initializer_list<T> init_list) {
-  // TODO: size check
+  /** @todo size check */
   auto it = value_.begin();
   for (auto x : init_list) *(it++) = x;
 }
@@ -71,7 +73,7 @@ Vec<T, N>::Vec(std::initializer_list<T> init_list) {
 template <class T, std::size_t N>
 template <class E>
 inline Vec<T, N>& Vec<T, N>::operator=(const E& r) {
-  // TODO: Use template to expand this loop
+  /** @todo Use template to expand this loop */
   // expression::Assign<N, array_t, E>::apply(value_, r);
   for (std::size_t i = 0; i < N; i++) (*this)[i] = r[i];
   return *this;
@@ -138,6 +140,12 @@ namespace std {
 template <size_t I, class T, size_t N>
 inline T& get(particles::Vec<T, N>& v) noexcept {
   return v.get<I>();
+}
+
+template <class T, size_t N>
+ostream& operator<<(ostream& os, particles::Vec<T,N>& v) {
+  /** @todo expand using template **/
+  return os << "(" << v[0] << "," << v[1] << "," << v[2] << ")";
 }
 
 }  // namespace std
