@@ -1,3 +1,9 @@
+/**
+ * @file expression.hpp
+ *
+ * @brief template meta programming liblary
+ */
+
 #pragma once
 
 #include <tuple>
@@ -42,8 +48,6 @@ struct Even {
  * @tparam I index of elements
  * @tparam L substitute to
  * @tparam R substitute from
- * @tparam FL 
- * @tparam FR
  */
 template <std::size_t I, class L, class R>
 struct AssignImpl {
