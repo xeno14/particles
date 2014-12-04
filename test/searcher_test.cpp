@@ -1,7 +1,8 @@
 #include "searcher.hpp"
 
+#include <gtest/gtest.h>
 
-int main() {
-  particles::search::DelauneySearcher<double,3> searcher;
-  return 0;
+TEST(SearchTest, delaunay) {
+  EXPECT_TRUE(true);
+  particles::search::DelaunaySearcher<double,3> searcher;
 }
