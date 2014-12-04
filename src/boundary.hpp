@@ -63,5 +63,29 @@ class PeriodicBoundary {
   const T a_, b_;
 };
 
+//
+//
+//
+//
+// template <class T, class U, class... Args>
+// void devide_apply(T& t, U& u, Args... args) {
+//   std::tuple<Args...> 
+// }
+//
+// template <class T, std::size_t N>
+// class PeriodicRect {
+//
+//  public:
+//   template <class... Args>
+//   PeriodicRect(Args... args) : left_(), right_() {
+//     static_assert(sizeof...(args) == N * 2, "number of arguments mismatch");
+//     devide_apply(left_, right_, args...);
+//   }
+//
+//  private:
+//   std::array<T, N> left_;
+//   std::array<T, N> right_;
+// };
+
 }  // namespace boundary
 }  // namespace particles

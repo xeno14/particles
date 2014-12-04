@@ -24,17 +24,51 @@ namespace particles {
 
 namespace expression {
 
-template <std::size_t N, class L, class R>
+/** @brief N */
+template <std::size_t N>
+struct Identity {
+  static constexpr std::size_t value = N;
+};
+
+/**
+ * @brief 2N+1
+ */
+template <std::size_t N>
+struct Odd {
+  static constexpr std::size_t value = 2 * N + 1;
+};
+
+/**
+ * @brief 2N
+ */
+template <std::size_t N>
+struct Even {
+  static constexpr std::size_t value = 2 * N;
+};
+
+
+/**
+ * @brief expand assigning operators
+ * @tparam N num of elements
+ * @tparam L substitute to
+ * @tparam R substitute from
+ * @tparam Opl N -> ?, such as Identity, Odd, Even
+ * @tparam Opr N -> ?, such as Identity, Odd, Even
+ */
+template <std::size_t N, class L, class R, class Opl = Identity<N>,
+          class Opr = Identity<N>>
 struct Assign {
   static void apply(L& l, const R& r) {
-    std::get<N>(l) = std::get<N>(r);
-    Assign<N - 1, L, R>(l, r);
+    std::get<Opl::value>(l) = std::get<Opr::value>(r);
+    Assign<N - 1, L, R, Opl, Opr>(l, r);
   }
 };
 
-template <class L, class R>
-struct Assign<0, L, R> {
-  static void apply(L& l, const R& r) { std::get<0>(l) = std::get<0>(r); }
+template <class L, class R, class Opl, class Opr>
+struct Assign<0, L, R, Opl, Opr> {
+  static void apply(L& l, const R& r) {
+    std::get<Opl::value>(l) = std::get<Opr::value>(r);
+  }
 };
 
 template <class L, class Op, class R>

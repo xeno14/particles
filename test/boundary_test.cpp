@@ -26,3 +26,9 @@ TEST(BoundaryTest, PeriodicBoundary) {
   // pb0.apply(p.position());
   // EXPECT_DOUBLE_EQ(0.2, p.position(0));
 }
+
+// TEST(BoundaryTest, PeriodicRect) {
+//   P2 p;
+//
+//   particles::boundary::PeriodicRect<double, 2> pb0(0, 1, 0, 1);
+// }
