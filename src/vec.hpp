@@ -30,6 +30,7 @@ class Vec {
   const T& operator[](std::size_t i) const { return value_[i]; }
   const T& operator()(std::size_t i) const { return (*this)[i]; }
   template <std::size_t I>
+  /** @brief access I-th element using std::get */
   T& get() { return std::get<I>(value_); }
   void fill(const T val) { value_.fill(val); }
 

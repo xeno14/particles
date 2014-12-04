@@ -66,3 +66,10 @@ TEST(VecTest, mathmatics) {
   EXPECT_DOUBLE_EQ(2, v1.distance(v2));
   EXPECT_DOUBLE_EQ(33, v1.dot(v2));
 }
+
+TEST(VecTest, overload) {
+  Vec<double, 2> v {1, 2};
+
+  EXPECT_DOUBLE_EQ(1, std::get<0>(v));
+  EXPECT_DOUBLE_EQ(2, std::get<1>(v));
+}
