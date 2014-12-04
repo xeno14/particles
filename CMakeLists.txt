@@ -41,3 +41,4 @@ endmacro(add_gtest)
 include_directories(src)
 
 add_subdirectory(test)
+add_subdirectory(example)
