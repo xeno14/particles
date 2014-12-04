@@ -22,11 +22,6 @@ void output(Iterator first, Iterator last) {
   }
 }
 
-void normalize(particles::Vec<double, 2>& v, double n) {
-  v /= v.length();
-  v *= n;
-}
-
 int main() {
   const int N = 128;
   const double v0 = 0.1;
@@ -45,7 +40,7 @@ int main() {
     UniformRand<double>::set_range(-1, 1);
     p.velocity(0) = UniformRand<double>::get();
     p.velocity(1) = UniformRand<double>::get();
-    normalize(p.velocity(), v0);
+    p.velocity().normalize(v0);
   }
 
   output(particles.begin(), particles.end());
@@ -69,11 +64,10 @@ int main() {
       nv(1) += UniformRand<double>::get();
 
       nx = x + v;
-      normalize(nv, v0);
+      nv.normalize(v0);
 
       p.position() = nx;
       p.velocity() = nv;
-      normalize(p.velocity(), v0);
     }
 
     for(auto& p : particles) {

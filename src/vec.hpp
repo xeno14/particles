@@ -21,6 +21,7 @@ namespace particles {
  * @brief N-d vector in cartesian
  * @tparam T floating point
  * @tparam N dimension
+ * @todo output to ostream
  */
 template <class T, std::size_t N>
 class Vec {

@@ -1,3 +1,9 @@
+/**
+ * @file random.hpp
+ * @bried utilities for using random numbers
+ * @todo substitute to vec directly, operator[] and std::size
+ */
+
 #pragma once
 
 #include <algorithm>

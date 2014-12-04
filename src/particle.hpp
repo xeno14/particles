@@ -1,3 +1,9 @@
+/**
+ * @file particle.hpp
+ *
+ * @brief particle: pack of position, velocity and mass
+ */
+
 #pragma once
 
 #include "vec.hpp"
@@ -10,6 +16,7 @@ namespace particles {
  * @brief particle moving in N dimension
  * @tparam T floating point
  * @tparam N dimension
+ * @todo output to ostream
  */
 template <class T, std::size_t N>
 class Particle {
