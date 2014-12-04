@@ -24,80 +24,60 @@ namespace particles {
 
 namespace expression {
 
-// /** @brief N */
-// template <std::size_t N>
-// struct IdentityImpl {
-//   static constexpr std::size_t value = N;
-// };
-//
-// /**
-//  * @brief 2N+1
-//  */
-// template <std::size_t N>
-// struct OddIm {
-//   static constexpr std::size_t value = 2 * N + 1;
-// };
-//
-// /**
-//  * @brief 2N
-//  */
-// template <std::size_t N>
-// struct Even {
-//   static constexpr std::size_t value = 2 * N;
-// };
-
-constexpr std::size_t identity(std::size_t n) { return n; }
-constexpr std::size_t odd(std::size_t n) { return n*2; }
-constexpr std::size_t even(std::size_t n) { return n*2 + 1; }
-
 struct Identity {
-  static constexpr std::size_t get(const std::size_t n) { return n; }
+  constexpr std::size_t operator()(const std::size_t n) { return n; }
 };
 struct Odd {
-  static constexpr std::size_t get(const std::size_t n) { return n*2+1; }
+  constexpr std::size_t operator()(const std::size_t n) { return n * 2 + 1; }
 };
 struct Even {
-  static constexpr std::size_t get(const std::size_t n) { return n*2; }
+  constexpr std::size_t operator()(const std::size_t n) { return n * 2; }
 };
 
 /**
+ * Execute assigning at index I-1.
+ *
  * @brief expand assigning operators
+ * @pre FL and FR have constexpr method named get
  * @tparam I index of elements
  * @tparam L substitute to
  * @tparam R substitute from
+ * @tparam FL 
+ * @tparam FR
  */
-template <std::size_t I, class L, class R, class FL=Identity, class FR=Identity>
+template <std::size_t I, class L, class R>
 struct AssignImpl {
-  static void apply(L& l, const R& r) {
-    constexpr std::size_t il = FL::get(I);
-    constexpr std::size_t ir = FR::get(I);
+  template <class FL, class FR>
+  static void apply(L& l, const R& r, FL fl, FR fr) {
+    constexpr std::size_t il = fl(I-1);
+    constexpr std::size_t ir = fr(I-1);
     std::get<il>(l) = std::get<ir>(r);
-    AssignImpl<I-1, L, R, FL, FR>::apply(l, r);
+    AssignImpl<I-1, L, R>::apply(l, r, fl, fr);
   }
 };
 
-template <class L, class R, class FL, class FR>
-struct AssignImpl<0, L, R, FL, FR>  {
-  static void apply(L& l, const R& r) {
-    constexpr std::size_t il = FL::get(0);
-    constexpr std::size_t ir = FR::get(0);
-    std::get<il>(l) = std::get<ir>(r);
-  }
+template <class L, class R>
+struct AssignImpl<0, L, R>  {
+  template <class FL, class FR>
+  static void apply(L& l, const R& r, FL fl, FR fr) { return ; }
 }; 
 
+/** @brief assign [0, 1, ..., N-1] <- [0, 1, ..., N-1] */
 template <std::size_t N, class L, class R>
 inline void assign(L& l, const R& r) {
-  AssignImpl<N-1, L, R, Identity, Identity>::apply(l, r);
+  AssignImpl<N, L, R>::apply(l, r, Identity(), Identity());
 }
 
+/** @brief assign [0, 1, ..., N-1] <- [0, 2, ..., 2N-2] */
 template <std::size_t N, class L, class R>
 inline void assign_from_even(L& l, const R& r) {
-  AssignImpl<N-1, L, R, Identity, Even>::apply(l, r);
+  AssignImpl<N, L, R>::apply(l, r, Identity(), Even());
 }
 
+/** @brief assign [0, 1, ..., N-1] <- [1, 3, ..., 2N-1] */
 template <std::size_t N, class L, class R>
 inline void assign_from_odd(L& l, const R& r) {
-  AssignImpl<N-1, L, R, Identity, Odd>::apply(l, r);
+  AssignImpl<N, L, R>::apply(l, r, Identity(), Odd());
 }
 
 

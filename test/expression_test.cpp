@@ -12,7 +12,7 @@ TEST(ExpressionTest, assign) {
   EXPECT_EQ(1, std::get<0>(t));
   EXPECT_EQ(2, std::get<1>(t));
 
-  std::tuple<int, int, int, int> uu(0,1,2,3);
+  std::tuple<int, int, int, int> uu(0, 1, 2, 3);
   particles::expression::assign_from_even<2>(t, uu);
   EXPECT_EQ(0, std::get<0>(t));
   EXPECT_EQ(2, std::get<1>(t));
