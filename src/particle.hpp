@@ -16,9 +16,13 @@ class Particle {
 
   Vec<T, N>& position() { return position_; }
   Vec<T, N>& velocity() { return velocity_; }
+  Vec<T, N>& position(std::size_t i) { return position_(i); }
+  Vec<T, N>& velocity(std::size_t i) { return velocity_(i); }
   T& mass() { return mass_; }
   const Vec<T, N>& position() const { return position_; }
   const Vec<T, N>& velocity() const { return velocity_; }
+  const Vec<T, N>& position(std::size_t i) const { return position_(i); }
+  const Vec<T, N>& velocity(std::size_t i) const { return velocity_(i); }
   const T& mass() const { return mass_; }
 
   constexpr std::size_t dim() { return N; }
