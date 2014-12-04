@@ -13,7 +13,10 @@ template <class Iterator, class Converter>
 auto convert_iterator(Iterator it, Converter f);
 
 /**
- * Use this through convert_iterator
+ * Comparision (operator==, operator!=) is defined between ConvertIterator with
+ * other converter and Iterator.
+ *
+ * Use this through convert_iterator.
  * @code
  * vector<vector<int>> v {{1,2}, {3,4}, {5,6}, {7,8}};
  * auto it convert_iterator(v.begin(), [](vector<int>& u){return u[0];});
