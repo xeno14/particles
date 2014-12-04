@@ -43,7 +43,7 @@ TEST(SearchTest, SimpleRangeSearch) {
 }
 
 TEST(SearchTest, delaunay) {
-  auto particles = read_particles3("test/data/3d.xyz");
+  auto particles = read_particles3("data/3d.xyz");
   ASSERT_TRUE(particles.size()>0);
   
   particles::search::DelaunaySearcher<double,3> searcher;

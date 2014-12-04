@@ -77,11 +77,11 @@ class SimpleRangeSearch : public SearcherBase<T,N> {
   const T distance_;
 };
 
-namespace {
+namespace internal {
 
 /**
  * @todo call constructor using tuple expansion
- * @brief generates Point from Vec<T,N>
+ * @brief creates Point from Vec<T,N>
  */
 template <class Point, class T, std::size_t N>
 struct VecToPoint;
@@ -152,7 +152,7 @@ struct DelaunaySearchImpl {
   }
 };
 
-}  // namespace
+}  // namespace internal
 
 
 /**
@@ -180,8 +180,8 @@ class DelaunaySearcher<T, 3> : public SearcherBase<T, 3> {
 
   void search(adjacency_list_type& adjacency_list,
               const std::vector<particle_type>& particles) {
-    DelaunaySearchImpl<Delaunay, T, 3>::search(delaunay_, adjacency_list,
-                                               particles);
+    internal::DelaunaySearchImpl<Delaunay, T, 3>::search(
+        delaunay_, adjacency_list, particles);
   }
 
  private:
