@@ -35,6 +35,48 @@ class SearcherBase {
                       const std::vector<particle_type>& particles) = 0;
 };
 
+
+/**
+ * Compare all distances between all pairs of particles.
+ *
+ * Complexity: \f$O(n^2)\f$
+ *
+ * Memory: \f$O(1)\f$
+ *
+ * @brief simple range search for N-dimension
+ * @tparam T floating point
+ * @tparam N dimension
+ */
+template <class T, std::size_t N>
+class SimpleRangeSearch : public SearcherBase<T,N> {
+ public:
+  typedef typename SearcherBase<T, N>::particle_type particle_type;
+  typedef typename SearcherBase<T, N>::adjacency_list_type adjacency_list_type;
+
+  SimpleRangeSearch(T d) : distance_(d) {}
+
+  void search(adjacency_list_type& adjacency_list,
+              const std::vector<particle_type>& particles) {
+    adjacency_list.resize(particles.size());
+    for (auto l : adjacency_list) l.clear();
+
+    for (std::size_t i = 0; i < particles.size(); i++) {
+      adjacency_list[i].push_back(&particles[i]);
+      for (std::size_t j = i+1; j < particles.size(); j++) {
+        const auto& pi = particles[i].position();
+        const auto& pj = particles[j].position();
+        if (pi.squared_distance(pj) <= distance_ * distance_) {
+          adjacency_list[i].push_back(&particles[j]);
+          adjacency_list[j].push_back(&particles[i]);
+        }
+      }
+    }
+  }
+
+ private:
+  const T distance_;
+};
+
 namespace {
 
 /**

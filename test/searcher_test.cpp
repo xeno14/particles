@@ -8,6 +8,7 @@
 #include <vector>
 #include <unistd.h>
 
+typedef particles::Particle<double, 2> P2;
 typedef particles::Particle<double, 3> P3;
 
 std::vector<P3> read_particles3(
@@ -22,6 +23,23 @@ std::vector<P3> read_particles3(
     res.emplace_back(pos,vel);
   }
   return res;
+}
+
+TEST(SearchTest, SimpleRangeSearch) {
+  particles::search::SimpleRangeSearch<double, 2> searcher(1.001);
+  typename decltype(searcher)::adjacency_list_type adjacency_list;
+
+  std::vector<P2> particles;
+  particles.push_back(P2{0,0});
+  particles.push_back(P2{1,0});
+  particles.push_back(P2{0,1});
+  particles.push_back(P2{0.1,0});
+
+  searcher.search(adjacency_list, particles);
+  EXPECT_EQ(4, adjacency_list[0].size());
+  EXPECT_EQ(3, adjacency_list[1].size());
+  EXPECT_EQ(2, adjacency_list[2].size());
+  EXPECT_EQ(3, adjacency_list[3].size());
 }
 
 TEST(SearchTest, delaunay) {

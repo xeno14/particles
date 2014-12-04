@@ -2,11 +2,15 @@
 
 #include "vec.hpp"
 
+#include <initializer_list>
+
 namespace particles {
 
 template <class T, std::size_t N>
 class Particle {
  public:
+  Particle(std::initializer_list<T> init_list)
+      : position_(init_list), velocity_(), mass_(1) {}
   Particle(const Vec<T, N>& x, const Vec<T, N>& v, T m=1)
       : position_(x), velocity_(v), mass_(m) {}
 
