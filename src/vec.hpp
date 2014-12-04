@@ -13,8 +13,15 @@
 #include <initializer_list>
 #include <ostream>
 
+#include <iostream>
+
 namespace particles {
 
+/**
+ * @brief N-d vector in cartesian
+ * @tparam T floating point
+ * @tparam N dimension
+ */
 template <class T, std::size_t N>
 class Vec {
  public:
@@ -36,6 +43,10 @@ class Vec {
 
   template <class E>
   Vec& operator=(const E& r);
+  template <class E>
+  bool operator==(const E& r) const;
+  template <class E>
+  bool operator!=(const E& r) const;
   Vec& operator+=(const Vec& v);
   Vec& operator-=(const Vec& v);
   Vec& operator*=(T x);
@@ -59,6 +70,14 @@ class Vec {
   T distance(const Vec& v) const;
   T length() const;
   T dot(const Vec& v) const;
+  /** @brief normalize length of this vector to specifed value */
+  Vec& normalize(T len=1);
+  /** 
+   * @brief check this condition: \f$ |\vec{u}||\vec{v}| - \vec{u} \cdot \vec{v} < \epsilon\f$
+   * @param v vector
+   * @param eps threshold
+   */
+  bool parallel(const Vec& v, T eps=1e-8) const;
 
  private:
   array_t value_;
@@ -78,6 +97,19 @@ inline Vec<T, N>& Vec<T, N>::operator=(const E& r) {
   // expression::Assign<N, array_t, E>::apply(value_, r);
   for (std::size_t i = 0; i < N; i++) (*this)[i] = r[i];
   return *this;
+}
+
+template <class T, std::size_t N>
+template <class E>
+inline bool Vec<T, N>::operator==(const E& r) const {
+  for (std::size_t i = 0; i < N; i++) if(!((*this)[i] == r[i])) return false;
+  return true;
+}
+
+template <class T, std::size_t N>
+template <class E>
+inline bool Vec<T, N>::operator!=(const E& r) const {
+  return !(*this == r);
 }
 
 template <class T, std::size_t N>
@@ -132,6 +164,18 @@ inline T Vec<T, N>::dot(const Vec<T, N>& v) const {
   T d = 0;
   for (std::size_t i = 0; i < N; ++i) d += (*this)[i] * v[i];
   return d;
+}
+
+template <class T, std::size_t N>
+inline Vec<T,N>& Vec<T, N>::normalize(T len) {
+  if (length() == 0) return *this;  // zero vector
+  *this /= length();
+  return *this *= len;
+}
+
+template <class T, std::size_t N>
+inline bool Vec<T, N>::parallel(const Vec<T, N>& v, T eps) const {
+  return length() * v.length() - dot(v) < eps;
 }
 
 }  // namespace particles

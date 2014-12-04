@@ -54,6 +54,13 @@ TEST(VecTest, operators) {
   EXPECT_DOUBLE_EQ(1, result[0]);
   EXPECT_DOUBLE_EQ(2.5, result[1]);
   EXPECT_DOUBLE_EQ(4, result[2]);
+
+  const auto& z = decltype(result)::zero();
+  result = z; 
+  EXPECT_TRUE(result == z);
+  EXPECT_FALSE(result == v1);
+  EXPECT_TRUE(result != v1);
+  EXPECT_FALSE(result != z);
 }
 
 TEST(VecTest, mathmatics) {
@@ -65,6 +72,25 @@ TEST(VecTest, mathmatics) {
   EXPECT_DOUBLE_EQ(4, v1.squared_distance(v2));
   EXPECT_DOUBLE_EQ(2, v1.distance(v2));
   EXPECT_DOUBLE_EQ(33, v1.dot(v2));
+
+  Vec<double, 2> u1 {3, 4};
+  Vec<double, 2> u2 {3, 4};
+  EXPECT_TRUE(u1.parallel(v1));
+  EXPECT_TRUE(u1.parallel(v1, 1e-4));
+  EXPECT_FALSE(u1.parallel(v2, 1e-6));
+  EXPECT_FALSE(u2.parallel(v2, 1e-6));
+  EXPECT_TRUE(u2.parallel(v2, 1));
+
+  Vec<double, 2> n;
+  n = {10, 0};
+  n.normalize(100);
+  EXPECT_TRUE(n.parallel({1, 0}));
+  EXPECT_DOUBLE_EQ(100, n.length());
+
+  n = {3, 4};
+  n.normalize();
+  EXPECT_TRUE(n.parallel({3000, 4000}));
+  EXPECT_DOUBLE_EQ(1, n.length());
 }
 
 TEST(VecTest, overload) {
