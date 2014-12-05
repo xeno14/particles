@@ -78,10 +78,13 @@ struct UniformDistribution<T, false, true> {
  * @brief generates random numbers in a certain range
  * @tparam T real type
  * @tparam Engine engine
- * @example
+ *
  * @code
- *  UniformRealRand<double>::set_range(-1,1);
- *  auto x = UniformRealRand<double>::get();
+ *  UniformRand<double>::set_range(-1,1);
+ *  auto x = UniformRealRand<double>::get();  // double in [-1, 1)
+ *
+ *  UniformRand<int<::set_range(0, 100);
+ *  auto n = UniformRand<int>::get();         // int in {0, 1, ...,100}
  * @endcode
  */
 template <class T, class Engine = std::mt19937>
