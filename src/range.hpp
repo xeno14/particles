@@ -17,7 +17,7 @@ namespace range {
 namespace internal {
 
 /**
- *
+ * @todo add explanation
  * @tparam loop_flag
  * @tparam Ts
  * @tparam Us reference
@@ -45,6 +45,74 @@ inline auto ref_tuple(std::tuple<Iterator...>& t) {
 }
 
 }  // namespace internal
+
+/**
+ * @todo overload std::begin, std::end
+ * @todo const iterator
+ */
+template <class... Range>
+class ZipContainer {
+  typedef std::tuple<typename Range::iterator...> iterator_tuple_type;
+
+  public:
+   ZipContainer(Range&... ranges)
+       : begins_(std::begin(ranges)...), ends_(std::end(ranges)...) {}
+
+   class iterator {
+    public:
+      iterator(const iterator& it) : iterator_tuple_(it.iterator_tuple_) {}
+      iterator(const iterator_tuple_type& it) : iterator_tuple_(it) {}
+      iterator operator++() {
+        expression::pre_increment<sizeof...(Range)>(iterator_tuple_);
+        return *this;
+      }
+      iterator operator++(int) { 
+        auto old = iterator_tuple_;
+        ++(*this);
+        return iterator(old);
+      }
+      iterator& operator=(const iterator& it) {
+        iterator_tuple_ = it.iterator_tuple_;
+        return *this;
+      }
+      bool operator==(const iterator& it) const {
+        return iterator_tuple_ == it.iterator_tuple_;
+      }
+      bool operator!=(const iterator& it) const {
+        return !(*this == it);
+      }
+      auto operator*() {
+        return internal::ref_tuple(iterator_tuple_);
+      }
+
+    private:
+      iterator_tuple_type iterator_tuple_;
+   };
+
+   iterator begin() { return iterator(begins_); }
+   iterator end() { return iterator(ends_); }
+
+  private:
+   iterator_tuple_type begins_;
+   iterator_tuple_type ends_;
+};
+
+/**
+ * @brief zip iteration
+ * @pre all ranges must have same size, otherwise undefined behavior
+ * @code
+ * std::vector<int> u {1,2,3}, v {4,5,6};
+ * for (auto z : range::zip(u, v)) {
+ *   auto x = std::get<0>(z);  // element of u
+ *   auto y = std::get<1>(z);  // element of v
+ * }
+ * @endcode
+ */
+template <class... Range>
+inline auto zip(Range&... ranges) {
+  return ZipContainer<Range...>(ranges...);
+}
+
 
 template <class Iterator, class Converter>
 auto convert_iterator(Iterator it, Converter f);
