@@ -35,12 +35,26 @@ TEST(IoTest, output) {
   clear_ss(ss);
 }
 
-TEST(IoTest, ostream) {
+TEST(IoTest, Vec_ostream){
   std::stringstream ss;
 
   Vec<int, 3> v {1, 2, 3};
 
   ss << v;
   EXPECT_EQ("[1, 2, 3]", ss.str());
+  clear_ss(ss);
+
+  ss << v << "@" << v;
+  EXPECT_EQ("[1, 2, 3]@[1, 2, 3]", ss.str());
+  clear_ss(ss);
+}
+
+TEST(IoTest, Particle_ostream) {
+  std::stringstream ss;
+
+  Particle<int, 2> p({1,2},{3,4},5);
+
+  ss << p;
+  EXPECT_EQ("{[1, 2], [3, 4], 5}", ss.str());
   clear_ss(ss);
 }

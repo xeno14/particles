@@ -78,9 +78,25 @@ std::ostream& output(std::ostream& os, const T& t,
 // Global overloading
 namespace std {
 
+/**
+ * @example
+ * @code
+ * Vec<int, 3> v {1,2,3};
+ * std::cout << v;  // [1, 2, 3]
+ * @endcode
+ */
 template <class T, size_t N>
 ostream& operator<<(ostream& os, particles::Vec<T,N>& v) {
   return particles::io::output<N>(os, v, ", ", "[", "]"); 
+}
+
+template <class T, size_t N>
+ostream& operator<<(ostream& os, particles::Particle<T,N>& p) {
+  os << '{';
+  particles::io::output<N>(os, p.position(), ", ", "[", "]");
+  os << ", ";
+  particles::io::output<N>(os, p.velocity(), ", ", "[", "]");
+  return os << ", " << p.mass() << '}';
 }
 
 /** @todo to_string */
