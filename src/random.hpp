@@ -99,7 +99,7 @@ class UniformRand
   };
 
   /** 
-   * @brief 
+   * @brief returns a generated random number
    */
   static T get() {
     static auto& o = UniformRand::instance();
@@ -107,9 +107,25 @@ class UniformRand
   }
   
   /**
+   * @brief returns expression available for particles::Vec
    *
+   * @code
+   * UniformRand<double>::set_range(0, 1);
+   * Vec<double, 3> u {1, 2, 3}, v {3, 2, 1}, result;
+   *
+   * // result = { -2+a, 0+b, 2+c }
+   * // a,b,c: generated numbers at different time
+   * result = u - v + UniformRand<double>::get_vec();
+   * @endcode
    */
   static const Expression& get_vec() { static Expression e; return e; }
+
+  /**
+   * @brief set range of random number
+   * @pre a <= b
+   * @param a min
+   * @param b max (for integer, b is included, but for float, it is not)
+   */
   static void set_range(T a, T b) {
     static auto& o = UniformRand::instance();
     o.distribution_ = decltype(o.distribution_)(a, b);
