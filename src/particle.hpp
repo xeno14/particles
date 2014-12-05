@@ -16,7 +16,6 @@ namespace particles {
  * @brief particle moving in N dimension
  * @tparam T floating point
  * @tparam N dimension
- * @todo output to ostream
  */
 template <class T, std::size_t N>
 class Particle {

@@ -47,7 +47,6 @@ struct ToOStreamImpl<1> {
 }  // namespace internal
 
 /**
- * @brief output to std::ostream
  * @pre std::get<I> is overloaded for T
  * @param o
  * @param t
@@ -56,10 +55,14 @@ struct ToOStreamImpl<1> {
  * @param suffix
  * @tparam N num of elements
  * @tparam T e.g. std::tuple, particles::Vec
+ *
+ * Example:
  * @code
  *  auto t = std::make_tuple(1,2,3);
+ *
  *  //1 2 3
  *  io::output(std::cout, t);
+ *
  *  //[1, 2, 3]
  *  io::output(std::cout, t, ", ", "[", "]");
  * @endcode
@@ -76,8 +79,22 @@ std::ostream& output(std::ostream& os, const T& t,
 
 /**
  * @brief output position and velocity of a particle  to std::ostream
+ *
+ * Example:
+ * @code
+ * Particle<int, 2> p({1,2},{3,4});
+ *
+ * // 1 2 3 4
+ * io::output_particle(std::cout, p);
+ *
+ * // [1,2,3,4]
+ * io::output_particle(std::cout, p, ",", "[", "]");
+ * @endcode
+ *
+ * @tparam T value type
+ * @tparam N dimension
  */
-template <std::size_t N, class T>
+template <class T, std::size_t N>
 std::ostream& output_particle(std::ostream& os, const Particle<T, N>& p,
     const std::string& delimiter=" ") {
   internal::ToOStreamImpl<N>::apply(os, p.position(), delimiter);
