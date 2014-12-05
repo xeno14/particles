@@ -58,6 +58,7 @@ class ZipContainer {
    ZipContainer(Range&... ranges)
        : begins_(std::begin(ranges)...), ends_(std::end(ranges)...) {}
 
+   /** @todo use template to specify type of iterator (ref? const?) */
    class iterator {
     public:
       iterator(const iterator& it) : iterator_tuple_(it.iterator_tuple_) {}
@@ -89,8 +90,8 @@ class ZipContainer {
       iterator_tuple_type iterator_tuple_;
    };
 
-   iterator begin() { return iterator(begins_); }
-   iterator end() { return iterator(ends_); }
+   auto begin() { return iterator(begins_); }
+   auto end() { return iterator(ends_); }
 
   private:
    iterator_tuple_type begins_;
