@@ -90,14 +90,25 @@ class UniformRand
  public:
   UniformRand() : distribution_(0, 1) {}
 
+  /**
+   * corresponds to expression::Expression
+   */
   struct Expression {
+    typedef T value_type;
     T operator[](std::size_t) const { return get(); }
   };
 
+  /** 
+   * @brief 
+   */
   static T get() {
     static auto& o = UniformRand::instance();
     return o.distribution_(o.engine);
   }
+  
+  /**
+   *
+   */
   static const Expression& get_vec() { static Expression e; return e; }
   static void set_range(T a, T b) {
     static auto& o = UniformRand::instance();
