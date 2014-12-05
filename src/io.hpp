@@ -21,7 +21,10 @@ namespace particles {
 namespace io {
 namespace internal {
 
-
+/**
+ * @brief expand output to std::ostream
+ * @todo do not have to restrict to use of std::ostream (use template)
+ */
 template <std::size_t I>
 struct ToOStreamImpl {
   template <class T, class Str>
@@ -53,7 +56,6 @@ struct ToOStreamImpl<1> {
  * @param suffix
  * @tparam N num of elements
  * @tparam T e.g. std::tuple, particles::Vec
- * @example
  * @code
  *  auto t = std::make_tuple(1,2,3);
  *  //1 2 3
@@ -72,6 +74,18 @@ std::ostream& output(std::ostream& os, const T& t,
   return os << suffix;
 }
 
+/**
+ * @brief output position and velocity of a particle  to std::ostream
+ */
+template <std::size_t N, class T>
+std::ostream& output_particle(std::ostream& os, const Particle<T, N>& p,
+    const std::string& delimiter=" ") {
+  internal::ToOStreamImpl<N>::apply(os, p.position(), delimiter);
+  os << delimiter;
+  internal::ToOStreamImpl<N>::apply(os, p.velocity(), delimiter);
+  return os;
+}
+
 }  // namespace io
 }  // namespace particles
 
@@ -79,17 +93,26 @@ std::ostream& output(std::ostream& os, const T& t,
 namespace std {
 
 /**
- * @example
  * @code
  * Vec<int, 3> v {1,2,3};
  * std::cout << v;  // [1, 2, 3]
  * @endcode
+ *
+ * @brief operator<< for Vec
  */
 template <class T, size_t N>
 ostream& operator<<(ostream& os, particles::Vec<T,N>& v) {
   return particles::io::output<N>(os, v, ", ", "[", "]"); 
 }
 
+/**
+ * @code
+ * Particle<int, 2> p({1,2},{3,4},5);
+ * std::cout << p;  // {[1, 2], [3, 4], 5}
+ * @endcode
+ *
+ * @brief operator<< for Particle
+ */
 template <class T, size_t N>
 ostream& operator<<(ostream& os, particles::Particle<T,N>& p) {
   os << '{';
