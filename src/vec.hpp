@@ -54,12 +54,13 @@ class Vec {
   Vec& operator/=(T x);
 
   // Iterators
-  auto begin() { value_.begin(); }
-  auto end() { value_.end(); }
+  /** @toro range test */
+  auto begin() { return value_.begin(); }
+  auto end() { return value_.end(); }
   auto cbegin() const { return value_.cbegin(); }
   auto cend() const { return value_.cend(); }
-  auto rbegin() { value_.rbegin(); }
-  auto rend() { value_.rend(); }
+  auto rbegin() { return value_.rbegin(); }
+  auto rend() { return value_.rend(); }
   auto crbegin() const { return value_.crbegin(); }
   auto crend() const { return value_.crend(); }
 
