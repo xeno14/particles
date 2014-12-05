@@ -4,6 +4,32 @@ cmake_minimum_required(VERSION 2.8)
 
 add_definitions("-Wall -std=c++14")
 
+
+###########################################################
+# CGAL
+###########################################################
+set( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true )
+if ( COMMAND cmake_policy )
+  cmake_policy( SET CMP0003 NEW )  
+endif()
+
+# CGAL and its components
+find_package( CGAL QUIET COMPONENTS  )
+
+if ( NOT CGAL_FOUND )
+  message(STATUS "This project requires the CGAL library, and will not be compiled.")
+  return()  
+endif()
+
+# include helper file
+include( ${CGAL_USE_FILE} )
+
+include( CGAL_CreateSingleSourceCGALProgram )
+
+
+###########################################################
+# testing
+###########################################################
 enable_testing()
 macro(add_gtest test_name src libs)
   set(test_exec ${test_name}.out)
@@ -15,3 +41,4 @@ endmacro(add_gtest)
 include_directories(src)
 
 add_subdirectory(test)
+add_subdirectory(example)
