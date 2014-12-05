@@ -26,7 +26,9 @@ class Particle {
   Particle(const Vec<T, N>& x, const Vec<T, N>& v, T m=1)
       : position_(x), velocity_(v), mass_(m) {}
 
-  /** @brief specify position using initializer_list */
+  /** @brief specify position using initializer_list 
+   *  @todo unable to construct using emplace_back (see searcher_test.cpp:21)
+   */
   Particle(std::initializer_list<T> init_list, T m = 1)
       : position_(init_list), velocity_(), mass_(m) {}
 

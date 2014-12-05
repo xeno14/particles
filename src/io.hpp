@@ -46,8 +46,21 @@ struct ToOStreamImpl<1> {
 /**
  * @brief output to std::ostream
  * @pre std::get<I> is overloaded for T
+ * @param o
+ * @param t
+ * @param delimiter 
+ * @param prefix
+ * @param suffix
  * @tparam N num of elements
  * @tparam T e.g. std::tuple, particles::Vec
+ * @example
+ * @code
+ *  auto t = std::make_tuple(1,2,3);
+ *  //1 2 3
+ *  io::output(std::cout, t);
+ *  //[1, 2, 3]
+ *  io::output(std::cout, t, ", ", "[", "]");
+ * @endcode
  */
 template <std::size_t N, class T>
 std::ostream& output(std::ostream& os, const T& t,
