@@ -2,6 +2,15 @@
  * @file expression.hpp
  *
  * @brief template meta programming liblary
+ *
+ * Consept:
+ * - Expression
+ * - Index Operator: 
+ *   @code
+ *   struct IndexOperator {
+ *     constexpr std::size_t operator()(std::size_t i) { ... }
+ *   };
+ *   @endcode
  */
 
 #pragma once
@@ -30,12 +39,21 @@ namespace particles {
 namespace expression {
 namespace operators {
 
+/**
+ * IndexOperator concept
+ */
 struct Identity {
   constexpr std::size_t operator()(const std::size_t n) { return n; }
 };
+/**
+ * IndexOperator concept
+ */
 struct Odd {
   constexpr std::size_t operator()(const std::size_t n) { return n * 2 + 1; }
 };
+/**
+ * IndexOperator concept
+ */
 struct Even {
   constexpr std::size_t operator()(const std::size_t n) { return n * 2; }
 };
@@ -100,49 +118,38 @@ struct ExpandBinaryOpImpl<0, L, Op, R> {
 
 }  // namespace internal
 
-/** @brief pre-increment all elements */
+/**
+ * @brief pre-increment all elements 
+ * @tparam N num of elements
+ * @tparam T type
+ * @tparam F index operator concept
+ * @todo skip odd and skip even
+ */
 template <std::size_t N, class T, class F=operators::Identity>
 inline void pre_increment(T& t, F f=operators::Identity()) {
   typedef operators::PreIncrement Op;
   internal::ExpandUnaryOpImpl<N, T, Op>::apply(t, f);
 }
 
-/** @brief pre_increment elements of even index */
-template <std::size_t N, class T>
-inline void pre_increment_even(T& t) {
-  typedef operators::PreIncrement Op;
-  internal::ExpandUnaryOpImpl<N, T, Op>::apply(t, operators::Even());
-}
-
-/** @brief pre_increment elements of odd index */
-template <std::size_t N, class T>
-inline void pre_increment_odd(T& t) {
-  typedef operators::PreIncrement Op;
-  internal::ExpandUnaryOpImpl<N, T, Op>::apply(t, operators::Odd());
-}
-
 /** @brief assign [0, 1, ..., N-1] <- [0, 1, ..., N-1] */
-template <std::size_t N, class L, class R>
-inline void assign(L& l, const R& r) {
+template <std::size_t N, class L, class R, class FL = operators::Identity,
+          class FR = operators::Identity>
+inline void assign(L& l, const R& r, FL fl = operators::Identity(),
+                   FR fr = operators::Identity()) {
   typedef operators::Assign Op;
-  internal::ExpandBinaryOpImpl<N, L, Op, R>::apply(l, r, operators::Identity(),
-                                                   operators::Identity());
+  internal::ExpandBinaryOpImpl<N, L, Op, R>::apply(l, r, fl, fr);
 }
 
 /** @brief assign [0, 1, ..., N-1] <- [0, 2, ..., 2N-2] */
 template <std::size_t N, class L, class R>
 inline void assign_from_even(L& l, const R& r) {
-  typedef operators::Assign Op;
-  internal::ExpandBinaryOpImpl<N, L, Op, R>::apply(l, r, operators::Identity(),
-                                                   operators::Even());
+  assign<N, L, R>(l, r, operators::Identity(), operators::Even());
 }
 
 /** @brief assign [0, 1, ..., N-1] <- [1, 3, ..., 2N-1] */
 template <std::size_t N, class L, class R>
 inline void assign_from_odd(L& l, const R& r) {
-  typedef operators::Assign Op;
-  internal::ExpandBinaryOpImpl<N, L, Op, R>::apply(l, r, operators::Identity(),
-                                                   operators::Odd());
+  assign<N, L, R>(l, r, operators::Identity(), operators::Odd());
 }
 
 template <class L, class Op, class R>

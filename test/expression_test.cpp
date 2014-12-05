@@ -41,17 +41,3 @@ TEST(ExpressionTest, pre_increment) {
   EXPECT_EQ(3, std::get<0>(t));   // incremented twice
   EXPECT_EQ(2, std::get<1>(t));   // Not incremented
 }
-//
-// TEST(ExpressionTest, pre_increment_even) {
-//   auto t = std::make_tuple(1, 2);
-//
-//   expression::pre_increment_even<2>(t);
-//   EXPECT_EQ(2, std::get<0>(t));
-//   EXPECT_EQ(2, std::get<1>(t));
-// }
-//
-//   t = make_tuple(1, 2);
-//   expression::pre_increment_odd<2>(t);
-//   EXPECT_EQ(1, std::get<0>(t));
-//   EXPECT_EQ(3, std::get<1>(t));
-// }
