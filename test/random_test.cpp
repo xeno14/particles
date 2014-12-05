@@ -58,8 +58,8 @@ TEST(RandomTest, get_vec) {
   v = {0, 0, 0};
   UniformRand<double>::set_range(0, 1);
 
-  result = u + v + UniformRand<double>::get_vec();
   for(int i=0; i<NUM_TRY; i++) {
+    result = u + v + UniformRand<double>::get_vec();
     EXPECT_LE(1, result[0]);
     EXPECT_GT(2, result[0]);
     EXPECT_LE(2, result[1]);
@@ -68,8 +68,8 @@ TEST(RandomTest, get_vec) {
     EXPECT_GT(4, result[2]);
   }
 
-  result = u + UniformRand<double>::get_vec() + v;
   for(int i=0; i<NUM_TRY; i++) {
+    result = u + UniformRand<double>::get_vec() + v;
     EXPECT_LE(1, result[0]);
     EXPECT_GT(2, result[0]);
     EXPECT_LE(2, result[1]);
