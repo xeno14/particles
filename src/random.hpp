@@ -32,7 +32,7 @@ void set_seed_seq(Engine& engine, std::size_t n = 10) {
 }
 
 /**
- *
+ * @brief singleton 
  * @tparam Subclass type of subclass
  * @tparam Engine engine
  */
@@ -89,10 +89,16 @@ class UniformRand
     : public RandomGeneratorBase<UniformRand<T, Engine>, Engine> {
  public:
   UniformRand() : distribution_(0, 1) {}
-  static T get(T min = 0, T max = 1) {
+
+  struct Expression {
+    T operator[](std::size_t) const { return get(); }
+  };
+
+  static T get() {
     static auto& o = UniformRand::instance();
     return o.distribution_(o.engine);
   }
+  static const Expression& get_vec() { static Expression e; return e; }
   static void set_range(T a, T b) {
     static auto& o = UniformRand::instance();
     o.distribution_ = decltype(o.distribution_)(a, b);
