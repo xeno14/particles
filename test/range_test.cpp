@@ -31,4 +31,8 @@ TEST(RangeTest, ref_tuple) {
   std::vector<int> v {1, 2, 3}, u {4, 5, 6};
   auto it = std::make_tuple(v.begin(), u.begin());
   auto t = range::internal::ref_tuple(it);
+  std::get<0>(t) -= 2;
+  std::get<1>(t) += 6;
+  EXPECT_EQ(-1, v[0]);
+  EXPECT_EQ(10, u[0]);
 }

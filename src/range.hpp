@@ -28,8 +28,8 @@ struct RefTupleImpl {
   static auto make_tuple(std::tuple<Iterator...>& t, Refs... refs) {
     constexpr bool next_flag = sizeof...(Iterator) - 1 > sizeof...(Refs);
     constexpr std::size_t I = sizeof...(Refs);
-    return RefTupleImpl<next_flag>::make_tuple(t, std::ref(*std::get<I>(t)),
-                                              refs...);
+    return RefTupleImpl<next_flag>::make_tuple(t, refs...,
+                                               std::ref(*std::get<I>(t)));
   }
 };
 template <>
@@ -39,7 +39,6 @@ struct RefTupleImpl<false> {
     return std::make_tuple(refs...);
   }
 };
-
 template <class... Iterator>
 inline auto ref_tuple(std::tuple<Iterator...>& t) {
   return RefTupleImpl<true>::make_tuple(t);
