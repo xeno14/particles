@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <tuple>
+#include <vector>
 
 using namespace particles;
 
@@ -57,6 +58,21 @@ TEST(IoTest, Vec_ostream){
   ss << v << "@" << v;
   EXPECT_EQ("[1, 2, 3]@[1, 2, 3]", ss.str());
   clear_ss(ss);
+}
+
+TEST(IoTest, output_particles) {
+  std::stringstream ss;
+
+  std::vector<Particle<int, 2>> v;
+  v.push_back(Particle<int, 2>({1, 2}, {3, 4}));
+  v.push_back(Particle<int, 2>({5, 6}, {7, 8}));
+
+  io::output_particles(ss, v.begin(), v.end());
+  EXPECT_EQ("1 2 3 4\n5 6 7 8\n", ss.str());
+  clear_ss(ss);
+
+  io::output_particles(ss, v.begin(), v.end(), ",", "@");
+  EXPECT_EQ("1,2,3,4@5,6,7,8@", ss.str());
 }
 
 TEST(IoTest, Particle_ostream) {

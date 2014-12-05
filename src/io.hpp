@@ -87,8 +87,8 @@ std::ostream& output(std::ostream& os, const T& t,
  * // 1 2 3 4
  * io::output_particle(std::cout, p);
  *
- * // [1,2,3,4]
- * io::output_particle(std::cout, p, ",", "[", "]");
+ * // 1,2,3,4
+ * io::output_particle(std::cout, p, ",");
  * @endcode
  *
  * @tparam T value type
@@ -100,6 +100,33 @@ std::ostream& output_particle(std::ostream& os, const Particle<T, N>& p,
   internal::ToOStreamImpl<N>::apply(os, p.position(), delimiter);
   os << delimiter;
   internal::ToOStreamImpl<N>::apply(os, p.velocity(), delimiter);
+  return os;
+}
+
+/**
+ * @brief output particles via iterator
+ * @tparam Iterator input iterator
+ * @param newline output string after each particles
+ *
+ * @code
+ * //1 2 3 4
+ * //5 6 7 8
+ * io::output_particles(std::cout, v.begin(), v.end());
+ *
+ * // "1,2,3,4@5,6,7,8@"
+ * io::output_particles(std::cout, v.begin(), v.end(), ",", "@");
+ * @endcode
+ */
+template <class Iterator>
+std::ostream& output_particles(std::ostream& os, Iterator first, Iterator last,
+                               const std::string& delimiter = " ",
+                               const std::string newline = "\n") {
+  auto it = first;
+  while (it != last) {
+    output_particle(os, *it, delimiter);
+    os << newline;
+    ++it;
+  }
   return os;
 }
 
