@@ -78,6 +78,7 @@ struct UniformDistribution<T, false, true> {
  * @brief generates random numbers in a certain range
  * @tparam T real type
  * @tparam Engine engine
+ * @todo set seed
  *
  * @code
  *  UniformRand<double>::set_range(-1,1);
