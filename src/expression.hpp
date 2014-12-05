@@ -47,9 +47,30 @@ struct Assign {
   }
 };
 
+struct PreIncrement {
+  template <class T>
+  static T& apply(T& t) { return ++t; }
+};
+
 }  // namespace operators
 
 namespace internal {
+
+template <std::size_t I, class T, class Op>
+struct ExpandUnaryOpImpl {
+  template <class F>
+  static void apply(T& t, F f) {
+    constexpr std::size_t i = f(I-1);
+    Op::apply(std::get<i>(t));
+    ExpandUnaryOpImpl<I-1, T, Op>::apply(t, f);
+  }
+};
+
+template <class T, class Op>
+struct ExpandUnaryOpImpl<0, T, Op> {
+  template <class F>
+  static void apply(T& t, F f) { return; }
+};
 
 /**
  * Execute assigning at index I-1.
@@ -66,9 +87,7 @@ struct ExpandBinaryOpImpl {
   static void apply(L& l, const R& r, FL fl, FR fr) {
     constexpr std::size_t il = fl(I - 1);
     constexpr std::size_t ir = fr(I - 1);
-
     Op::apply(std::get<il>(l), std::get<ir>(r));
-
     ExpandBinaryOpImpl<I - 1, L, Op, R>::apply(l, r, fl, fr);
   }
 };
@@ -76,12 +95,31 @@ struct ExpandBinaryOpImpl {
 template <class L, class Op, class R>
 struct ExpandBinaryOpImpl<0, L, Op, R> {
   template <class FL, class FR>
-  static void apply(L& l, const R& r, FL fl, FR fr) {
-    return;
-  }
+  static void apply(L& l, const R& r, FL fl, FR fr) { return; }
 };
 
 }  // namespace internal
+
+/** @brief pre-increment all elements */
+template <std::size_t N, class T, class F=operators::Identity>
+inline void pre_increment(T& t, F f=operators::Identity()) {
+  typedef operators::PreIncrement Op;
+  internal::ExpandUnaryOpImpl<N, T, Op>::apply(t, f);
+}
+
+/** @brief pre_increment elements of even index */
+template <std::size_t N, class T>
+inline void pre_increment_even(T& t) {
+  typedef operators::PreIncrement Op;
+  internal::ExpandUnaryOpImpl<N, T, Op>::apply(t, operators::Even());
+}
+
+/** @brief pre_increment elements of odd index */
+template <std::size_t N, class T>
+inline void pre_increment_odd(T& t) {
+  typedef operators::PreIncrement Op;
+  internal::ExpandUnaryOpImpl<N, T, Op>::apply(t, operators::Odd());
+}
 
 /** @brief assign [0, 1, ..., N-1] <- [0, 1, ..., N-1] */
 template <std::size_t N, class L, class R>
