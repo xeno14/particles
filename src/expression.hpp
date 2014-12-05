@@ -40,6 +40,9 @@ struct Even {
   constexpr std::size_t operator()(const std::size_t n) { return n * 2; }
 };
 
+template <class L, class R>
+L& do_assign(L& l, const R& r) { return l = r; }
+
 /**
  * Execute assigning at index I-1.
  *
@@ -55,7 +58,8 @@ struct AssignImpl {
   static void apply(L& l, const R& r, FL fl, FR fr) {
     constexpr std::size_t il = fl(I-1);
     constexpr std::size_t ir = fr(I-1);
-    std::get<il>(l) = std::get<ir>(r);
+    
+    do_assign(std::get<il>(l), std::get<ir>(r));
     AssignImpl<I-1, L, R>::apply(l, r, fl, fr);
   }
 };
