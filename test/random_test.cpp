@@ -11,17 +11,20 @@ TEST(RandomTest, UniformRand) {
   // Default: x in [0,1) 
   for (int i=0; i<NUM_TRY;i++) {
     auto x = UniformRand<double>::get();
-    EXPECT_TRUE(0 <= x && x < 1);
+    EXPECT_LE(0, x);
+    EXPECT_GT(1, x);
   }
   UniformRand<double>::set_range(0, 100);
   for (int i=0; i<NUM_TRY;i++) {
     auto x = UniformRand<double>::get();
-    EXPECT_TRUE(0 <= x && x < 100);
+    EXPECT_LE(0, x);
+    EXPECT_GT(100, x);
   }
   UniformRand<int>::set_range(0, 10);
   for (int i=0; i<NUM_TRY;i++) {
     auto x = UniformRand<int>::get();
-    EXPECT_TRUE(0 <= x && x <= 10);
+    EXPECT_LE(0, x);
+    EXPECT_GE(10, x);
   }
 }
 
@@ -33,7 +36,10 @@ TEST(RandomTest, get_vec) {
   UniformRand<double>::set_range(-1, 1);
   for(int i=0; i<NUM_TRY; i++) {
     v = UniformRand<double>::get_vec();
-    for (auto x : v) EXPECT_TRUE(-1 <= x && x < 1);
+    for (auto x : v) {
+      EXPECT_LE(-1, x);
+      EXPECT_GT(1, x);
+    }
   }
 
   UniformRand<int>::set_range(0, 10);
