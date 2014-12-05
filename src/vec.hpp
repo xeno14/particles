@@ -40,6 +40,9 @@ class Vec {
   template <std::size_t I>
   /** @brief access I-th element using std::get */
   T& get() { return std::get<I>(value_); }
+  /** @brief access I-th element using std::get */
+  template <std::size_t I>
+  const T& get() const { return std::get<I>(value_); }
   void fill(const T val) { value_.fill(val); }
 
   template <class E>
@@ -189,10 +192,9 @@ inline T& get(particles::Vec<T, N>& v) noexcept {
   return v.get<I>();
 }
 
-template <class T, size_t N>
-ostream& operator<<(ostream& os, particles::Vec<T,N>& v) {
-  /** @todo expand using template **/
-  return os << "(" << v[0] << "," << v[1] << "," << v[2] << ")";
+template <size_t I, class T, size_t N>
+const inline T& get(const particles::Vec<T, N>& v) noexcept {
+  return v.get<I>();
 }
 
 }  // namespace std
