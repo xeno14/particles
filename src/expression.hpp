@@ -27,8 +27,8 @@ inline auto& get(particles::expression::Expression<L, Op, R>& e) {
 }  // namespace std
 
 namespace particles {
-
 namespace expression {
+namespace operators {
 
 struct Identity {
   constexpr std::size_t operator()(const std::size_t n) { return n; }
@@ -40,8 +40,16 @@ struct Even {
   constexpr std::size_t operator()(const std::size_t n) { return n * 2; }
 };
 
-template <class L, class R>
-L& do_assign(L& l, const R& r) { return l = r; }
+struct Assign {
+  template <class L, class R>
+  static L& apply(L& l, const R& r) {
+    return l = r;
+  }
+};
+
+}  // namespace operators
+
+namespace internal {
 
 /**
  * Execute assigning at index I-1.
@@ -52,42 +60,52 @@ L& do_assign(L& l, const R& r) { return l = r; }
  * @tparam L substitute to
  * @tparam R substitute from
  */
-template <std::size_t I, class L, class R>
-struct AssignImpl {
+template <std::size_t I, class L, class Op, class R>
+struct ExpandBinaryOpImpl {
   template <class FL, class FR>
   static void apply(L& l, const R& r, FL fl, FR fr) {
-    constexpr std::size_t il = fl(I-1);
-    constexpr std::size_t ir = fr(I-1);
-    
-    do_assign(std::get<il>(l), std::get<ir>(r));
-    AssignImpl<I-1, L, R>::apply(l, r, fl, fr);
+    constexpr std::size_t il = fl(I - 1);
+    constexpr std::size_t ir = fr(I - 1);
+
+    Op::apply(std::get<il>(l), std::get<ir>(r));
+
+    ExpandBinaryOpImpl<I - 1, L, Op, R>::apply(l, r, fl, fr);
   }
 };
 
-template <class L, class R>
-struct AssignImpl<0, L, R>  {
+template <class L, class Op, class R>
+struct ExpandBinaryOpImpl<0, L, Op, R> {
   template <class FL, class FR>
-  static void apply(L& l, const R& r, FL fl, FR fr) { return ; }
-}; 
+  static void apply(L& l, const R& r, FL fl, FR fr) {
+    return;
+  }
+};
+
+}  // namespace internal
 
 /** @brief assign [0, 1, ..., N-1] <- [0, 1, ..., N-1] */
 template <std::size_t N, class L, class R>
 inline void assign(L& l, const R& r) {
-  AssignImpl<N, L, R>::apply(l, r, Identity(), Identity());
+  typedef operators::Assign Op;
+  internal::ExpandBinaryOpImpl<N, L, Op, R>::apply(l, r, operators::Identity(),
+                                                   operators::Identity());
 }
 
 /** @brief assign [0, 1, ..., N-1] <- [0, 2, ..., 2N-2] */
 template <std::size_t N, class L, class R>
 inline void assign_from_even(L& l, const R& r) {
-  AssignImpl<N, L, R>::apply(l, r, Identity(), Even());
+  typedef operators::Assign Op;
+  internal::ExpandBinaryOpImpl<N, L, Op, R>::apply(l, r, operators::Identity(),
+                                                   operators::Even());
 }
 
 /** @brief assign [0, 1, ..., N-1] <- [1, 3, ..., 2N-1] */
 template <std::size_t N, class L, class R>
 inline void assign_from_odd(L& l, const R& r) {
-  AssignImpl<N, L, R>::apply(l, r, Identity(), Odd());
+  typedef operators::Assign Op;
+  internal::ExpandBinaryOpImpl<N, L, Op, R>::apply(l, r, operators::Identity(),
+                                                   operators::Odd());
 }
-
 
 template <class L, class Op, class R>
 struct Expression {
