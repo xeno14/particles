@@ -8,8 +8,44 @@
 
 #pragma once
 
+#include "expression.hpp"
+
+#include <functional>
+
 namespace particles {
 namespace range {
+namespace internal {
+
+/**
+ *
+ * @tparam loop_flag
+ * @tparam Ts
+ * @tparam Us reference
+ */
+template <bool loop_flag>
+struct RefTupleImpl {
+  template <class... Iterator, class... Refs>
+  static auto make_tuple(std::tuple<Iterator...>& t, Refs... refs) {
+    constexpr bool next_flag = sizeof...(Iterator) - 1 > sizeof...(Refs);
+    constexpr std::size_t I = sizeof...(Refs);
+    return RefTupleImpl<next_flag>::make_tuple(t, std::ref(*std::get<I>(t)),
+                                              refs...);
+  }
+};
+template <>
+struct RefTupleImpl<false> {
+  template <class... Iterator, class... Refs>
+  static auto make_tuple(std::tuple<Iterator...>& t, Refs... refs) {
+    return std::make_tuple(refs...);
+  }
+};
+
+template <class... Iterator>
+inline auto ref_tuple(std::tuple<Iterator...>& t) {
+  return RefTupleImpl<true>::make_tuple(t);
+}
+
+}  // namespace internal
 
 template <class Iterator, class Converter>
 auto convert_iterator(Iterator it, Converter f);
@@ -74,6 +110,8 @@ template <class Iterator, class Converter>
 auto convert_iterator(Iterator it, Converter f) {
   return ConvertIterator<Iterator, Converter>(it, f);
 }
+
+
 
 }  // namespace range
 }  // namespace particles

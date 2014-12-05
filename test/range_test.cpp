@@ -5,12 +5,12 @@
 #include <functional>
 #include <vector>
 
-using particles::range::ConvertIterator;
+using namespace particles;
 
 template<class Itr>
 auto first_iterator(Itr it) {
   static auto cvt = [](std::vector<int>& u) { return u[0]; };
-  return particles::range::convert_iterator(it, cvt);
+  return range::convert_iterator(it, cvt);
 }
 
 TEST(RangeTest, ConvertIterator) {
@@ -25,4 +25,10 @@ TEST(RangeTest, ConvertIterator) {
   EXPECT_EQ(7, *(it++));
   EXPECT_TRUE(it == last);
   EXPECT_TRUE(it == v.end());
+}
+
+TEST(RangeTest, ref_tuple) {
+  std::vector<int> v {1, 2, 3}, u {4, 5, 6};
+  auto it = std::make_tuple(v.begin(), u.begin());
+  auto t = range::internal::ref_tuple(it);
 }
