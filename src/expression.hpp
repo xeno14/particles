@@ -2,6 +2,15 @@
  * @file expression.hpp
  *
  * @brief template meta programming liblary
+ *
+ * Consept:
+ * - Expression
+ * - Index Operator: 
+ *   @code
+ *   struct IndexOperator {
+ *     constexpr std::size_t operator()(std::size_t i) { ... }
+ *   };
+ *   @endcode
  */
 
 #pragma once
@@ -27,17 +36,58 @@ inline auto& get(particles::expression::Expression<L, Op, R>& e) {
 }  // namespace std
 
 namespace particles {
-
 namespace expression {
+namespace operators {
 
+/**
+ * IndexOperator concept
+ */
 struct Identity {
   constexpr std::size_t operator()(const std::size_t n) { return n; }
 };
+/**
+ * IndexOperator concept
+ */
 struct Odd {
   constexpr std::size_t operator()(const std::size_t n) { return n * 2 + 1; }
 };
+/**
+ * IndexOperator concept
+ */
 struct Even {
   constexpr std::size_t operator()(const std::size_t n) { return n * 2; }
+};
+
+struct Assign {
+  template <class L, class R>
+  static L& apply(L& l, const R& r) {
+    return l = r;
+  }
+};
+
+struct PreIncrement {
+  template <class T>
+  static T& apply(T& t) { return ++t; }
+};
+
+}  // namespace operators
+
+namespace internal {
+
+template <std::size_t I, class T, class Op>
+struct ExpandUnaryOpImpl {
+  template <class F>
+  static void apply(T& t, F f) {
+    constexpr std::size_t i = f(I-1);
+    Op::apply(std::get<i>(t));
+    ExpandUnaryOpImpl<I-1, T, Op>::apply(t, f);
+  }
+};
+
+template <class T, class Op>
+struct ExpandUnaryOpImpl<0, T, Op> {
+  template <class F>
+  static void apply(T& t, F f) { return; }
 };
 
 /**
@@ -49,41 +99,58 @@ struct Even {
  * @tparam L substitute to
  * @tparam R substitute from
  */
-template <std::size_t I, class L, class R>
-struct AssignImpl {
+template <std::size_t I, class L, class Op, class R>
+struct ExpandBinaryOpImpl {
   template <class FL, class FR>
   static void apply(L& l, const R& r, FL fl, FR fr) {
-    constexpr std::size_t il = fl(I-1);
-    constexpr std::size_t ir = fr(I-1);
-    std::get<il>(l) = std::get<ir>(r);
-    AssignImpl<I-1, L, R>::apply(l, r, fl, fr);
+    constexpr std::size_t il = fl(I - 1);
+    constexpr std::size_t ir = fr(I - 1);
+    Op::apply(std::get<il>(l), std::get<ir>(r));
+    ExpandBinaryOpImpl<I - 1, L, Op, R>::apply(l, r, fl, fr);
   }
 };
 
-template <class L, class R>
-struct AssignImpl<0, L, R>  {
+template <class L, class Op, class R>
+struct ExpandBinaryOpImpl<0, L, Op, R> {
   template <class FL, class FR>
-  static void apply(L& l, const R& r, FL fl, FR fr) { return ; }
-}; 
+  static void apply(L& l, const R& r, FL fl, FR fr) { return; }
+};
+
+}  // namespace internal
+
+/**
+ * @brief pre-increment all elements 
+ * @tparam N num of elements
+ * @tparam T type
+ * @tparam F index operator concept
+ * @todo skip odd and skip even
+ */
+template <std::size_t N, class T, class F=operators::Identity>
+inline void pre_increment(T& t, F f=operators::Identity()) {
+  typedef operators::PreIncrement Op;
+  internal::ExpandUnaryOpImpl<N, T, Op>::apply(t, f);
+}
 
 /** @brief assign [0, 1, ..., N-1] <- [0, 1, ..., N-1] */
-template <std::size_t N, class L, class R>
-inline void assign(L& l, const R& r) {
-  AssignImpl<N, L, R>::apply(l, r, Identity(), Identity());
+template <std::size_t N, class L, class R, class FL = operators::Identity,
+          class FR = operators::Identity>
+inline void assign(L& l, const R& r, FL fl = operators::Identity(),
+                   FR fr = operators::Identity()) {
+  typedef operators::Assign Op;
+  internal::ExpandBinaryOpImpl<N, L, Op, R>::apply(l, r, fl, fr);
 }
 
 /** @brief assign [0, 1, ..., N-1] <- [0, 2, ..., 2N-2] */
 template <std::size_t N, class L, class R>
 inline void assign_from_even(L& l, const R& r) {
-  AssignImpl<N, L, R>::apply(l, r, Identity(), Even());
+  assign<N, L, R>(l, r, operators::Identity(), operators::Even());
 }
 
 /** @brief assign [0, 1, ..., N-1] <- [1, 3, ..., 2N-1] */
 template <std::size_t N, class L, class R>
 inline void assign_from_odd(L& l, const R& r) {
-  AssignImpl<N, L, R>::apply(l, r, Identity(), Odd());
+  assign<N, L, R>(l, r, operators::Identity(), operators::Odd());
 }
-
 
 template <class L, class Op, class R>
 struct Expression {

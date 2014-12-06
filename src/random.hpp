@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "util.hpp"
+
 #include <algorithm>
 #include <cstdlib>
 #include <functional>
@@ -50,8 +52,7 @@ class RandomGeneratorBase {
   }
 
  private:
-  RandomGeneratorBase(const RandomGeneratorBase&) = delete;
-  RandomGeneratorBase& operator=(const RandomGeneratorBase&) = delete;
+  DISALLOW_COPY_AND_ASSIGN(RandomGeneratorBase);
 };
 
 /**

@@ -7,13 +7,12 @@
 #pragma once
 
 #include "expression.hpp"
+#include "util.hpp"
 
 #include <array>
 #include <cmath>
 #include <initializer_list>
 #include <ostream>
-
-#include <iostream>
 
 namespace particles {
 
@@ -186,6 +185,7 @@ inline bool Vec<T, N>::parallel(const Vec<T, N>& v, T eps) const {
 }  // namespace particles
 
 namespace std {
+using namespace particles;
 
 template <size_t I, class T, size_t N>
 inline T& get(particles::Vec<T, N>& v) noexcept {
@@ -198,3 +198,6 @@ const inline T& get(const particles::Vec<T, N>& v) noexcept {
 }
 
 }  // namespace std
+
+using namespace particles;
+OVERLOAD_STD_BEGIN_AND_END(class... T, Vec<T...>);
