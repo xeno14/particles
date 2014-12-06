@@ -52,7 +52,7 @@ int main() {
 
   // Output for first step
   fout << std::scientific;
-  io::output_particles(fout, particles.begin(), particles.end(), "\t", "\n");
+  io::output_particles(fout, particles.begin(), particles.end(), "\t");
   fout << "\n\n";
 
   random::UniformRand<double>::set_range(-eta, eta);
@@ -95,8 +95,7 @@ int main() {
     }
 
     // Output each step
-    io::output_particles(fout, particles.begin(), particles.end(), "\t",
-                         "\n");
+    io::output_particles(fout, particles.begin(), particles.end(), "\t");
     fout << "\n\n";
   }
 
