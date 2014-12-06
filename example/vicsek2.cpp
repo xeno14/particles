@@ -1,84 +1,100 @@
+/**
+ * @file vicsek2.cpp
+ *
+ * @brief Simulate Vicsek model in 2D with periodic boundary condition
+ *
+ * @todo wrtie explanation about Vicsek model
+ */
+
 #include "boundary.hpp"
+#include "io.hpp"
 #include "particle.hpp"
 #include "random.hpp"
 #include "searcher.hpp"
 
+#include <iomanip>
 #include <iostream>
 #include <vector>
 
-using particles::random::UniformRand;
-
-typedef particles::Particle<double, 2> P2;
-typedef particles::boundary::PeriodicBoundary<double, 2> Boundary;
-typedef particles::search::SimpleRangeSearch<double, 2> Search;
-
-template<class Iterator>
-void output(Iterator first, Iterator last) {
-  auto it = first;
-  while(it != last) {
-    std::cout << it->position(0) << " " << it->position(1) << " "; 
-    std::cout << it->velocity(0) << " " << it->velocity(1) << std::endl; 
-    ++it;
-  }
-}
+using namespace particles;
 
 int main() {
-  const int N = 128;
-  const double v0 = 0.1;
-  const double L = 16;
-  const double eta = v0/5;
-  Boundary boundary(0, L, 0, L);
-  Search searcher(1.0);
-  typename Search::adjacency_list_type adjacency_list;
-  
-  std::vector<P2> particles(N);
+  std::ofstream fout("vicsek2.dat");  // Output to a file
 
-  for(auto& p : particles) {
-    UniformRand<double>::set_range(0, L);
-    p.position(0) = UniformRand<double>::get();
-    p.position(1) = UniformRand<double>::get();
-    UniformRand<double>::set_range(-1, 1);
-    p.velocity(0) = UniformRand<double>::get();
-    p.velocity(1) = UniformRand<double>::get();
+  const int N = 128;          // Number of particles
+  const double v0 = 0.1;      // Velocity of particles
+  const double L = 16;        // System size
+  const double eta = v0 / 5;  // Strength of noise
+  const double r0 = 1.0;      // Interaction range
+
+  // Boundary condition: periodic boundary for position
+  boundary::PeriodicBoundary<double, 2> boundary(0, L, 0, L);
+
+  // Search: interaction with particles within distamce r0
+  search::SimpleRangeSearch<double, 2> searcher(r0);
+
+  // List of pointers to particles interact with
+  typename decltype(searcher)::adjacency_list_type adjacency_list;
+
+  std::vector<Particle<double, 2>> particles(N);
+  std::vector<Particle<double, 2>> new_particles(N);  // Store next step
+
+  // Initial condition: set position and velocity randomly
+  random::UniformRand<double>::set_range(0, L);
+  for (auto& p : particles) {
+    p.position() = random::UniformRand<double>::get_vec();
+  }
+  random::UniformRand<double>::set_range(-1, 1);
+  for (auto& p : particles) {
+    p.velocity() = random::UniformRand<double>::get_vec();
     p.velocity().normalize(v0);
   }
 
-  output(particles.begin(), particles.end());
+  // Output for first step
+  fout << std::scientific;
+  io::output_particles(fout, particles.begin(), particles.end(), "\t", "\n\n");
 
-  UniformRand<double>::set_range(-eta, eta);
+  random::UniformRand<double>::set_range(-eta, eta);
 
-  for (int t=0; t<1000; ++t) {
+  // Time evolution!!
+  for (int t = 0; t < 1000; ++t) {
+    // Create adjacency list for all particles
     searcher.search(adjacency_list, particles);
 
-    for (std::size_t i=0; i< particles.size(); ++i) {
-      auto& p = particles[i];
-      const auto& x = p.position();
-      const auto& v = p.velocity();
-      auto nx = p.position();
-      auto nv = p.velocity();
+    for (std::size_t i = 0; i < particles.size(); ++i) {
+      const auto& x = particles[i].position();
+      const auto& v = particles[i].velocity();
+      auto& nx = new_particles[i].position();
+      auto& nv = new_particles[i].velocity();
 
-      // Calculate position and velocity at next step
-      for(const auto* q : adjacency_list[i]) {
+      // Velocity at next step
+      // Get average velocity among neighbors
+      for (const auto* q : adjacency_list[i]) {
         nv += q->velocity();
       }
       nv /= adjacency_list[i].size();
-      nv(0) += UniformRand<double>::get();
-      nv(1) += UniformRand<double>::get();
 
-      nx = x + v;
-      nv.normalize(v0);
+      // Add noise
+      nv = nv + random::UniformRand<double>::get_vec();
 
       // Set new values
-      p.position() = nx;
-      p.velocity() = nv;
+      nx = x + v;
+      nv.normalize(v0);
     }
 
-    for(auto& p : particles) {
+    // Renew position and velocity of all particles
+    for (std::size_t i = 0; i < particles.size(); ++i) {
+      particles[i] = new_particles[i];
+    }
+
+    // Apply boundary condition
+    for (auto& p : particles) {
       boundary.apply(p.position());
     }
 
-    output(particles.begin(), particles.end());
-    std::cout << "\n\n";
+    // Output each step
+    io::output_particles(fout, particles.begin(), particles.end(), "\t",
+                         "\n\n");
   }
 
   return 0;
