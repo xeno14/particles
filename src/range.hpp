@@ -2,7 +2,8 @@
  * @file range.hpp
  *
  * @todo check iterator concept
- * @todo enumerate
+ * @todo inherit std::iterator 
+ * @todo use macro to define range for a ceartain iterator
  */
 
 #pragma once
@@ -10,8 +11,13 @@
 #include "expression.hpp"
 #include "util.hpp"
 
+/** @todo remove me */
+#include <iostream>
+
 #include <functional>
 #include <iterator>
+#include <memory>
+#include <utility>
 
 namespace particles {
 namespace range {
@@ -119,7 +125,10 @@ class ZipContainer {
 
 /**
  * @brief zip iteration
- * @pre all ranges must have same size, otherwise undefined behavior
+ * @todo const range&
+ * @pre 
+ *   - all ranges must have same size, otherwise undefined behavior
+ *   - range has type iterator (range::iterator)
  * @code
  * std::vector<int> u {1,2,3}, v {4,5,6};
  * for (auto z : range::zip(u, v)) {
@@ -131,6 +140,66 @@ class ZipContainer {
 template <class... Range>
 inline auto zip(Range&... ranges) {
   return ZipContainer<Range...>(ranges...);
+}
+
+
+template <class Range>
+class EnumerateRange {
+  typedef std::tuple<std::size_t, typename Range::iterator> iterator_pair_type;
+  public:
+   class iterator {
+     public:
+     iterator(const iterator& it) : iterator_pair_(it.iterator_pair_) {}
+     iterator(const iterator_pair_type& p) : iterator_pair_(p) {}
+     iterator& operator=(const iterator& it) {
+       iterator_pair_ = it.iterator_pair_;
+       return *this;
+     }
+     iterator& operator++() {
+       expression::pre_increment<2>(iterator_pair_);
+       return *this;
+     }
+     iterator operator++(int) {
+       iterator tmp(*this);
+       operator++();
+       return tmp;
+     }
+     bool operator==(const iterator& rhs) const {
+       return iterator_pair_ == rhs.iterator_pair_;
+     }
+     bool operator!=(const iterator& rhs) const {
+       return iterator_pair_ != rhs.iterator_pair_;
+     }
+     auto operator*() {
+       // std::cout << "@" << *iterator_pair_.second << std::endl;
+       return std::make_pair(std::get<0>(iterator_pair_),
+                             std::ref(*(std::get<1>(iterator_pair_))));
+     }
+    private:
+     iterator_pair_type iterator_pair_;
+   };
+
+   EnumerateRange(Range& range, std::size_t start = 0)
+       : begin_(std::make_pair(start, std::begin(range))),
+         end_(std::make_pair(start + static_cast<std::size_t>(
+                                         std::end(range) - std::begin(range)),
+                             std::end(range))) {}
+   EnumerateRange(const EnumerateRange& enum_range)
+       : begin_(enum_range.begin_), end_(enum_range.end_) {}
+   auto begin() { return begin_; }
+   auto end() { return end_; }
+
+  private:
+    iterator begin_;
+    iterator end_;
+};
+
+/**
+ * @todo something is wrong when using with for statement
+ */
+template <class Range>
+inline auto enumerate(Range range, std::size_t start=0) {
+  return EnumerateRange<Range>(range, start);
 }
 
 /**

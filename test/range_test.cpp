@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <typeinfo>
+#include <iostream>
 #include <functional>
 #include <vector>
 
@@ -81,4 +83,73 @@ TEST(RangeTest, zip) {
   EXPECT_EQ(3, v[0]);
   EXPECT_EQ(4, v[1]);
   EXPECT_EQ(5, v[2]);
+}
+
+TEST(RangeTest, EnumerateRange) {
+  std::vector<int> v {-1, -3, -5};
+
+  range::EnumerateRange<decltype(v)> enum_range(v, 0);
+  auto first = enum_range.begin();
+  auto last = enum_range.end();
+
+  auto it = first;
+  EXPECT_EQ(0, (*it).first);
+  EXPECT_EQ(-1, (*it).second); ++it;
+  EXPECT_EQ(1, (*it).first);
+  EXPECT_EQ(-3, (*(it++)).second);
+
+  // Reference check
+  (*it).second *= 2;
+  EXPECT_EQ(2, (*it).first);
+  EXPECT_EQ(-10, v[2]);
+
+  ++it;
+  EXPECT_EQ(last, it);
+
+  EXPECT_EQ(-1, v[0]);
+  EXPECT_EQ(-3, v[1]);
+  EXPECT_EQ(-10, v[2]);
+}
+
+TEST(RangeTest, EnumerateRange2) {
+  std::vector<int> v {-1, -2, -3};
+
+  range::EnumerateRange<decltype(v)> enum_range(v, 1);
+  auto it = enum_range.begin();
+
+  // v = [-2, -4, -6]
+  int i=1;
+  while (it != enum_range.end()) {
+    (*it).second *= 2;
+    EXPECT_EQ(i, (*it).first);
+    EXPECT_EQ(-i*2, v[i-1]);  // reference check
+    ++it;
+    i++;
+  }
+}
+
+TEST(RangeTest, enumerate) {
+  std::vector<int> v {-1, -2, -3};
+
+  auto enum_range = range::enumerate(v, 1);
+  auto it = enum_range.begin();
+  int i=1;
+  while (it != enum_range.end()) {
+    (*it).second *= 2;
+    EXPECT_EQ(i, (*it).first);
+    EXPECT_EQ(-i*2, v[i-1]);  // reference check
+    std::cerr << (*it).second << " " << v[i-1] << "\n";
+    ++it;
+    i++;
+  }
+  // int i=0;
+  // for (auto it=enum_range.begin(); it!=enum_range.end(); ++it) {
+  //   // EXPECT_EQ(&(v[i]), &((*it).second)+i); 
+  //   // (*it).second *= -1;
+  //   std::get<1>(*it) *= -1;
+  //   std::cerr << (*it).second << " " << v[i] << "\n";
+  //   // EXPECT_EQ(i, t.first);
+  //   // EXPECT_EQ(i+1, v[i]);
+  //   i++;
+  // }
 }

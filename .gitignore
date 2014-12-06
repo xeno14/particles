@@ -48,3 +48,8 @@ install_manifest.txt
 /html
 /latex
 doxygen_*
+
+#
+# ctags
+#
+tags
