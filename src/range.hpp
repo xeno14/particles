@@ -9,8 +9,10 @@
 #pragma once
 
 #include "expression.hpp"
+#include "util.hpp"
 
 #include <functional>
+#include <iterator>
 
 namespace particles {
 namespace range {
@@ -114,7 +116,6 @@ inline auto zip(Range&... ranges) {
   return ZipContainer<Range...>(ranges...);
 }
 
-
 template <class Iterator, class Converter>
 auto convert_iterator(Iterator it, Converter f);
 
@@ -179,7 +180,9 @@ auto convert_iterator(Iterator it, Converter f) {
   return ConvertIterator<Iterator, Converter>(it, f);
 }
 
-
-
 }  // namespace range
 }  // namespace particles
+
+using namespace particles;
+OVERLOAD_STD_BEGIN_AND_END(class... Range,
+                           range::ZipContainer<Range...>);

@@ -42,6 +42,10 @@ TEST(RangeTest, ZipContainer) {
   std::vector<int> u {1, 2, 3}, v {4, 5, 6};
 
   auto zipcon = range::ZipContainer<decltype(u), decltype(v)>(u, v);
+
+  EXPECT_EQ(zipcon.begin(), std::begin(zipcon));
+  EXPECT_EQ(zipcon.end(), std::end(zipcon));
+
   auto it = zipcon.begin();
   auto first = zipcon.begin();
   auto last = zipcon.end();
