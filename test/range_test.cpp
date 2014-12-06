@@ -140,3 +140,17 @@ TEST(RangeTest, enumerate) {
     it++;
   }
 }
+
+TEST(RangeTest, ENUMERATE) {
+  std::vector<int> v { 1, 2, 3};
+  std::vector<int> indexes;
+  ENUMERATE_BEGIN(i, x, v) {
+    x += i;
+  } ENUMERATE_END;
+  EXPECT_EQ(0, indexes[0]);
+  EXPECT_EQ(1, indexes[1]);
+  EXPECT_EQ(2, indexes[2]);
+  EXPECT_EQ(1, v[0]);
+  EXPECT_EQ(3, v[1]);
+  EXPECT_EQ(5, v[2]);
+}
