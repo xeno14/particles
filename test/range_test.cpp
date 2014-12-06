@@ -93,14 +93,14 @@ TEST(RangeTest, EnumerateRange) {
   auto last = enum_range.end();
 
   auto it = first;
-  EXPECT_EQ(0, (*it).first);
-  EXPECT_EQ(-1, (*it).second); ++it;
-  EXPECT_EQ(1, (*it).first);
-  EXPECT_EQ(-3, (*(it++)).second);
+  EXPECT_EQ(0, std::get<0>(*it));
+  EXPECT_EQ(-1, std::get<1>(*it)); ++it;
+  EXPECT_EQ(1, std::get<0>(*it));
+  EXPECT_EQ(-3, std::get<1>(*(it++)));
 
   // Reference check
-  (*it).second *= 2;
-  EXPECT_EQ(2, (*it).first);
+  std::get<1>(*it) *= 2;
+  EXPECT_EQ(2, std::get<0>(*it));
   EXPECT_EQ(-10, v[2]);
 
   ++it;
@@ -120,8 +120,8 @@ TEST(RangeTest, EnumerateRange2) {
   // v = [-2, -4, -6]
   int i=1;
   while (it != enum_range.end()) {
-    (*it).second *= 2;
-    EXPECT_EQ(i, (*it).first);
+    std::get<1>(*it) *= 2;
+    EXPECT_EQ(i, std::get<0>(*it));
     EXPECT_EQ(-i*2, v[i-1]);  // reference check
     ++it;
     i++;
@@ -131,25 +131,12 @@ TEST(RangeTest, EnumerateRange2) {
 TEST(RangeTest, enumerate) {
   std::vector<int> v {-1, -2, -3};
 
-  auto enum_range = range::enumerate(v, 1);
+  auto enum_range = range::enumerate(v, 0); /** @todo problem here? */
   auto it = enum_range.begin();
-  int i=1;
+  int i=0;
   while (it != enum_range.end()) {
-    (*it).second *= 2;
-    EXPECT_EQ(i, (*it).first);
-    EXPECT_EQ(-i*2, v[i-1]);  // reference check
-    std::cerr << (*it).second << " " << v[i-1] << "\n";
-    ++it;
-    i++;
+    std::get<1>(*it) *= -1;
+    std::cerr << std::get<1>(*it) << " " << v[i] << std::endl;
+    it++;
   }
-  // int i=0;
-  // for (auto it=enum_range.begin(); it!=enum_range.end(); ++it) {
-  //   // EXPECT_EQ(&(v[i]), &((*it).second)+i); 
-  //   // (*it).second *= -1;
-  //   std::get<1>(*it) *= -1;
-  //   std::cerr << (*it).second << " " << v[i] << "\n";
-  //   // EXPECT_EQ(i, t.first);
-  //   // EXPECT_EQ(i+1, v[i]);
-  //   i++;
-  // }
 }

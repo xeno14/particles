@@ -171,9 +171,8 @@ class EnumerateRange {
        return iterator_pair_ != rhs.iterator_pair_;
      }
      auto operator*() {
-       // std::cout << "@" << *iterator_pair_.second << std::endl;
-       return std::make_pair(std::get<0>(iterator_pair_),
-                             std::ref(*(std::get<1>(iterator_pair_))));
+       return std::make_tuple(std::get<0>(iterator_pair_),
+                              std::ref(*(std::get<1>(iterator_pair_))));
      }
     private:
      iterator_pair_type iterator_pair_;
