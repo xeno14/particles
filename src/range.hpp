@@ -2,7 +2,6 @@
  * @file range.hpp
  *
  * @todo check iterator concept
- * @todo zip
  * @todo enumerate
  */
 
@@ -19,7 +18,7 @@ namespace range {
 namespace internal {
 
 /**
- * @todo add explanation
+ * @brief implementation of ref_tuple
  * @tparam loop_flag
  * @tparam Ts
  * @tparam Us reference
@@ -41,6 +40,19 @@ struct RefTupleImpl<false> {
     return std::make_tuple(refs...);
   }
 };
+
+/**
+ * @brief creates tuple of references from iterator
+ *
+ * Example:
+ *
+ * @code
+ * std::vector<int> u {1, 2, 3}, v {4, 5, 6};
+ * auto t = range::ref_tuple(std::make_tuple(u.begin(), v.begin()));
+ * std::get<0>(t) -= 1;  // u = {0, 2, 3}
+ * std::get<1>(t) += 5;  // v = {9, 5, 7}
+ * @endcode
+ */
 template <class... Iterator>
 inline auto ref_tuple(std::tuple<Iterator...>& t) {
   return RefTupleImpl<true>::make_tuple(t);
@@ -49,7 +61,7 @@ inline auto ref_tuple(std::tuple<Iterator...>& t) {
 }  // namespace internal
 
 /**
- * @todo overload std::begin, std::end
+ * @brief range for zipped iterators, implementation of zip
  * @todo const iterator
  */
 template <class... Range>
@@ -60,7 +72,12 @@ class ZipContainer {
    ZipContainer(Range&... ranges)
        : begins_(std::begin(ranges)...), ends_(std::end(ranges)...) {}
 
-   /** @todo use template to specify type of iterator (ref? const?) */
+   /**
+    * @brief zip iterator
+    *
+    * Iterators are zipped in a tuple.
+    * @todo use template to specify type of iterator (ref? const?)
+    */
    class iterator {
     public:
       iterator(const iterator& it) : iterator_tuple_(it.iterator_tuple_) {}
@@ -115,9 +132,6 @@ template <class... Range>
 inline auto zip(Range&... ranges) {
   return ZipContainer<Range...>(ranges...);
 }
-
-template <class Iterator, class Converter>
-auto convert_iterator(Iterator it, Converter f);
 
 /**
  * Comparision (operator==, operator!=) is defined between ConvertIterator with
