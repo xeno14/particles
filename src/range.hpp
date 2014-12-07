@@ -66,6 +66,45 @@ inline auto ref_tuple(std::tuple<Iterator...>& t) {
 
 }  // namespace internal
 
+
+/**
+* @brief zip iterator
+*
+* Iterators are zipped in a tuple.
+* @todo use template to specify type of iterator (ref? const?)
+*/
+template <class Tuple, class... Iterator>
+class ZipIterator {
+  public:
+    ZipIterator(const ZipIterator& it) : zipped_(it.zipped_) {}
+    ZipIterator(const Tuple& zipped) : zipped_(zipped) {}
+    ZipIterator operator++() {
+      constexpr std::size_t sz = std::tuple_size<Tuple>::value;
+      expression::pre_increment<sz>(zipped_);
+      return ZipIterator(*this);
+    }
+    ZipIterator operator++(int) {
+      ZipIterator old(*this);
+      operator++();
+      return old;
+    }
+    ZipIterator& operator=(const ZipIterator& it) {
+      zipped_ = it.zipped_;
+      return *this;
+    }
+    bool operator==(const ZipIterator& it) const {
+      return zipped_ == it.zipped_;
+    }
+    bool operator!=(const ZipIterator& it) const {
+      return zipped_ != it.zipped_;
+    }
+    auto operator*() {
+      return internal::ref_tuple(zipped_);
+    }
+  private:
+    Tuple zipped_;
+};
+
 /**
  * @brief range for zipped iterators, implementation of zip
  * @todo const iterator
@@ -75,45 +114,10 @@ class ZipContainer {
   typedef std::tuple<typename Range::iterator...> iterator_tuple_type;
 
   public:
+   typedef ZipIterator<iterator_tuple_type, Range...> iterator;
+
    ZipContainer(Range&... ranges)
        : begins_(std::begin(ranges)...), ends_(std::end(ranges)...) {}
-
-   /**
-    * @brief zip iterator
-    *
-    * Iterators are zipped in a tuple.
-    * @todo use template to specify type of iterator (ref? const?)
-    */
-   class iterator {
-    public:
-      iterator(const iterator& it) : iterator_tuple_(it.iterator_tuple_) {}
-      iterator(const iterator_tuple_type& it) : iterator_tuple_(it) {}
-      iterator operator++() {
-        expression::pre_increment<sizeof...(Range)>(iterator_tuple_);
-        return *this;
-      }
-      iterator operator++(int) { 
-        auto old = iterator_tuple_;
-        ++(*this);
-        return iterator(old);
-      }
-      iterator& operator=(const iterator& it) {
-        iterator_tuple_ = it.iterator_tuple_;
-        return *this;
-      }
-      bool operator==(const iterator& it) const {
-        return iterator_tuple_ == it.iterator_tuple_;
-      }
-      bool operator!=(const iterator& it) const {
-        return !(*this == it);
-      }
-      auto operator*() {
-        return internal::ref_tuple(iterator_tuple_);
-      }
-
-    private:
-      iterator_tuple_type iterator_tuple_;
-   };
 
    auto begin() { return iterator(begins_); }
    auto end() { return iterator(ends_); }
@@ -131,10 +135,14 @@ class ZipContainer {
  *   - range has type iterator (range::iterator)
  * @code
  * std::vector<int> u {1,2,3}, v {4,5,6};
+ *
  * for (auto z : range::zip(u, v)) {
  *   auto x = std::get<0>(z);  // element of u
  *   auto y = std::get<1>(z);  // element of v
+ *   x *= -1;
+ *   y *= -1;
  * }
+ * // u = {-1,-2,-3}, v = {-4,-5,-6}
  * @endcode
  */
 template <class... Range>
@@ -160,9 +168,9 @@ class EnumerateRange {
        return *this;
      }
      iterator operator++(int) {
-       iterator tmp(*this);
-       operator++();
-       return tmp;
+       auto old = iterator_pair_;
+       ++(*this);
+       return iterator(old);
      }
      bool operator==(const iterator& rhs) const {
        return iterator_pair_ == rhs.iterator_pair_;

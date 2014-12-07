@@ -113,19 +113,23 @@ TEST(RangeTest, EnumerateRange) {
 
 TEST(RangeTest, EnumerateRange2) {
   std::vector<int> v {-1, -2, -3};
+  std::vector<int> indexes;
 
   range::EnumerateRange<decltype(v)> enum_range(v, 1);
   auto it = enum_range.begin();
 
-  // v = [-2, -4, -6]
-  int i=1;
+  // Doubles each element
   while (it != enum_range.end()) {
+    indexes.push_back(std::get<0>(*it));
     std::get<1>(*it) *= 2;
-    EXPECT_EQ(i, std::get<0>(*it));
-    EXPECT_EQ(-i*2, v[i-1]);  // reference check
     ++it;
-    i++;
   }
+  EXPECT_EQ(1, indexes[0]);
+  EXPECT_EQ(2, indexes[1]);
+  EXPECT_EQ(3, indexes[2]);
+  EXPECT_EQ(-2, v[0]);
+  EXPECT_EQ(-4, v[1]);
+  EXPECT_EQ(-6, v[2]);
 }
 
 TEST(RangeTest, enumerate) {
@@ -138,6 +142,7 @@ TEST(RangeTest, enumerate) {
     std::get<1>(*it) *= -1;
     std::cerr << std::get<1>(*it) << " " << v[i] << std::endl;
     it++;
+    i++;
   }
 }
 
@@ -145,6 +150,7 @@ TEST(RangeTest, ENUMERATE) {
   std::vector<int> v { 1, 2, 3};
   std::vector<int> indexes;
   ENUMERATE_BEGIN(i, x, v) {
+    indexes.push_back(i);
     x += i;
   } ENUMERATE_END;
   EXPECT_EQ(0, indexes[0]);
