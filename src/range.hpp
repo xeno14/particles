@@ -69,13 +69,9 @@ struct RefTupleImpl<Ref, false> {
  * std::get<1>(t) += 5;  // v = {9, 5, 7}
  * @endcode
  */
-template <class... Iterator>
+template <class Ref, class... Iterator>
 inline auto ref_tuple(std::tuple<Iterator...>& t) {
-  return RefTupleImpl<ref, true>::make_tuple(t);
-}
-template <class... Iterator>
-inline auto cref_tuple(std::tuple<Iterator...>& t) {
-  return RefTupleImpl<cref, true>::make_tuple(t);
+  return RefTupleImpl<Ref, true>::make_tuple(t);
 }
 
 }  // namespace internal
@@ -87,7 +83,7 @@ inline auto cref_tuple(std::tuple<Iterator...>& t) {
 * Iterators are zipped in a tuple.
 * @todo use template to specify type of iterator (ref? const?)
 */
-template <class Tuple, class... Iterator>
+template <class Tuple, class Ref, class... Iterator>
 class ZipIterator {
   public:
     ZipIterator(const ZipIterator& it) : zipped_(it.zipped_) {}
@@ -113,7 +109,7 @@ class ZipIterator {
       return zipped_ != it.zipped_;
     }
     auto operator*() {
-      return internal::ref_tuple(zipped_);
+      return internal::ref_tuple<Ref>(zipped_);
     }
   private:
     Tuple zipped_;
@@ -128,13 +124,17 @@ class ZipContainer {
   typedef std::tuple<typename Range::iterator...> iterator_tuple_type;
 
   public:
-   typedef ZipIterator<iterator_tuple_type, Range...> iterator;
+   typedef ZipIterator<iterator_tuple_type, internal::ref, Range...> iterator;
+   typedef ZipIterator<iterator_tuple_type, internal::cref, Range...>
+       const_iterator;
 
    ZipContainer(Range&... ranges)
        : begins_(std::begin(ranges)...), ends_(std::end(ranges)...) {}
 
    auto begin() { return iterator(begins_); }
    auto end() { return iterator(ends_); }
+   auto cbegin() { return const_iterator(begins_); }
+   auto cend() { return const_iterator(ends_); }
 
   private:
    iterator_tuple_type begins_;
@@ -143,7 +143,7 @@ class ZipContainer {
 
 /**
  * @brief zip iteration
- * @todo const range&
+ * @todo const range& (type of iterator should be specified here)
  * @pre 
  *   - all ranges must have same size, otherwise undefined behavior
  *   - range has type iterator (range::iterator)

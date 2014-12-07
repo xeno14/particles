@@ -33,7 +33,7 @@ TEST(RangeTest, ConvertIterator) {
 TEST(RangeTest, ref_tuple) {
   std::vector<int> u {1, 2, 3}, v {4, 5, 6};
   auto it = std::make_tuple(u.begin(), v.begin());
-  auto t = range::internal::ref_tuple(it);
+  auto t = range::internal::ref_tuple<range::internal::ref>(it);
   std::get<0>(t) -= 2;
   std::get<1>(t) += 6;
   EXPECT_EQ(-1, u[0]);
@@ -84,6 +84,14 @@ TEST(RangeTest, zip) {
   EXPECT_EQ(4, v[1]);
   EXPECT_EQ(5, v[2]);
 }
+
+// TEST(RangeTest, zip_const) {
+//   std::vector<int> u {1, 2, 3}, v {4, 5, 6};
+//   const auto& cu = u;
+//   const auto& cv = v;
+//   for(auto z : range::zip(cu, cv)) {
+//   }
+// }
 
 TEST(RangeTest, EnumerateRange) {
   std::vector<int> v {-1, -3, -5};
