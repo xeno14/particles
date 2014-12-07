@@ -7,14 +7,12 @@ Particle system simulation library in C++.
 
 # Build
 
-```
-@code
+```bash
 $ mkdir build
 $ cd build
 $ cmake ..
 $ make
 $ make test  # optional
-@endcode
 ```
 
 
