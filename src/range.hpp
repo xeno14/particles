@@ -23,24 +23,34 @@ namespace particles {
 namespace range {
 namespace internal {
 
+struct ref {
+  template <class T>
+  static auto get(T& elem) noexcept { return std::ref(elem); }
+};
+
+struct cref {
+  template <class T>
+  static auto get(T& elem) noexcept { return std::ref(elem); }
+};
+
 /**
  * @brief implementation of ref_tuple
  * @tparam loop_flag
  * @tparam Ts
  * @tparam Us reference
  */
-template <bool loop_flag>
+template <class Ref, bool loop_flag>
 struct RefTupleImpl {
   template <class... Iterator, class... Refs>
   static auto make_tuple(std::tuple<Iterator...>& t, Refs... refs) {
     constexpr bool next_flag = sizeof...(Iterator) - 1 > sizeof...(Refs);
     constexpr std::size_t I = sizeof...(Refs);
-    return RefTupleImpl<next_flag>::make_tuple(t, refs...,
-                                               std::ref(*std::get<I>(t)));
+    return RefTupleImpl<Ref, next_flag>::make_tuple(t, refs...,
+                                                    Ref::get(*std::get<I>(t)));
   }
 };
-template <>
-struct RefTupleImpl<false> {
+template <class Ref>
+struct RefTupleImpl<Ref, false> {
   template <class... Iterator, class... Refs>
   static auto make_tuple(std::tuple<Iterator...>& t, Refs... refs) {
     return std::make_tuple(refs...);
@@ -61,7 +71,11 @@ struct RefTupleImpl<false> {
  */
 template <class... Iterator>
 inline auto ref_tuple(std::tuple<Iterator...>& t) {
-  return RefTupleImpl<true>::make_tuple(t);
+  return RefTupleImpl<ref, true>::make_tuple(t);
+}
+template <class... Iterator>
+inline auto cref_tuple(std::tuple<Iterator...>& t) {
+  return RefTupleImpl<cref, true>::make_tuple(t);
 }
 
 }  // namespace internal
@@ -159,18 +173,18 @@ class EnumerateRange {
      public:
      iterator(const iterator& it) : iterator_pair_(it.iterator_pair_) {}
      iterator(const iterator_pair_type& p) : iterator_pair_(p) {}
-     iterator& operator=(const iterator& it) {
-       iterator_pair_ = it.iterator_pair_;
-       return *this;
-     }
-     iterator& operator++() {
+     iterator operator++() {
        expression::pre_increment<2>(iterator_pair_);
        return *this;
      }
      iterator operator++(int) {
-       auto old = iterator_pair_;
-       ++(*this);
-       return iterator(old);
+       iterator old(*this);
+       operator++();
+       return old;
+     }
+     iterator& operator=(const iterator& it) {
+       iterator_pair_ = it.iterator_pair_;
+       return *this;
      }
      bool operator==(const iterator& rhs) const {
        return iterator_pair_ == rhs.iterator_pair_;
@@ -187,14 +201,14 @@ class EnumerateRange {
    };
 
    EnumerateRange(Range& range, std::size_t start = 0)
-       : begin_(std::make_pair(start, std::begin(range))),
-         end_(std::make_pair(start + static_cast<std::size_t>(
-                                         std::end(range) - std::begin(range)),
-                             std::end(range))) {}
+       : begin_(start, std::begin(range)),
+         end_(start +
+                  static_cast<std::size_t>(std::end(range) - std::begin(range)),
+              std::end(range)) {}
    EnumerateRange(const EnumerateRange& enum_range)
        : begin_(enum_range.begin_), end_(enum_range.end_) {}
-   auto begin() { return iterator(begin_); }
-   auto end() { return iterator(end_); }
+   iterator begin() { return iterator(begin_); }
+   iterator end() { return iterator(end_); }
 
   private:
     iterator_pair_type begin_;

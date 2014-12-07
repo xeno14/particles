@@ -140,7 +140,8 @@ TEST(RangeTest, enumerate) {
   int i=0;
   while (it != enum_range.end()) {
     std::get<1>(*it) *= -1;
-    std::cerr << std::get<1>(*it) << " " << v[i] << std::endl;
+    std::cerr << &std::get<1>(*it) << " " << &v[i] << std::endl;
+    std::cerr << std::get<0>(*it) << " "<< std::get<1>(*it) << " " << v[i] << std::endl;
     it++;
     i++;
   }
