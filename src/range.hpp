@@ -193,12 +193,12 @@ class EnumerateRange {
                              std::end(range))) {}
    EnumerateRange(const EnumerateRange& enum_range)
        : begin_(enum_range.begin_), end_(enum_range.end_) {}
-   auto begin() { return begin_; }
-   auto end() { return end_; }
+   auto begin() { return iterator(begin_); }
+   auto end() { return iterator(end_); }
 
   private:
-    iterator begin_;
-    iterator end_;
+    iterator_pair_type begin_;
+    iterator_pair_type end_;
 };
 
 /**
