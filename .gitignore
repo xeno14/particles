@@ -45,6 +45,14 @@ install_manifest.txt
 #
 # Doxygen
 #
-/html
-/latex
+
 doxygen_*
+searchdata.xml
+doc/*
+!doc/*.md
+
+#
+# ctags
+#
+
+tags
