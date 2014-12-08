@@ -35,10 +35,9 @@ auto nearest(Range& candidates, const Particle<T, N>& p,
              const std::size_t n = 1) {
   typedef Particle<T, N> P;
 
+  // sort by distance from p
   std::sort(std::begin(candidates), std::end(candidates),
-            [&p](P* p1, P* p2) {
-            return true;
-    p1->position().length() < p2->position().length();
+            [&p](const P* p1, const P* p2) {
     return p.squared_distance(p1) < p.squared_distance(p2);
   });
   const auto sz = std::min<std::size_t>(n, std::end(candidates) - std::begin(candidates));

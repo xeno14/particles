@@ -51,12 +51,11 @@ TEST(SearchTest, nearest) {
   std::vector<P2*> candidates;
   for (auto& p : particles) candidates.push_back(&p);
 
-  // std::vector<int> u {1,2,3};
-  // auto last = search::nearest(u, particles[0], 2);
-  //
-  // EXPECT_EQ(2, last - candidates.begin());
-  // EXPECT_DOUBLE_EQ(0, candidates[0]->position()[0]);
-  // EXPECT_DOUBLE_EQ(0.1, candidates[1]->position()[0]);
+  auto last = search::nearest(candidates, particles[0], 2);
+
+  EXPECT_EQ(2, last - candidates.begin());
+  EXPECT_DOUBLE_EQ(0, candidates[0]->position()[0]);
+  EXPECT_DOUBLE_EQ(0.1, candidates[1]->position()[0]);
 }
 
 TEST(SearchTest, SimpleRangeSearch) {

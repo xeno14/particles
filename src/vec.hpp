@@ -55,6 +55,22 @@ class Vec {
   Vec& operator*=(T x);
   Vec& operator/=(T x);
 
+  template <class R>
+  auto operator+(const R& r) {
+    typedef typename R::value_type value_type;
+    typedef expression::Plus<value_type> Op;
+    typedef expression::Exp<Vec, Op, R> Exp;
+    return Exp(*this, r);
+  }
+
+  template <class R>
+  auto operator-(const R& r) {
+    typedef typename R::value_type value_type;
+    typedef expression::Minus<value_type> Op;
+    typedef expression::Exp<Vec, Op, R> Exp;
+    return Exp(*this, r);
+  }
+
   // Iterators
   /** @toro range test */
   auto begin() { return value_.begin(); }

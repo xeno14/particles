@@ -4,7 +4,7 @@
  * @brief template meta programming liblary
  *
  * Consept:
- * - Expression
+ * - Exp
  * - Index Operator: 
  *   @code
  *   struct IndexOperator {
@@ -22,14 +22,14 @@
 namespace particles {
 namespace expression {
 template <class L, class Op, class R>
-struct Expression;
+struct Exp;
 }
 }
 
 namespace std {
 
 template <size_t I, class L, class Op, class R>
-inline auto& get(particles::expression::Expression<L, Op, R>& e) {
+inline auto& get(particles::expression::Exp<L, Op, R>& e) {
   return Op::apply(get<I>(e.l), get<I>(e.r));
 }
 
@@ -152,25 +152,6 @@ inline void assign_from_odd(L& l, const R& r) {
   assign<N, L, R>(l, r, operators::Identity(), operators::Odd());
 }
 
-template <class L, class Op, class R>
-struct Expression {
-  const L& l;
-  const R& r;
-
-  Expression(const L& l, const R& r) : l(l), r(r) {}
-  auto operator[](std::size_t i) const { return Op::apply(l[i], r[i]); }
-};
-
-template <class L, class Op, class R>
-struct ExpressionRCopy {
-  const L& l;
-  const R r;
-
-  ExpressionRCopy(const L& l, const R& r) : l(l), r(r) {}
-  auto operator[](std::size_t i) const { return Op::apply(l[i], r[i]); }
-};
-
-
 //
 // Operators
 //
@@ -206,39 +187,74 @@ struct Scalar {
   T operator[](std::size_t i) const { return value; }
 };
 
+template <class L, class Op, class R>
+struct Exp {
+  const L& l;
+  const R& r;
+
+  Exp(const L& l, const R& r) : l(l), r(r) {}
+  auto operator[](std::size_t i) const { return Op::apply(l[i], r[i]); }
+
+  template <class R2>
+  auto operator+(const R2& r2) {
+    typedef typename R2::value_type value_type;
+    return Exp<Exp<L, Op, R>, Plus<value_type>, R2>(*this, r2);
+  }
+
+  template <class R2>
+  auto operator-(const R2& r2) {
+    typedef typename R2::value_type value_type;
+    return Exp<Exp<L, Op, R>, Minus<value_type>, R2>(*this, r2);
+  }
+
+  // template <class T>
+  // auto operator*(const T t) {
+  //   typedef typename L::value_type value_type;
+  //   typedef Scalar<value_type> Scalar;
+  //   typedef ExpRCopy<Exp<L, Op, R>, Multiply<value_type>, Scalar>(l, Scalar(t));
+  // }
+  //
+  // template <class T>
+  // auto operator/(const T t) {
+  //   typedef typename L::value_type value_type;
+  //   typedef Scalar<value_type> Scalar;
+  //   typedef ExpRCopy<Exp<L, Op, R>, Divide<value_type>, Scalar>(l, Scalar(t));
+  // }
+};
+
+template <class L, class Op, class R>
+struct ExpRCopy {
+  const L& l;
+  const R r;
+
+  ExpRCopy(const L& l, const R& r) : l(l), r(r) {}
+  auto operator[](std::size_t i) const { return Op::apply(l[i], r[i]); }
+};
+
+
+
 }  // namespace expression
 
-using expression::Expression;
-using expression::ExpressionRCopy;
+using expression::Exp;
+using expression::ExpRCopy;
 using expression::Plus;
 using expression::Minus;
 using expression::Multiply;
 using expression::Divide;
 
-template <class L, class R>
-inline auto operator+(const L& l, const R& r) {
-  typedef typename R::value_type value_type;
-  return Expression<L, Plus<value_type>, R>(l, r);
-}
-
-template <class L, class R>
-inline auto operator-(const L& l, const R& r) {
-  typedef typename R::value_type value_type;
-  return Expression<L, Minus<value_type>, R>(l, r);
-}
 
 template <class L, class T>
 inline auto operator*(const L& l, T r) {
   typedef typename L::value_type value_type;
   typedef expression::Scalar<value_type> Scalar;
-  return ExpressionRCopy<L, Multiply<value_type>, Scalar>(l, Scalar(r));
+  return ExpRCopy<L, Multiply<value_type>, Scalar>(l, Scalar(r));
 }
 
 template <class L, class T>
 inline auto operator/(const L& l, T r) {
   typedef typename L::value_type value_type;
   typedef expression::Scalar<value_type> Scalar;
-  return ExpressionRCopy<L, Divide<value_type>, Scalar>(l, Scalar(r));
+  return ExpRCopy<L, Divide<value_type>, Scalar>(l, Scalar(r));
 }
 
 }  // namespace particles
