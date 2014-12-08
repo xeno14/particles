@@ -52,7 +52,8 @@ int main() {
 
   // Output for first step
   fout << std::scientific;
-  io::output_particles(fout, particles.begin(), particles.end(), "\t", "\n\n");
+  io::output_particles(fout, particles.begin(), particles.end(), "\t");
+  fout << "\n\n";
 
   random::UniformRand<double>::set_range(-eta, eta);
 
@@ -61,9 +62,11 @@ int main() {
     // Create adjacency list for all particles
     searcher.search(adjacency_list, particles);
 
-    for (std::size_t i = 0; i < particles.size(); ++i) {
-      const auto& x = particles[i].position();
-      const auto& v = particles[i].velocity();
+    for (auto e : range::enumerate(particles)) {
+      auto  i = e.first;
+      auto& p = e.second;
+      const auto& x = p.position();
+      const auto& v = p.velocity();
       auto& nx = new_particles[i].position();
       auto& nv = new_particles[i].velocity();
 
@@ -80,7 +83,7 @@ int main() {
       // Set new values
       nx = x + v;
       nv.normalize(v0);
-    }
+    };
 
     // Renew position and velocity of all particles
     for (std::size_t i = 0; i < particles.size(); ++i) {
@@ -93,8 +96,8 @@ int main() {
     }
 
     // Output each step
-    io::output_particles(fout, particles.begin(), particles.end(), "\t",
-                         "\n\n");
+    io::output_particles(fout, particles.begin(), particles.end(), "\t");
+    fout << "\n\n";
   }
 
   return 0;
