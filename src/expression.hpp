@@ -187,6 +187,12 @@ struct Scalar {
   T operator[](std::size_t i) const { return value; }
 };
 
+/**
+ * @brief Expression!
+ *
+ * Each operators return this object instead of value itself. As a result,
+ * expression will be evaluated at assigning operator.
+ */
 template <class L, class Op, class R>
 struct Exp {
   typedef R value_type;
@@ -207,8 +213,53 @@ struct Exp {
     typedef typename R2::value_type value_type;
     return Exp<Exp<L, Op, R>, Minus<value_type>, R2>(*this, r2);
   }
+
+  template <class T>
+  auto operator*(const Scalar<T>& s) {
+    return Exp<Exp<L, Op, R>, Multiply<T>, Scalar<T>>(*this, s);
+  }
+
+  template <class T>
+  auto operator/(const Scalar<T>& s) {
+    return Exp<Exp<L, Op, R>, Divide<value_type>, Scalar<T>>(*this, s);
+  }
 };
 
+/**
+ * @brief copy the right side for scalar
+ */
+template <class L, class Op, class T>
+struct Exp<L, Op, Scalar<T>> {
+  typedef T value_type;
+  typedef Scalar<T> R;
+  const L& l;
+  const R r;
+
+  Exp(const L& l, const R& r) : l(l), r(r) {}
+  auto operator[](std::size_t i) const { return Op::apply(l[i], r[i]); }
+
+  template <class R2>
+  auto operator+(const R2& r2) {
+    typedef typename R2::value_type value_type;
+    return Exp<Exp<L, Op, R>, Plus<value_type>, R2>(*this, r2);
+  }
+
+  template <class R2>
+  auto operator-(const R2& r2) {
+    typedef typename R2::value_type value_type;
+    return Exp<Exp<L, Op, R>, Minus<value_type>, R2>(*this, r2);
+  }
+
+  template <class U>
+  auto operator*(const Scalar<U>& s) {
+    return Exp<Exp<L, Op, R>, Multiply<U>, Scalar<U>>(*this, s);
+  }
+
+  template <class U>
+  auto operator/(const Scalar<U>& s) {
+    return Exp<Exp<L, Op, R>, Divide<U>, Scalar<U>>(*this, s);
+  }
+};
 
 }  // namespace expression
 

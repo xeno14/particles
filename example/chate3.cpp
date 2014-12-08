@@ -24,7 +24,7 @@ int main() {
   std::ofstream fout("chate3.dat");
 
   const int N = 128;          // Number of particles
-  const double v0 = 0.1;      // Velocity of particles
+  const double v0 = 0.03;      // Velocity of particles
   const double L = 16;        // System size
   const double eta = v0 / 5;  // Strength of noise
   const double r0 = 5;        // Interaction range
