@@ -2,17 +2,17 @@
  * @file searcher.hpp
  *
  * @brief spacial search classes
+ *
+ * @todo pipe-line search
  */
 
 #pragma once
 
 #include "particle.hpp"
+#include "range.hpp"
 
 #include <utility>
 #include <vector>
-
-#include<iostream>
-#include<typeinfo>
 
 #include <CGAL/Delaunay_triangulation_3.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
@@ -20,6 +20,30 @@
 
 namespace particles {
 namespace search {
+
+template <class Range, class T, std::size_t N>
+auto distance_within(Range& candidates, const Particle<T, N>& p, const T r) {
+  auto last = std::remove_if(std::begin(candidates), std::end(candidates),
+                             [&p, r](const Particle<T, N>* q) {
+    return p.squared_distance(q) > r * r;
+  });
+  return last;
+}
+
+template <class Range, class T, std::size_t N>
+auto nearest(Range& candidates, const Particle<T, N>& p,
+             const std::size_t n = 1) {
+  typedef Particle<T, N> P;
+
+  std::sort(std::begin(candidates), std::end(candidates),
+            [&p](P* p1, P* p2) {
+            return true;
+    p1->position().length() < p2->position().length();
+    return p.squared_distance(p1) < p.squared_distance(p2);
+  });
+  const auto sz = std::min<std::size_t>(n, std::end(candidates) - std::begin(candidates));
+  return std::begin(candidates) + sz;
+}
 
 template <class T, std::size_t N>
 class SearcherBase {
