@@ -1,4 +1,5 @@
 #include "range.hpp"
+#include "vec.hpp"
 
 #include <gtest/gtest.h>
 
@@ -9,10 +10,13 @@
 
 using namespace particles;
 
+template <class T, class U>
+inline T& pair_first(std::pair<T, U>& p) { return p.first; }
+
 template<class Itr>
-auto first_iterator(Itr it) {
-  static auto cvt = [](std::pair<int, int>& u) { return std::ref(u.first); };
-  return range::convert_iterator(it, cvt);
+inline auto first_iterator(Itr it) {
+  return range::convert_iterator(
+      it, [](std::pair<int, int>& u) { return std::ref(u.first); });
 }
 
 TEST(RangeTest, ConvertIterator) {
@@ -33,6 +37,30 @@ TEST(RangeTest, ConvertIterator) {
   (*it) *= -1;
   EXPECT_EQ(-1, v[0].first);
   EXPECT_EQ( 2, v[0].second);
+}
+
+TEST(RangeTest, sum) {
+  std::vector<int> u = {1, 2, 3};
+  EXPECT_EQ(6, range::sum(u.begin(), u.end()));
+
+  std::vector<Vec<double, 2>> v = {{1, 2},{3, 4}};
+  auto s = range::sum(v.begin(), v.end());
+  EXPECT_DOUBLE_EQ(4, s[0]);
+  EXPECT_DOUBLE_EQ(6, s[1]);
+
+  std::vector<std::pair<int, int>> w = {{1,2},{3,4}};
+  // auto cvt = [](std::pair<int, int>& p) { return p.first; };
+  auto first = range::convert_iterator(w.begin(), pair_first<int, int>);
+  auto last = range::convert_iterator(w.end(), pair_first<int,int>);
+  auto t = range::sum(first, last);
+  EXPECT_EQ(4, t);
+}
+
+TEST(RangeTest, average) {
+  std::vector<Vec<double, 2>> v = {{1, 2},{3, 4}};
+  auto ave = range::average(v.begin(), v.end());
+  EXPECT_EQ(2, ave[0]);
+  EXPECT_EQ(3, ave[1]);
 }
 
 /** @todo use TEST_F */

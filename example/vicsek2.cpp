@@ -18,6 +18,8 @@
 
 using namespace particles;
 
+const auto& get_v(const Particle<double ,2>* p) { return p->velocity(); }
+
 int main() {
   std::ofstream fout("vicsek2.dat");  // Output to a file
 
@@ -63,25 +65,22 @@ int main() {
     searcher.search(adjacency_list, particles);
 
     for (auto e : range::enumerate(particles)) {
-      auto  i = e.first;
-      auto& p = e.second;
+      auto  i = e.first;    // index of the particle
+      auto& p = e.second;   // i-th particle
       const auto& x = p.position();
       const auto& v = p.velocity();
       auto& nx = new_particles[i].position();
       auto& nv = new_particles[i].velocity();
+      const auto& interactors = adjacency_list[i];  // particles interact with i
+
+      // Position at next step
+      nx = x + v;
 
       // Velocity at next step
       // Get average velocity among neighbors
-      for (const auto* q : adjacency_list[i]) {
-        nv += q->velocity();
-      }
-      nv /= adjacency_list[i].size();
-
-      // Add noise
-      nv = nv + random::UniformRand<double>::get_vec();
-
-      // Set new values
-      nx = x + v;
+      nv = range::average(range::convert_iterator(neighbors.begin(), get_v),
+                          range::convert_iterator(neighbors.end(),   get_v)) +
+           random::UniformRand<double>::get_vec();
       nv.normalize(v0);
     };
 

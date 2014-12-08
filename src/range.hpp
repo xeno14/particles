@@ -74,6 +74,15 @@ inline auto ref_tuple(std::tuple<Iterator...>& t) {
   return RefTupleImpl<Ref, true>::make_tuple(t);
 }
 
+template <class T>
+struct Type {
+  typedef T type;
+};
+template <class T>
+constexpr Type<T> ref_to_type(T&);
+template <class T>
+constexpr Type<T> ref_to_type(const T&);
+
 }  // namespace internal
 
 
@@ -313,6 +322,7 @@ inline auto enumerate(Range& range, std::size_t start=0) {
 template <class Iterator, class Converter>
 class ConvertIterator {
  public:
+  typedef Converter converter_type;
   ConvertIterator(Iterator it, Converter f) : it_(it), converter_(f) {}
 
   auto operator*() { return converter_(*it_); }
@@ -334,10 +344,11 @@ class ConvertIterator {
   }
   bool operator==(const Iterator& it) const { return it_ == it; }
   bool operator!=(const Iterator& it) const { return it_ != it; }
+  auto operator-(const ConvertIterator& it) const { return it_ - it.it_; }
 
  private:
   Iterator it_;
-  Converter& converter_;
+  Converter converter_;
 };
 
 /**
@@ -362,6 +373,44 @@ class ConvertIterator {
 template <class Iterator, class Converter>
 auto convert_iterator(Iterator it, Converter f) {
   return ConvertIterator<Iterator, Converter>(it, f);
+}
+
+
+/**
+ * @brief sum over iterators
+ *
+ * @code
+ * std::vector<int> u {1, 2, 3};
+ * auto s = range::sum(u.begin(), u.end());  // 6
+ * @endcode
+ */
+template <class Iterator>
+inline auto sum(Iterator first, Iterator last) {
+  // get value type
+  auto res = typename decltype(internal::ref_to_type(*first))::type();
+  auto it = first;
+  while (it != last) {
+    res += *it;
+    ++it;
+  }
+  return res;
+}
+
+/**
+ * @todo return double when calculating average over list of int
+ *
+ * @brief average
+ *
+ * @code
+ * vector<double> u {1, 2, 3};
+ * auto ave = range::average(u.begin(), u.end());   // 3
+ * @endcode
+ */
+template<class Iterator>
+inline auto average(Iterator first, Iterator last) {
+  auto res = sum(first, last);
+  res /= (last - first);
+  return res;
 }
 
 }  // namespace range
