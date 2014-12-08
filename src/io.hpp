@@ -12,7 +12,6 @@
 
 namespace {
 
-constexpr char kNullChar = '\0';
 constexpr auto kNullString = "";
 
 }  // anonymous namespace
@@ -120,7 +119,7 @@ std::ostream& output_particle(std::ostream& os, const Particle<T, N>& p,
 template <class Iterator>
 std::ostream& output_particles(std::ostream& os, Iterator first, Iterator last,
                                const std::string& delimiter = " ",
-                               const std::string newline = "\n") {
+                               const std::string& newline = "\n") {
   auto it = first;
   while (it != last) {
     output_particle(os, *it, delimiter);
