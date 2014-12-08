@@ -94,8 +94,10 @@ TEST(VecTest, mathmatics) {
 }
 
 TEST(VecTest, overload) {
-  Vec<double, 2> v {1, 2};
+  Vec<int, 2> v {1, 2};
 
-  EXPECT_DOUBLE_EQ(1, std::get<0>(v));
-  EXPECT_DOUBLE_EQ(2, std::get<1>(v));
+  EXPECT_EQ(1, std::get<0>(v));
+  EXPECT_EQ(2, std::get<1>(v));
+
+  EXPECT_EQ(1, *std::begin(v));
 }
