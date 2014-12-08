@@ -206,6 +206,9 @@ class XRange {
     T first_, last_;
 };
 
+/**
+ * @pre first <= last
+ */
 template <class T=int>
 inline auto xrange(T first, T last) {
   return XRange<T>(first, last);
