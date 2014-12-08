@@ -1,3 +1,9 @@
+/**
+ * @file chate3.cpp
+ *
+ * @brief Chate model in 3D and free boundary
+ */
+
 #include "boundary.hpp"
 #include "io.hpp"
 #include "particle.hpp"
@@ -24,7 +30,6 @@ int main() {
   const double r0 = 5;        // Interaction range
   const int Q = 7;            // number of interactions
 
-  boundary::PeriodicBoundary<double, 3> boundary(0, L, 0, L, 0, L);
   search::DelaunaySearcher<double, 3> searcher;
   typename decltype(searcher)::adjacency_list_type adjacency_list;
   std::vector<P> particles(N);
@@ -59,7 +64,6 @@ int main() {
       const auto& v = p.velocity();
       auto& nx = new_particles[i].position();
       auto& nv = new_particles[i].velocity();
-      const auto& interactors = adjacency_list[i];  // particles interact with i
       auto& neighbors = adjacency_list[i];
 
       // search::distance_within(neighbors, p, r0);
@@ -70,6 +74,7 @@ int main() {
 
       // Velocity at next step
       // Get average velocity among neighbors
+      /** @todo calculate force */
       nv = range::average(range::convert_iterator(neighbors.begin(), get_v),
                           range::convert_iterator(neighbors.end(),   get_v)) +
            random::UniformRand<double>::get_vec();
@@ -78,11 +83,6 @@ int main() {
     // Renew position and velocity of all particles
     for (std::size_t i = 0; i < particles.size(); ++i) {
       particles[i] = new_particles[i];
-    }
-
-    // Apply boundary condition
-    for (auto& p : particles) {
-      boundary.apply(p.position());
     }
 
     // Output each step

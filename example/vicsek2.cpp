@@ -71,7 +71,6 @@ int main() {
       const auto& v = p.velocity();
       auto& nx = new_particles[i].position();
       auto& nv = new_particles[i].velocity();
-      const auto& interactors = adjacency_list[i];  // particles interact with i
       const auto& neighbors = adjacency_list[i];
 
       // Position at next step
