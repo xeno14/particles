@@ -173,9 +173,9 @@ class XRange {
       public:
         iterator(T i) : count_(i) {}
         iterator(const iterator& it) : count_(it.count_) {}
-        iterator operator++() {
+        iterator& operator++() {
           ++count_;
-          return iterator(count_);
+          return *this;
         }
         iterator operator++(int) {
           iterator old(*this);
@@ -270,11 +270,8 @@ class EnumerateRange {
     iterator_pair_type end_;
 };
 
-/**
- * @todo something is wrong when using with for statement
- */
 template <class Range>
-inline auto enumerate(Range range, std::size_t start=0) {
+inline auto enumerate(Range& range, std::size_t start=0) {
   return EnumerateRange<Range>(range, start);
 }
 
@@ -345,6 +342,7 @@ auto convert_iterator(Iterator it, Converter f) {
 using namespace particles;
 OVERLOAD_STD_BEGIN_AND_END(class... Range,
                            range::ZipContainer<Range...>);
+OVERLOAD_STD_BEGIN_AND_END(class T, range::XRange<T>);
 
 /**
  * @brief enumerate macro
