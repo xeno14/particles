@@ -2,6 +2,7 @@
  * \file vec.hpp
  *
  * @todo add examples
+ * @todo multiply and division using expression template
  */
 
 #pragma once
@@ -69,6 +70,20 @@ class Vec {
     typedef expression::Minus<value_type> Op;
     typedef expression::Exp<Vec, Op, R> Exp;
     return Exp(*this, r);
+  }
+
+  auto operator*(T x) {
+    typedef expression::Multiply<T> Op;
+    typedef expression::Scalar<T> Scalar;
+    typedef expression::Exp<Vec, Op, Scalar> Exp;
+    return Exp(*this, Scalar(x));
+  }
+
+  auto operator/(T x) {
+    typedef expression::Divide<T> Op;
+    typedef expression::Scalar<T> Scalar;
+    typedef expression::Exp<Vec, Op, Scalar> Exp;
+    return Exp(*this, Scalar(x));
   }
 
   // Iterators
