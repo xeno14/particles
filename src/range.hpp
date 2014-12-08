@@ -120,7 +120,7 @@ class ZipIterator {
  * @todo const iterator
  */
 template <class... Range>
-class ZipContainer {
+class ZipRange {
   typedef std::tuple<typename Range::iterator...> iterator_tuple_type;
 
   public:
@@ -128,7 +128,7 @@ class ZipContainer {
    typedef ZipIterator<iterator_tuple_type, internal::cref, Range...>
        const_iterator;
 
-   ZipContainer(Range&... ranges)
+   ZipRange(Range&... ranges)
        : begins_(std::begin(ranges)...), ends_(std::end(ranges)...) {}
 
    auto begin() { return iterator(begins_); }
@@ -161,7 +161,7 @@ class ZipContainer {
  */
 template <class... Range>
 inline auto zip(Range&... ranges) {
-  return ZipContainer<Range...>(ranges...);
+  return ZipRange<Range...>(ranges...);
 }
 
 
@@ -341,7 +341,7 @@ auto convert_iterator(Iterator it, Converter f) {
 
 using namespace particles;
 OVERLOAD_STD_BEGIN_AND_END(class... Range,
-                           range::ZipContainer<Range...>);
+                           range::ZipRange<Range...>);
 OVERLOAD_STD_BEGIN_AND_END(class T, range::XRange<T>);
 
 /**

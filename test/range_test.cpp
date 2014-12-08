@@ -40,10 +40,10 @@ TEST(RangeTest, ref_tuple) {
   EXPECT_EQ(10, v[0]);
 }
 
-TEST(RangeTest, ZipContainer) {
+TEST(RangeTest, ZipRange) {
   std::vector<int> u {1, 2, 3}, v {4, 5, 6};
 
-  auto zipcon = range::ZipContainer<decltype(u), decltype(v)>(u, v);
+  auto zipcon = range::ZipRange<decltype(u), decltype(v)>(u, v);
 
   EXPECT_EQ(zipcon.begin(), std::begin(zipcon));
   EXPECT_EQ(zipcon.end(), std::end(zipcon));
