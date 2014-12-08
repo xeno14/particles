@@ -94,10 +94,13 @@ TEST(RangeTest, xrange) {
   result.clear();
   for(auto n : range::xrange(3)) {
     result.push_back(n);
+    n++;
   }
   EXPECT_EQ(0, result[0]);
   EXPECT_EQ(1, result[1]);
   EXPECT_EQ(2, result[2]);
+
+  // for (auto n : range
 }
 
 TEST(RangeTest, zip) {
