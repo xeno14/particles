@@ -52,6 +52,13 @@ class Particle {
   /** @brief returns i-th element of velocity (const) */
   const T& velocity(std::size_t i) const { return velocity_[i]; }
 
+  T squared_distance(const Particle<T, N>& p) const {
+    return position().squared_distance(p.position());
+  }
+  T squared_distance(const Particle<T, N>* p) const {
+    return position().squared_distance(p->position());
+  }
+
   /** @brief dimension of vector */
   constexpr std::size_t dim() { return N; }
 
@@ -60,5 +67,14 @@ class Particle {
   Vec<T, N> velocity_;
   T mass_;
 };
+
+template <class T, std::size_t N>
+T squared_distance(const Particle<T, N>& p, const Particle<T, N>& q) {
+  return p.position().squared_distance(q.position());
+}
+template <class T, std::size_t N>
+T squared_distance(const Particle<T, N>* p, const Particle<T, N>* q) {
+  return p->position().squared_distance(q->position);
+}
 
 }  // namespace particles
