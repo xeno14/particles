@@ -1,7 +1,8 @@
 /**
  * @file random.hpp
  * @bried utilities for using random numbers
- * @todo substitute to vec directly, operator[] and std::size
+ *
+ * @todo isotoropic rand (on a sphere)
  */
 
 #pragma once

@@ -21,15 +21,26 @@
 namespace particles {
 namespace search {
 
+/**
+ * @brief find particles distance within r
+ *
+ * @todo floating point exception??
+ */
 template <class Range, class T, std::size_t N>
 auto distance_within(Range& candidates, const Particle<T, N>& p, const T r) {
   auto last = std::remove_if(std::begin(candidates), std::end(candidates),
                              [&p, r](const Particle<T, N>* q) {
     return p.squared_distance(q) > r * r;
   });
+  candidates.resize(last - candidates.begin());
   return last;
 }
 
+/**
+ * @brief find n nearest particles
+ *
+ * @param candidates list of pointer to particles
+ */
 template <class Range, class T, std::size_t N>
 auto nearest(Range& candidates, const Particle<T, N>& p,
              const std::size_t n = 1) {
@@ -40,8 +51,10 @@ auto nearest(Range& candidates, const Particle<T, N>& p,
             [&p](const P* p1, const P* p2) {
     return p.squared_distance(p1) < p.squared_distance(p2);
   });
-  const auto sz = std::min<std::size_t>(n, std::end(candidates) - std::begin(candidates));
-  return std::begin(candidates) + sz;
+  const auto sz =
+      std::min<std::size_t>(n, std::end(candidates) - std::begin(candidates));
+  candidates.resize(sz);
+  return candidates.end();
 }
 
 template <class T, std::size_t N>
