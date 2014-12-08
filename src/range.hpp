@@ -143,21 +143,22 @@ class ZipRange {
 
 /**
  * @brief zip iteration
- * @todo const range& (type of iterator should be specified here)
  * @pre 
  *   - all ranges must have same size, otherwise undefined behavior
  *   - range has type iterator (range::iterator)
+ *
  * @code
  * std::vector<int> u {1,2,3}, v {4,5,6};
  *
  * for (auto z : range::zip(u, v)) {
- *   auto x = std::get<0>(z);  // element of u
- *   auto y = std::get<1>(z);  // element of v
+ *   auto& x = std::get<0>(z);  // element of u
+ *   auto& y = std::get<1>(z);  // element of v
  *   x *= -1;
  *   y *= -1;
  * }
  * // u = {-1,-2,-3}, v = {-4,-5,-6}
  * @endcode
+ * @todo const range& (type of iterator should be specified here)
  */
 template <class... Range>
 inline auto zip(Range&... ranges) {
@@ -214,6 +215,18 @@ inline auto xrange(T first, T last) {
   return XRange<T>(first, last);
 }
 
+/**
+ * @brief python-line xrange
+ * @todo step
+ *
+ * @code
+ * int sum=0;
+ * for (auto n : range::xrange(1, 10)) {  // n=1,2,...,9
+ *   sum+=n;
+ * }
+ * cout << n << endl;   // 45
+ * @endcode
+ */
 template <class T=std::size_t>
 inline auto xrange(T last) {
   return xrange<T>(0, last);
@@ -270,6 +283,17 @@ class EnumerateRange {
     iterator_pair_type end_;
 };
 
+/**
+ * @brief python-like enumerate
+ *
+ * @code
+ * vector<int> v = {1,2,3};
+ * for (auto e : range::enumerate(v)) {
+ *   e.first;        // 0, 1, 2
+ *   e.second += 2;  // v[0]+=2, v[1]+=2, v[2]+=2
+ * }
+ * @endcode
+ */
 template <class Range>
 inline auto enumerate(Range& range, std::size_t start=0) {
   return EnumerateRange<Range>(range, start);
@@ -280,14 +304,6 @@ inline auto enumerate(Range& range, std::size_t start=0) {
  * other converter and Iterator.
  *
  * Use this through convert_iterator.
- * @code
- * vector<vector<int>> v {{1,2}, {3,4}, {5,6}, {7,8}};
- * auto it convert_iterator(v.begin(), [](vector<int>& u){return u[0];});
- * // 1, 3, 5, 7
- * while (it != v.end()) 
- *   cout << *(it++) << endl;
- * }
- * @endcode
  *
  * @see convert_iterator
  * @brief convert iterator
@@ -330,6 +346,18 @@ class ConvertIterator {
  * @tparam Converter rule to convert iterator
  * @param it iterator to hold
  * @param f converter
+ *
+ * @code
+ * vector<pair<int,int>> v {{1,2}, {3,4}, {5,6}, {7,8}};
+ *
+ * // Copy. If you want to get reference, use std::ref as return value of
+ * // the converter. 
+ * auto it convert_iterator(v.begin(), [](pair<int,int>& u){return u.first;});
+ * // 1, 3, 5, 7
+ * while (it != v.end()) 
+ *   cout << *(it++) << endl;
+ * }
+ * @endcode
  */
 template <class Iterator, class Converter>
 auto convert_iterator(Iterator it, Converter f) {

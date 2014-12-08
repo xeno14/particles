@@ -11,12 +11,12 @@ using namespace particles;
 
 template<class Itr>
 auto first_iterator(Itr it) {
-  static auto cvt = [](std::vector<int>& u) { return u[0]; };
+  static auto cvt = [](std::pair<int, int>& u) { return std::ref(u.first); };
   return range::convert_iterator(it, cvt);
 }
 
 TEST(RangeTest, ConvertIterator) {
-  std::vector<std::vector<int>> v{{1, 2}, {3, 4}, {5, 6}, {7, 8}};
+  std::vector<std::pair<int, int>> v{{1, 2}, {3, 4}, {5, 6}, {7, 8}};
 
   auto first = first_iterator(v.begin());
   auto last = first_iterator(v.end());
@@ -27,6 +27,12 @@ TEST(RangeTest, ConvertIterator) {
   EXPECT_EQ(7, *(it++));
   EXPECT_TRUE(it == last);
   EXPECT_TRUE(it == v.end());
+
+  // reference check
+  it = first;
+  (*it) *= -1;
+  EXPECT_EQ(-1, v[0].first);
+  EXPECT_EQ( 2, v[0].second);
 }
 
 /** @todo use TEST_F */
