@@ -165,6 +165,58 @@ inline auto zip(Range&... ranges) {
 }
 
 
+template <class T=int>
+class XRange {
+
+  public:
+    class iterator {
+      public:
+        iterator(T i) : count_(i) {}
+        iterator(const iterator& it) : count_(it.count_) {}
+        iterator operator++() {
+          ++count_;
+          return iterator(count_);
+        }
+        iterator operator++(int) {
+          iterator old(*this);
+          operator++();
+          return old;
+        }
+        iterator& operator=(const iterator& it) {
+          count_ = it.count_;
+          return *this;
+        }
+        bool operator==(const iterator& it) const {
+          return count_ == it.count_;
+        }
+        bool operator!=(const iterator& it) const {
+          return count_ != it.count_;
+        }
+        T& operator*() { res_ = count_; return std::ref(res_); }
+      private:
+        T count_;  // changed only by operator++
+        T res_;
+    };
+    
+    XRange(T first, T last) : first_(first), last_(last) {}
+    auto begin() { return iterator(first_); }
+    auto end() { return iterator(last_); }
+
+  private:
+    T first_, last_;
+};
+
+template <class T=int>
+inline auto xrange(T first, T last) {
+  return XRange<T>(first, last);
+}
+
+template <class T=std::size_t>
+inline auto xrange(T last) {
+  return xrange<T>(0, last);
+}
+
+
 template <class Range>
 class EnumerateRange {
   typedef std::tuple<std::size_t, typename Range::iterator> iterator_pair_type;

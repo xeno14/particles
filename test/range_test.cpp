@@ -70,6 +70,36 @@ TEST(RangeTest, ZipContainer) {
   EXPECT_EQ(last, it);
 }
 
+TEST(RangeTest, XRange) {
+  range::XRange<int> xrange(1, 4); // 1, 2, 3
+  auto it = xrange.begin();
+
+  EXPECT_EQ(1, *it); ++it;
+  EXPECT_EQ(2, *(it++));
+  EXPECT_EQ(3, *it); ++it;
+  EXPECT_EQ(xrange.end(), it);
+}
+
+TEST(RangeTest, xrange) {
+  std::vector<int> result;
+
+  result.clear();
+  for(auto n : range::xrange(-3, 0)) {
+    result.push_back(n);
+  }
+  EXPECT_EQ(-3, result[0]);
+  EXPECT_EQ(-2, result[1]);
+  EXPECT_EQ(-1, result[2]);
+
+  result.clear();
+  for(auto n : range::xrange(3)) {
+    result.push_back(n);
+  }
+  EXPECT_EQ(0, result[0]);
+  EXPECT_EQ(1, result[1]);
+  EXPECT_EQ(2, result[2]);
+}
+
 TEST(RangeTest, zip) {
   std::vector<int> u {1, 2, 3}, v {4, 5, 6};
 
