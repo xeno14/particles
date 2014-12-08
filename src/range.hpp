@@ -222,7 +222,7 @@ inline auto xrange(T last) {
 
 template <class Range>
 class EnumerateRange {
-  typedef std::tuple<std::size_t, typename Range::iterator> iterator_pair_type;
+  typedef std::pair<std::size_t, typename Range::iterator> iterator_pair_type;
   public:
    class iterator {
      public:
@@ -248,7 +248,7 @@ class EnumerateRange {
        return iterator_pair_ != rhs.iterator_pair_;
      }
      auto operator*() {
-       return std::make_tuple(std::get<0>(iterator_pair_),
+       return std::make_pair(std::get<0>(iterator_pair_),
                               std::ref(*(std::get<1>(iterator_pair_))));
      }
     private:

@@ -62,8 +62,9 @@ int main() {
     // Create adjacency list for all particles
     searcher.search(adjacency_list, particles);
 
-    // for (std::size_t i = 0; i < particles.size(); ++i) {
-    ENUMERATE_BEGIN(i, p, particles) {
+    for (auto e : range::enumerate(particles)) {
+      auto  i = e.first;
+      auto& p = e.second;
       const auto& x = p.position();
       const auto& v = p.velocity();
       auto& nx = new_particles[i].position();
@@ -82,7 +83,7 @@ int main() {
       // Set new values
       nx = x + v;
       nv.normalize(v0);
-    } ENUMERATE_END;
+    };
 
     // Renew position and velocity of all particles
     for (std::size_t i = 0; i < particles.size(); ++i) {

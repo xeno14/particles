@@ -178,11 +178,12 @@ TEST(RangeTest, enumerate) {
   for (auto t : range::enumerate(v, -2)) {
     indexes.push_back(std::get<0>(t));
     std::get<1>(t) *= -1; // reference check
+    t.second += 1;
   }
   EXPECT_EQ(-2, indexes[0]);
   EXPECT_EQ(-1, indexes[1]);
   EXPECT_EQ( 0, indexes[2]);
-  EXPECT_EQ(1, v[0]);
-  EXPECT_EQ(2, v[1]);
-  EXPECT_EQ(3, v[2]);
+  EXPECT_EQ(2, v[0]);
+  EXPECT_EQ(3, v[1]);
+  EXPECT_EQ(4, v[2]);
 }
