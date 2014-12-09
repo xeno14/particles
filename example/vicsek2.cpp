@@ -53,6 +53,7 @@ int main() {
   }
 
   // Output for first step
+  fout << "x" << "\t" << "y" << "\t" << "u" << "\t" << "v" << std::endl;
   fout << std::scientific;
   io::output_particles(fout, particles.begin(), particles.end(), "\t");
   fout << "\n\n";

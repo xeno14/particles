@@ -47,6 +47,7 @@ int main() {
   }
 
   // Output for first step
+  fout << "x\ty\tz\tu\tv\tw" << std::endl;
   fout << std::scientific;
   io::output_particles(fout, particles.begin(), particles.end(), "\t");
   fout << "\n\n";
