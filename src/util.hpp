@@ -4,6 +4,7 @@
  * @brief utilities: macros, and others
  */
 
+#include <iostream>
 
 /**
  * @brief disallow copy constructor and operator=
@@ -37,3 +38,50 @@
     return c.end(); \
   } \
   }
+
+/**
+ * @brief check condition
+ *
+ * @code
+ * CHECK(1 == 1) << "one is one\n";     // output nothing
+ * CHECK(1 == 2) << "one is two\n";     // terminated here!!
+ * @endcode
+ */
+#define CHECK(cond)                                                       \
+  ((cond) ? (particles::util::internal::CheckImpl(true, std::cerr) << "") \
+          : (particles::util::internal::CheckImpl(false, std::cerr)       \
+             << __FILE__ << ":" << __LINE__ << " " #cond " "))
+
+namespace particles {
+namespace util {
+namespace internal {
+
+/** @brief output nothing */
+class NullOstream : public std::ostream {
+  public:
+    template <class T>
+    std::ostream& operator<<(const T& t) {
+      return *this;
+    }
+};
+
+class CheckImpl {
+ public:
+  CheckImpl(bool cond, std::ostream& ost) : cond_(cond), ost_(ost) {}
+  ~CheckImpl() {
+    if (!cond_) std::exit(EXIT_FAILURE);
+  }
+  template <class T>
+  std::ostream& operator<<(const T& t) {
+    static NullOstream null_ostream;
+    return cond_ ? null_ostream : (ost_ << t);
+  }
+ private:
+ bool cond_;
+  std::ostream& ost_;
+};
+
+}  // namespace internal
+
+}  // namespace util
+}  // namespace particles
