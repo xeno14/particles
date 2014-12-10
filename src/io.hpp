@@ -12,7 +12,6 @@
 
 namespace {
 
-constexpr char kNullChar = '\0';
 constexpr auto kNullString = "";
 
 }  // anonymous namespace
@@ -66,6 +65,8 @@ struct ToOStreamImpl<1> {
  *  //[1, 2, 3]
  *  io::output(std::cout, t, ", ", "[", "]");
  * @endcode
+ *
+ * @todo overload for vec and particle
  */
 template <std::size_t N, class T>
 std::ostream& output(std::ostream& os, const T& t,
@@ -120,7 +121,7 @@ std::ostream& output_particle(std::ostream& os, const Particle<T, N>& p,
 template <class Iterator>
 std::ostream& output_particles(std::ostream& os, Iterator first, Iterator last,
                                const std::string& delimiter = " ",
-                               const std::string newline = "\n") {
+                               const std::string& newline = "\n") {
   auto it = first;
   while (it != last) {
     output_particle(os, *it, delimiter);
@@ -143,6 +144,8 @@ namespace std {
  * @endcode
  *
  * @brief operator<< for Vec
+ *
+ * @todo move to vec.hpp
  */
 template <class T, size_t N>
 ostream& operator<<(ostream& os, particles::Vec<T,N>& v) {
@@ -156,6 +159,8 @@ ostream& operator<<(ostream& os, particles::Vec<T,N>& v) {
  * @endcode
  *
  * @brief operator<< for Particle
+ *
+ * @todo move to particle.hpp
  */
 template <class T, size_t N>
 ostream& operator<<(ostream& os, particles::Particle<T,N>& p) {

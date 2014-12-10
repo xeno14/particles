@@ -1,7 +1,8 @@
 /**
  * @file random.hpp
  * @bried utilities for using random numbers
- * @todo substitute to vec directly, operator[] and std::size
+ *
+ * @todo isotoropic rand (on a sphere)
  */
 
 #pragma once
@@ -10,6 +11,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <cmath>
 #include <functional>
 #include <random>
 #include <type_traits>
@@ -72,7 +74,7 @@ struct UniformDistribution<T, false, true> {
   typedef std::uniform_real_distribution<T> type;
 };
 
-}  // namespace
+}  // anonymous namespace
 
 
 /**
@@ -138,6 +140,47 @@ class UniformRand
 
  private:
   typename UniformDistribution<T>::type distribution_;
+};
+
+template <class T>
+inline T get_rand(T min, T max) {
+  UniformRand<T>::set_range(min, max);
+  return UniformRand<T>::get();
+}
+
+template <class T, std::size_t N, class Engine = std::mt19937>
+struct IsotoropicRand;
+
+template <class T, class Engine>
+struct IsotoropicRand<T, 2, Engine> {
+  struct Expression {
+    T x[2];
+
+    Expression(T r) {
+      T theta = get_rand<T>(0, static_cast<T>(2 * M_PI));
+      x[0] = r * cos(theta);
+      x[1] = r * sin(theta);
+    }
+    T operator[](std::size_t i) const { return x[i]; }
+  };
+  static Expression get_vec(T r) { return Expression(r); }
+};
+
+template <class T, class Engine>
+struct IsotoropicRand<T, 3, Engine> {
+  struct Expression {
+    T x[3];
+
+    Expression(T r) {
+      T phi = get_rand<T>(0, static_cast<T>(2*M_PI));
+      T theta = get_rand<T>(0, static_cast<T>(M_PI));
+      x[0] = r * sin(theta) * cos(phi);
+      x[1] = r * sin(theta) * sin(phi);
+      x[2] = r * cos(theta);
+    }
+    T operator[](std::size_t i) const { return x[i]; }
+  };
+  static Expression get_vec(T r) { return Expression(r); }
 };
 
 }  // namespace random
