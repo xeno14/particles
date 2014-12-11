@@ -169,6 +169,7 @@ struct IsotoropicRand<T, 2, Engine> {
 template <class T, class Engine>
 struct IsotoropicRand<T, 3, Engine> {
   struct Expression {
+    typedef value_type T;
     T x[3];
 
     Expression(T r) {
