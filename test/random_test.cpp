@@ -1,8 +1,12 @@
+#include "io.hpp"
 #include "random.hpp"
 #include "vec.hpp"
 
 #include <gtest/gtest.h>
 
+#include <fstream>
+
+using namespace particles;
 using particles::random::UniformRand;
 
 const int NUM_TRY = 1000;
@@ -76,5 +80,33 @@ TEST(RandomTest, get_vec) {
     EXPECT_GT(3, result[1]);
     EXPECT_LE(3, result[2]);
     EXPECT_GT(4, result[2]);
+  }
+}
+
+TEST(RandomTest, isotoropic2) {
+  Vec<double, 2> v;
+
+  // Already checked plotting
+  // std::ofstream fout("isotoropic2.dat");
+  for(int i=0; i<NUM_TRY; i++) {
+    v = random::IsotoropicRand<double, 2>::get_vec(10.0);
+    EXPECT_DOUBLE_EQ(v.squared_length(), 10.0 * 10.0);
+
+    // io::output<2>(fout, v);
+    // fout << "\n";
+  }
+}
+
+TEST(RandomTest, isotoropic3) {
+  Vec<double, 3> v;
+
+  // Already checked plotting
+  // std::ofstream fout("isotoropic3.dat");
+  for(int i=0; i<NUM_TRY; i++) {
+    v = random::IsotoropicRand<double, 3>::get_vec(10.0);
+    EXPECT_DOUBLE_EQ(v.squared_length(), 10.0 * 10.0);
+
+    // io::output<3>(fout, v);
+    // fout << "\n";
   }
 }

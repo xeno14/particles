@@ -65,6 +65,8 @@ struct ToOStreamImpl<1> {
  *  //[1, 2, 3]
  *  io::output(std::cout, t, ", ", "[", "]");
  * @endcode
+ *
+ * @todo overload for vec and particle
  */
 template <std::size_t N, class T>
 std::ostream& output(std::ostream& os, const T& t,
@@ -142,6 +144,8 @@ namespace std {
  * @endcode
  *
  * @brief operator<< for Vec
+ *
+ * @todo move to vec.hpp
  */
 template <class T, size_t N>
 ostream& operator<<(ostream& os, particles::Vec<T,N>& v) {
@@ -155,6 +159,8 @@ ostream& operator<<(ostream& os, particles::Vec<T,N>& v) {
  * @endcode
  *
  * @brief operator<< for Particle
+ *
+ * @todo move to particle.hpp
  */
 template <class T, size_t N>
 ostream& operator<<(ostream& os, particles::Particle<T,N>& p) {

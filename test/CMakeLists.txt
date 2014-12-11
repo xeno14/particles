@@ -1,3 +1,4 @@
+add_gtest(util_test util_test.cpp "")
 add_gtest(expression_test expression_test.cpp "")
 add_gtest(vec_test vec_test.cpp "")
 add_gtest(range_test range_test.cpp "")
