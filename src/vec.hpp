@@ -51,8 +51,10 @@ class Vec {
   bool operator==(const E& r) const;
   template <class E>
   bool operator!=(const E& r) const;
-  Vec& operator+=(const Vec& v);
-  Vec& operator-=(const Vec& v);
+  template <class E>
+  Vec& operator+=(const E& v);
+  template <class E>
+  Vec& operator-=(const E& v);
   Vec& operator*=(T x);
   Vec& operator/=(T x);
 
@@ -148,14 +150,16 @@ inline bool Vec<T, N>::operator!=(const E& r) const {
 }
 
 template <class T, std::size_t N>
-inline Vec<T, N>& Vec<T, N>::operator+=(const Vec<T, N>& v) {
-  for (std::size_t i = 0; i < N; ++i) (*this)[i] += v[i];
+template <class E>
+inline Vec<T, N>& Vec<T, N>::operator+=(const E& r) {
+  for (std::size_t i = 0; i < N; ++i) (*this)[i] += r[i];
   return *this;
 }
 
 template <class T, std::size_t N>
-inline Vec<T, N>& Vec<T, N>::operator-=(const Vec<T, N>& v) {
-  for (std::size_t i = 0; i < N; ++i) (*this)[i] -= v[i];
+template <class E>
+inline Vec<T, N>& Vec<T, N>::operator-=(const E& r) {
+  for (std::size_t i = 0; i < N; ++i) (*this)[i] -= r[i];
   return *this;
 }
 

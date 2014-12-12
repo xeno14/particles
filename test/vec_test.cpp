@@ -70,6 +70,18 @@ TEST(VecTest, operators) {
   EXPECT_DOUBLE_EQ(2, result[1]);
   EXPECT_DOUBLE_EQ(3.5, result[2]);
 
+  result.fill(0);
+  result += v1 + v2;
+  EXPECT_DOUBLE_EQ(result[0], 1);
+  EXPECT_DOUBLE_EQ(result[1], 3);
+  EXPECT_DOUBLE_EQ(result[2], 5);
+
+  result.fill(0);
+  result -= v1 + v2;
+  EXPECT_DOUBLE_EQ(result[0], -1);
+  EXPECT_DOUBLE_EQ(result[1], -3);
+  EXPECT_DOUBLE_EQ(result[2], -5);
+
   const auto& z = decltype(result)::zero();
   result = z; 
   EXPECT_TRUE(result == z);
