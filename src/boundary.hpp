@@ -69,6 +69,14 @@ struct PeriodicRectImpl<T, 0> {
 
 }  // namespace internal
 
+/**
+ * @brief do nothing
+ */
+template <class T, std::size_t N>
+struct FreeBoundary {
+  template <class U>
+  void apply(U& u) {}
+};
 
 /**
  * @brief apply periodic boundary condition to I-th dimension
