@@ -36,3 +36,16 @@ TEST(BoundaryTest, PeriodicBoundary) {
   // pb.apply(p.position());
   // EXPECT_DOUBLE_EQ(0.2, p.position(0));
 }
+
+TEST(BoundaryTest, PeriodicBoundaryConstructor) {
+  P2 p;
+
+  // Square with length 1.0
+  boundary::PeriodicBoundary<double, 2> pb(1.);
+
+  p.position(0) = 1.2;
+  p.position(1) = -1.1;
+  pb.apply(p.position());
+  EXPECT_DOUBLE_EQ(0.2, p.position(0));
+  EXPECT_DOUBLE_EQ(0.9, p.position(1));
+}

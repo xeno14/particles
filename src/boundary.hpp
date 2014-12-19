@@ -80,6 +80,7 @@ struct FreeBoundary {
 
 /**
  * @brief apply periodic boundary condition to I-th dimension
+ *
  * @tparam T
  * @tparam N dimension
  */
@@ -92,6 +93,11 @@ class PeriodicBoundary {
     std::tuple<Args...> values(args...);
     expression::assign_from_even<N>(left_, values);
     expression::assign_from_odd<N>(right_, values);
+  }
+
+  PeriodicBoundary(T L) : left_(), right_() {
+    left_.fill(0);
+    right_.fill(L);
   }
 
   template <class U>
