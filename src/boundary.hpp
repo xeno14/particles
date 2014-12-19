@@ -69,13 +69,18 @@ struct PeriodicRectImpl<T, 0> {
 
 }  // namespace internal
 
+template <class T, std::size_t N>
+class BoundaryBase {
+ public:
+  virtual void apply(Vec<T, N>& v) = 0;
+};
+
 /**
  * @brief do nothing
  */
 template <class T, std::size_t N>
-struct FreeBoundary {
-  template <class U>
-  void apply(U& u) {}
+struct FreeBoundary : public BoundaryBase<T, N> {
+  void apply(Vec<T, N>& u) {}
 };
 
 /**
@@ -85,7 +90,7 @@ struct FreeBoundary {
  * @tparam N dimension
  */
 template <class T, std::size_t N>
-class PeriodicBoundary {
+class PeriodicBoundary : public BoundaryBase<T, N> {
  public:
   template <class... Args>
   PeriodicBoundary(Args... args) : left_(), right_() {
@@ -100,8 +105,7 @@ class PeriodicBoundary {
     right_.fill(L);
   }
 
-  template <class U>
-  void apply(U& u) {
+  void apply(Vec<T, N>& u) {
     internal::PeriodicRectImpl<T, N>::apply(u, left_, right_);
   }
 
