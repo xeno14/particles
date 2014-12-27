@@ -14,7 +14,7 @@ TEST(BoundaryTest, FreeBoundary) {
   P2 p({1,2},{3,4});
 
   boundary::FreeBoundary<double, 2> b;
-  b.apply(p.position());
+  b.apply(p);
 
   EXPECT_DOUBLE_EQ(1, p.position(0));
   EXPECT_DOUBLE_EQ(2, p.position(1));
@@ -27,7 +27,7 @@ TEST(BoundaryTest, PeriodicBoundary) {
 
   p.position(0) = 1.2;
   p.position(1) = -1.1;
-  pb.apply(p.position());
+  pb.apply(p);
   EXPECT_DOUBLE_EQ(0.2, p.position(0));
   EXPECT_DOUBLE_EQ(0.9, p.position(1));
 
@@ -45,7 +45,7 @@ TEST(BoundaryTest, PeriodicBoundaryConstructor) {
 
   p.position(0) = 1.2;
   p.position(1) = -1.1;
-  pb.apply(p.position());
+  pb.apply(p);
   EXPECT_DOUBLE_EQ(0.2, p.position(0));
   EXPECT_DOUBLE_EQ(0.9, p.position(1));
 }
