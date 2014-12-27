@@ -69,6 +69,10 @@ class SearcherBase {
    */
   virtual void search(adjacency_list_type& adjacency_list,
                       const std::vector<particle_type>& particles) = 0;
+
+  auto create_adjacency_list(const std::size_t n) {
+    return adjacency_list_type(n);
+  }
 };
 
 
@@ -198,7 +202,16 @@ struct DelaunaySearchImpl {
  * @tparam N dimension
  */
 template <class T, std::size_t N>
-class DelaunaySearcher;
+class DelaunaySearcher : public SearcherBase<T, N> {
+ public:
+  typedef typename SearcherBase<T, N>::particle_type particle_type;
+  typedef typename SearcherBase<T, N>::adjacency_list_type adjacency_list_type;
+
+  void search(adjacency_list_type& adjacency_list,
+              const std::vector<particle_type>& particles) {
+    // Not implemented!!
+  }
+};
 
 template <class T>
 class DelaunaySearcher<T, 3> : public SearcherBase<T, 3> {
