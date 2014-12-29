@@ -4,6 +4,8 @@
  * @brief utilities: macros, and others
  */
 
+#pragma once
+
 #include <iostream>
 
 /**

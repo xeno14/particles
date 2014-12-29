@@ -188,6 +188,18 @@ struct DelaunaySearchImpl {
   }
 };
 
+template <class T, std::size_t N>
+struct DelaunayType;
+
+template <class T>
+struct DelaunayType<T, 3> {
+  typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+  typedef CGAL::Triangulation_vertex_base_with_info_3<std::size_t, K> Vb;
+  typedef CGAL::Triangulation_data_structure_3<Vb> Tds;
+  typedef CGAL::Delaunay_triangulation_3<K, Tds, CGAL::Fast_location> Delaunay;
+  typedef Delaunay type;
+};
+
 }  // namespace internal
 
 
@@ -198,25 +210,18 @@ struct DelaunaySearchImpl {
  * @tparam N dimension
  */
 template <class T, std::size_t N>
-class DelaunaySearcher;
-
-template <class T>
-class DelaunaySearcher<T, 3> : public SearcherBase<T, 3> {
-  typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-  typedef CGAL::Triangulation_vertex_base_with_info_3<std::size_t, K> Vb;
-  typedef CGAL::Triangulation_data_structure_3<Vb> Tds;
-  typedef CGAL::Delaunay_triangulation_3<K, Tds, CGAL::Fast_location> Delaunay;
-  typedef Delaunay::Point Point;
+class DelaunaySearcher : public SearcherBase<T, N> {
+  typedef typename internal::DelaunayType<T, N>::Delaunay Delaunay;
 
  public:
-  typedef typename SearcherBase<T, 3>::particle_type particle_type;
-  typedef typename SearcherBase<T, 3>::adjacency_list_type adjacency_list_type;
+  typedef typename SearcherBase<T, N>::particle_type particle_type;
+  typedef typename SearcherBase<T, N>::adjacency_list_type adjacency_list_type;
 
-  DelaunaySearcher<T, 3>() : delaunay_() {}
+  DelaunaySearcher<T, N>() : delaunay_() {}
 
   void search(adjacency_list_type& adjacency_list,
               const std::vector<particle_type>& particles) {
-    internal::DelaunaySearchImpl<Delaunay, T, 3>::search(
+    internal::DelaunaySearchImpl<Delaunay, T, N>::search(
         delaunay_, adjacency_list, particles);
   }
 
