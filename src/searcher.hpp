@@ -69,6 +69,10 @@ class SearcherBase {
    */
   virtual void search(adjacency_list_type& adjacency_list,
                       const std::vector<particle_type>& particles) = 0;
+
+  auto create_adjacency_list(const std::size_t n) {
+    return adjacency_list_type(n);
+  }
 };
 
 

@@ -69,14 +69,28 @@ struct PeriodicRectImpl<T, 0> {
 
 }  // namespace internal
 
+template <class T, std::size_t N>
+class BoundaryBase {
+ public:
+  virtual void apply(Particle<T, N>& p) = 0;
+};
+
+/**
+ * @brief do nothing
+ */
+template <class T, std::size_t N>
+struct FreeBoundary : public BoundaryBase<T, N> {
+  void apply(Particle<T, N>& u) {}
+};
 
 /**
  * @brief apply periodic boundary condition to I-th dimension
+ *
  * @tparam T
  * @tparam N dimension
  */
 template <class T, std::size_t N>
-class PeriodicBoundary {
+class PeriodicBoundary : public BoundaryBase<T, N> {
  public:
   template <class... Args>
   PeriodicBoundary(Args... args) : left_(), right_() {
@@ -86,9 +100,13 @@ class PeriodicBoundary {
     expression::assign_from_odd<N>(right_, values);
   }
 
-  template <class U>
-  void apply(U& u) {
-    internal::PeriodicRectImpl<T, N>::apply(u, left_, right_);
+  PeriodicBoundary(T L) : left_(), right_() {
+    left_.fill(0);
+    right_.fill(L);
+  }
+
+  void apply(Particle<T, N>& p) {
+    internal::PeriodicRectImpl<T, N>::apply(p.position(), left_, right_);
   }
 
  private:

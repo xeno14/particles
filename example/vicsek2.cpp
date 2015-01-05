@@ -91,9 +91,7 @@ int main() {
     }
 
     // Apply boundary condition
-    for (auto& p : particles) {
-      boundary.apply(p.position());
-    }
+    for (auto& p : particles) boundary.apply(p);
 
     // Output each step
     io::output_particles(fout, particles.begin(), particles.end(), "\t");

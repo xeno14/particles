@@ -20,6 +20,9 @@ namespace particles {
 template <class T, std::size_t N>
 class Particle {
  public:
+  typedef T value_type;
+  static constexpr auto DIM = N;
+
   Particle() : position_(), velocity_(), mass_(1) {}
 
   Particle(const Vec<T, N>& x, const Vec<T, N>& v, T m=1)
@@ -60,7 +63,7 @@ class Particle {
   }
 
   /** @brief dimension of vector */
-  constexpr std::size_t dim() { return N; }
+  static constexpr std::size_t dim() { return N; }
 
  private:
   Vec<T, N> position_;
