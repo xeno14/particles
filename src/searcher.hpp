@@ -14,8 +14,10 @@
 #include <utility>
 #include <vector>
 
-#include <CGAL/Delaunay_triangulation_3.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Delaunay_triangulation_2.h>
+#include <CGAL/Delaunay_triangulation_3.h>
+#include <CGAL/Triangulation_vertex_base_with_info_2.h>
 #include <CGAL/Triangulation_vertex_base_with_info_3.h>
 
 namespace particles {
@@ -70,7 +72,11 @@ class SearcherBase {
   virtual void search(adjacency_list_type& adjacency_list,
                       const std::vector<particle_type>& particles) = 0;
 
-  auto create_adjacency_list(const std::size_t n) {
+  /**
+   * @brief Create adjacency_list_type array with size n
+   * @param n size
+   */
+  auto create_adjacency_list(const std::size_t n=0) {
     return adjacency_list_type(n);
   }
 };
@@ -141,37 +147,22 @@ struct VecToPoint<Point, T, 3> {
 };
 
 /**
- * @brief Executes triangulation and creates adjacency list
- * @tparam Delaunay triangulation
- * @tparam T floating point
- * @tparam N dimension
+ * @brief Walk adjacent vertices in 2d
  */
-template <class Delaunay, class T, std::size_t N>
-struct DelaunaySearchImpl {
-  typedef typename Delaunay::Point Point;
-  typedef typename Delaunay::Vertex_handle Vertex_handle;
+template <std::size_t N, class Delaunay, class AdjacencyList, class Particles>
+typename std::enable_if<N==2, void>::type
+  walk_adjacent_vertices(Delaunay& delaunay, AdjacencyList& adjacency_list, Particles& particles) {
+    typedef typename Delaunay::Vertex_handle Vertex_handle;
+  }
 
-  /**
-   * @brief execute searching
-   * @tparam AdjacencyList
-   * @tparam Iterator random access iterator
-   */
-  template <class AdjacencyList, class Particles>
-  static void search(Delaunay& delaunay, AdjacencyList& adjacency_list,
-                     const Particles& particles) {
-    // Triangulation
-    std::vector<std::pair<Point, std::size_t>> point_info;
-    std::size_t index = 0;
-    for (auto it = particles.begin(); it != particles.end(); ++it) {
-      const auto& pos = it->position();
-      auto point = VecToPoint<Point,T,N>::generate(pos);
-      point_info.emplace_back(point, index++);
-    }
-    delaunay.clear();
-    delaunay.insert(point_info.begin(), point_info.end());
+/**
+ * @brief Walk adjacent vertices in 3d
+ */
+template <std::size_t N, class Delaunay, class AdjacencyList, class Particles>
+typename std::enable_if<N==3, void>::type
+  walk_adjacent_vertices(Delaunay& delaunay, AdjacencyList& adjacency_list, Particles& particles) {
+    typedef typename Delaunay::Vertex_handle Vertex_handle;
 
-    // Set adjacent vertices
-    adjacency_list.resize(particles.size());
     std::vector<Vertex_handle> adjacent_vertices(particles.size());
     // Loop for all vertices
     auto vit = delaunay.finite_vertices_begin();
@@ -190,17 +181,63 @@ struct DelaunaySearchImpl {
       ++vit;
     }
   }
+
+/**
+ * @brief Executes triangulation and creates adjacency list
+ * @tparam Delaunay triangulation
+ * @tparam T floating point
+ * @tparam N dimension
+ */
+template <class Delaunay, class T, std::size_t N>
+struct DelaunaySearchImpl {
+  typedef typename Delaunay::Point Point;
+
+  /**
+   * @brief execute searching
+   * @tparam AdjacencyList
+   * @tparam Iterator random access iterator
+   */
+  template <class AdjacencyList, class Particles>
+  static void search(Delaunay& delaunay, AdjacencyList& adjacency_list,
+                     const Particles& particles) {
+    // Triangulation
+    std::vector<std::pair<Point, std::size_t>> point_info;
+    for (std::size_t i=0; i<particles.size(); i++) {
+      const auto& pos = particles[i].position();
+      auto point = VecToPoint<Point,T,N>::generate(pos);
+      point_info.emplace_back(point, i);
+    }
+    delaunay.clear();
+    delaunay.insert(point_info.begin(), point_info.end());
+
+    // Set adjacent vertices
+    adjacency_list.resize(particles.size());
+    walk_adjacent_vertices<N>(delaunay, adjacency_list, particles);
+  }
 };
 
+
+/**
+ * @brief Type of delaunay triangulation class.
+ */
 template <class T, std::size_t N>
 struct DelaunayType;
 
 template <class T>
 struct DelaunayType<T, 3> {
-  typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+  typedef CGAL::Exact_predicates_inexact_constructions_kernel         K;
   typedef CGAL::Triangulation_vertex_base_with_info_3<std::size_t, K> Vb;
-  typedef CGAL::Triangulation_data_structure_3<Vb> Tds;
+  typedef CGAL::Triangulation_data_structure_3<Vb>                    Tds;
   typedef CGAL::Delaunay_triangulation_3<K, Tds, CGAL::Fast_location> Delaunay;
+  typedef Delaunay type;
+};
+
+template <class T>
+struct DelaunayType<T, 2> {
+  typedef CGAL::Exact_predicates_inexact_constructions_kernel         K;
+  typedef CGAL::Triangulation_vertex_base_with_info_2<std::size_t, K> Vb;
+  typedef CGAL::Triangulation_data_structure_2<Vb>                    Tds;
+  typedef CGAL::Delaunay_triangulation_2<K, Tds>                      Delaunay;
   typedef Delaunay type;
 };
 
@@ -215,7 +252,7 @@ struct DelaunayType<T, 3> {
  */
 template <class T, std::size_t N>
 class DelaunaySearcher : public SearcherBase<T, N> {
-  typedef typename internal::DelaunayType<T, N>::Delaunay Delaunay;
+  typedef typename internal::DelaunayType<T, N>::type Delaunay;
 
  public:
   typedef typename SearcherBase<T, N>::particle_type particle_type;

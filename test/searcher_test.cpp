@@ -75,7 +75,12 @@ TEST(SearchTest, SimpleRangeSearch) {
   EXPECT_EQ(3, adjacency_list[3].size());
 }
 
-TEST(SearchTest, delaunay) {
+TEST(SearchTest, delaunay2) {
+  // search::DelaunaySearcher<double,2> searcher;
+  // auto adjacency_list = searcher.create_adjacency_list();
+}
+
+TEST(SearchTest, delaunay3) {
   // Assume that cwd is (project root)/build/test
   auto particles = read_particles3("../../test/data/3d.xyz");
   ASSERT_TRUE(particles.size()>0);
