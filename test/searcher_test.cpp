@@ -76,7 +76,7 @@ TEST(SearchTest, SimpleRangeSearch) {
 }
 
 TEST(SearchTest, delaunay2) {
-  // search::DelaunaySearcher<double,2> searcher;
+  search::DelaunaySearcher<double,2> searcher;
   // auto adjacency_list = searcher.create_adjacency_list();
 }
 

@@ -152,8 +152,6 @@ struct VecToPoint<Point, T, 3> {
 template <std::size_t N, class Delaunay, class AdjacencyList, class Particles>
 typename std::enable_if<N==2, void>::type
   walk_adjacent_vertices(Delaunay& delaunay, AdjacencyList& adjacency_list, Particles& particles) {
-    typedef typename Delaunay::Vertex_handle Vertex_handle;
-
     auto vit = delaunay.finite_vertices_begin();
     while (vit != delaunay.finite_vertices_end()) {
       auto& neighbors = adjacency_list[vit->info()];
@@ -161,10 +159,10 @@ typename std::enable_if<N==2, void>::type
 
       // Loop for adjacent vertices in circular way
       auto vc = delaunay.incident_vertices(vit);
-      decltype(cit) done = cit;
+      decltype(vc) done = vc;
       if (vc != 0) {
         do {
-          neighbors.push_back(&(particles[(*vc)->info()]));
+          neighbors.push_back(&(particles[vc->info()]));
         } while(++vc != done);
       }
       ++vit;
