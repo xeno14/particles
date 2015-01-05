@@ -151,7 +151,8 @@ struct VecToPoint<Point, T, 3> {
  */
 template <std::size_t N, class Delaunay, class AdjacencyList, class Particles>
 typename std::enable_if<N==2, void>::type
-  walk_adjacent_vertices(Delaunay& delaunay, AdjacencyList& adjacency_list, Particles& particles) {
+  walk_adjacent_vertices(
+      Delaunay& delaunay, AdjacencyList& adjacency_list, Particles& particles) {
     auto vit = delaunay.finite_vertices_begin();
     while (vit != delaunay.finite_vertices_end()) {
       auto& neighbors = adjacency_list[vit->info()];
@@ -162,7 +163,9 @@ typename std::enable_if<N==2, void>::type
       decltype(vc) done = vc;
       if (vc != 0) {
         do {
-          neighbors.push_back(&(particles[vc->info()]));
+          if (vc->info() < particles.size()) {  // validation for the vertex
+            neighbors.push_back(&(particles[vc->info()]));
+          }
         } while(++vc != done);
       }
       ++vit;
@@ -174,7 +177,8 @@ typename std::enable_if<N==2, void>::type
  */
 template <std::size_t N, class Delaunay, class AdjacencyList, class Particles>
 typename std::enable_if<N==3, void>::type
-  walk_adjacent_vertices(Delaunay& delaunay, AdjacencyList& adjacency_list, Particles& particles) {
+  walk_adjacent_vertices(
+      Delaunay& delaunay, AdjacencyList& adjacency_list, Particles& particles) {
     typedef typename Delaunay::Vertex_handle Vertex_handle;
 
     std::vector<Vertex_handle> adjacent_vertices(particles.size());

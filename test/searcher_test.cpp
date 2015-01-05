@@ -13,6 +13,20 @@ using namespace particles;
 typedef Particle<double, 2> P2;
 typedef Particle<double, 3> P3;
 
+std::vector<P2> read_particles2(
+    const std::string& filename) {
+  std::ifstream ifs(filename);
+  std::vector<P2> res;
+  double x,y;
+
+  while (ifs >> x >> y) {
+    Vec<double, 2> pos{x, y};
+    Vec<double, 2> vel;
+    res.emplace_back(pos, vel);
+  }
+  return res;
+}
+
 std::vector<P3> read_particles3(
     const std::string& filename) {
   std::ifstream ifs(filename);
@@ -76,8 +90,19 @@ TEST(SearchTest, SimpleRangeSearch) {
 }
 
 TEST(SearchTest, delaunay2) {
+  auto particles = read_particles2("../../test/data/2d.xyz");
+  ASSERT_TRUE(particles.size()>0);
+
   search::DelaunaySearcher<double,2> searcher;
-  // auto adjacency_list = searcher.create_adjacency_list();
+  auto adjacency_list = searcher.create_adjacency_list();
+  searcher.search(adjacency_list, particles);
+
+  EXPECT_EQ(3, adjacency_list[0].size());
+  EXPECT_EQ(2, adjacency_list[1].size());
+  EXPECT_EQ(4, adjacency_list[2].size());
+  EXPECT_EQ(3, adjacency_list[3].size());
+  EXPECT_EQ(4, adjacency_list[4].size());
+  EXPECT_EQ(4, adjacency_list[5].size());
 }
 
 TEST(SearchTest, delaunay3) {
