@@ -30,3 +30,12 @@ TEST(ParticleTest, constructor) {
   EXPECT_DOUBLE_EQ(4, p3.velocity(1)); 
   EXPECT_DOUBLE_EQ(5, p3.mass()); 
 }
+
+TEST(ParticleWithInfoText, constructor) {
+  ParticleWithInfo<double, 2, int> p0({1,2}, {3,4}, -1);
+  EXPECT_DOUBLE_EQ(1, p0.position(0)); 
+  EXPECT_DOUBLE_EQ(2, p0.position(1)); 
+  EXPECT_DOUBLE_EQ(3, p0.velocity(0)); 
+  EXPECT_DOUBLE_EQ(4, p0.velocity(1)); 
+  EXPECT_EQ(-1, p0.info());
+}

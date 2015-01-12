@@ -80,4 +80,20 @@ T squared_distance(const Particle<T, N>* p, const Particle<T, N>* q) {
   return p->position().squared_distance(q->position);
 }
 
+template <class T, std::size_t N, class I>
+class ParticleWithInfo : public Particle<T, N> {
+ public:
+  typedef T value_type;
+  static constexpr auto DIM = N;
+
+  ParticleWithInfo() : Particle<T, N>(), info_() {}
+  ParticleWithInfo(const Vec<T, N>& x, const Vec<T, N>& v, I i)
+      : Particle<T, N>(x, v), info_(i) {}
+  I& info() { return info_; }
+  const I& info() const { return info_; }
+
+ private:
+  I info_;
+};
+
 }  // namespace particles
