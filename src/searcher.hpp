@@ -59,9 +59,10 @@ auto nearest(Range& candidates, const Particle<T, N>& p,
   return candidates.end();
 }
 
-template <class T, std::size_t N, class particle_type=Particle<T, N>>
+template <class T, std::size_t N, class P>
 class SearcherBase {
  public:
+  typedef P particle_type;
   typedef std::vector<std::vector<const particle_type*>> adjacency_list_type;
 
   virtual ~SearcherBase() {}
@@ -92,10 +93,11 @@ class SearcherBase {
  * @tparam T floating point
  * @tparam N dimension
  */
-template <class T, std::size_t N, class particle_type=Particle<T, N>>
-class SimpleRangeSearch : public SearcherBase<T,N> {
+template <class T, std::size_t N, class P=Particle<T, N>>
+class SimpleRangeSearch : public SearcherBase<T, N, P> {
  public:
-  typedef typename SearcherBase<T, N>::adjacency_list_type adjacency_list_type;
+  typedef typename SearcherBase<T, N, P>::particle_type particle_type;
+  typedef typename SearcherBase<T, N, P>::adjacency_list_type adjacency_list_type;
 
   SimpleRangeSearch(T d) : distance_(d) {}
 
@@ -266,12 +268,13 @@ struct DelaunayType<T, 2> {
  * @tparam T floating point
  * @tparam N dimension
  */
-template <class T, std::size_t N, class particle_type=Particle<T, N>>
-class DelaunaySearcher : public SearcherBase<T, N, particle_type> {
+template <class T, std::size_t N, class P=Particle<T, N>>
+class DelaunaySearcher : public SearcherBase<T, N, P> {
   typedef typename internal::DelaunayType<T, N>::type Delaunay;
 
  public:
-  typedef typename SearcherBase<T, N>::adjacency_list_type adjacency_list_type;
+  typedef typename SearcherBase<T, N, P>::particle_type particle_type;
+  typedef typename SearcherBase<T, N, P>::adjacency_list_type adjacency_list_type;
 
   DelaunaySearcher() : delaunay_() {}
 
