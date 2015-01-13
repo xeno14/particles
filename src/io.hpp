@@ -106,6 +106,17 @@ std::ostream& output_particle(std::ostream& os, const Particle<T, N>& p,
   return os;
 }
 
+template <class T, std::size_t N, class I>
+std::ostream& output_particle(std::ostream& os,
+                              const ParticleWithInfo<T, N, I>& p,
+                              const std::string& delimiter = " ") {
+  internal::ToOStreamImpl<N>::apply(os, p.position(), delimiter);
+  os << delimiter;
+  internal::ToOStreamImpl<N>::apply(os, p.velocity(), delimiter);
+  os << delimiter << p.info();
+  return os;
+}
+
 /**
  * @brief output particles via iterator
  * @tparam Iterator input iterator
@@ -170,7 +181,7 @@ ostream& operator<<(ostream& os, particles::Particle<T,N>& p) {
   particles::io::output<N>(os, p.position(), ", ", "[", "]");
   os << ", ";
   particles::io::output<N>(os, p.velocity(), ", ", "[", "]");
-  return os << ", " << p.mass() << '}';
+  return os << '}';
 }
 
 /** @todo to_string */

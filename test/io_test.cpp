@@ -39,7 +39,7 @@ TEST(IoTest, output) {
 TEST(IoTest, output_particle) {
   std::stringstream ss;
 
-  Particle<int, 2> p({1,2},{3,4},5);
+  Particle<int, 2> p({1,2},{3,4});
 
   io::output_particle(ss, p, ",");
   EXPECT_EQ("1,2,3,4", ss.str());
@@ -78,9 +78,9 @@ TEST(IoTest, output_particles) {
 TEST(IoTest, Particle_ostream) {
   std::stringstream ss;
 
-  Particle<int, 2> p({1,2},{3,4},5);
+  Particle<int, 2> p({1,2},{3,4});
 
   ss << p;
-  EXPECT_EQ("{[1, 2], [3, 4], 5}", ss.str());
+  EXPECT_EQ("{[1, 2], [3, 4]}", ss.str());
   clear_ss(ss);
 }
