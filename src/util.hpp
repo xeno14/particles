@@ -85,7 +85,29 @@ class CheckImpl {
   std::ostream& ost_;
 };
 
+template <class T>
+struct TypeFromRef {
+  typedef T type;
+};
+
 }  // namespace internal
+
+template <class T>
+auto type_from_ref(const T& r) {
+  return internal::TypeFromRef<T>();
+}
+
 
 }  // namespace util
 }  // namespace particles
+
+/**
+ * @brief Get type removing reference
+ *
+ * @code
+ * vector<int> v = {1, 2, 3};
+ * TYPE_FROM_REF(v.begin()) n = 0;  // equivalent to int n
+ * @endcode
+ */
+#define TYPE_FROM_REF(ref) \
+  typename decltype(particles::util::type_from_ref(ref))::type
