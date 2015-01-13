@@ -21,30 +21,28 @@ template <class T, std::size_t N>
 class Particle {
  public:
   typedef T value_type;
+  typedef Vec<T, N> vec_type;
   static constexpr auto DIM = N;
 
-  Particle() : position_(), velocity_(), mass_(1) {}
+  Particle() : position_(), velocity_() {}
 
-  Particle(const Vec<T, N>& x, const Vec<T, N>& v, T m=1)
-      : position_(x), velocity_(v), mass_(m) {}
+  Particle(const Vec<T, N>& x, const Vec<T, N>& v)
+      : position_(x), velocity_(v) {}
 
   /** @brief specify position using initializer_list 
    *  @todo unable to construct using emplace_back (see searcher_test.cpp:21)
    */
-  Particle(std::initializer_list<T> init_list, T m = 1)
-      : position_(init_list), velocity_(), mass_(m) {}
+  Particle(std::initializer_list<T> init_list)
+      : position_(init_list), velocity_() {}
 
   /** @brief specify position and velocity using initializer_list */
-  Particle(std::initializer_list<T> pos_init, std::initializer_list<T> vel_init,
-           T m = 1)
-      : position_(pos_init), velocity_(vel_init), mass_(m) {}
+  Particle(std::initializer_list<T> pos_init, std::initializer_list<T> vel_init)
+      : position_(pos_init), velocity_(vel_init) {}
 
   Vec<T, N>& position() { return position_; }
   Vec<T, N>& velocity() { return velocity_; }
-  T& mass() { return mass_; }
   const Vec<T, N>& position() const { return position_; }
   const Vec<T, N>& velocity() const { return velocity_; }
-  const T& mass() const { return mass_; }
 
   /** @brief returns i-th element of position */
   T& position(std::size_t i) { return position_[i]; }
@@ -55,6 +53,12 @@ class Particle {
   /** @brief returns i-th element of velocity (const) */
   const T& velocity(std::size_t i) const { return velocity_[i]; }
 
+  T distance(const Particle<T, N>& p) const {
+    return position().distance(p.position());
+  }
+  T distance(const Particle<T, N>* p) const {
+    return position().distance(p->position());
+  }
   T squared_distance(const Particle<T, N>& p) const {
     return position().squared_distance(p.position());
   }
@@ -68,7 +72,6 @@ class Particle {
  private:
   Vec<T, N> position_;
   Vec<T, N> velocity_;
-  T mass_;
 };
 
 template <class T, std::size_t N>
@@ -84,6 +87,7 @@ template <class T, std::size_t N, class I>
 class ParticleWithInfo : public Particle<T, N> {
  public:
   typedef T value_type;
+  typedef Vec<T, N> vec_type;
   static constexpr auto DIM = N;
 
   ParticleWithInfo() : Particle<T, N>(), info_() {}
