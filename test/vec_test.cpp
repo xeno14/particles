@@ -82,6 +82,11 @@ TEST(VecTest, operators) {
   EXPECT_DOUBLE_EQ(result[1], -3);
   EXPECT_DOUBLE_EQ(result[2], -5);
 
+  result = (v1 + v2) * 2.0;
+  EXPECT_DOUBLE_EQ(result[0],  2);
+  EXPECT_DOUBLE_EQ(result[1],  6);
+  EXPECT_DOUBLE_EQ(result[2], 10);
+
   const auto& z = decltype(result)::zero();
   result = z; 
   EXPECT_TRUE(result == z);

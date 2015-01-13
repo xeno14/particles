@@ -43,22 +43,22 @@ TEST_F(GaussSeidelTest, calc2){
   b = { 1, 3};
   x.resize(2);
 
-  EXPECT_TRUE(gauss_seidel(A, b, x));
+  EXPECT_TRUE(gauss_seidel(A, b, x, 1e-17));
   EXPECT_DOUBLE_EQ(1, x[0]);
   EXPECT_DOUBLE_EQ(0, x[1]);
 }
 
 // orz
-// TEST_F(GaussSeidelTest, calc3){
-//   A = { 1, 2,
-//         3, 4};
-//   b = { 2, 4};
-//   x.resize(2);
-//
-//   EXPECT_TRUE(gauss_seidel(A, b, x));
-//   EXPECT_DOUBLE_EQ(0, x[0]);
-//   EXPECT_DOUBLE_EQ(1, x[1]);
-// }
+TEST_F(GaussSeidelTest, calc3){
+  A = { 2, 1,
+        3, 4};
+  b = { 3, 7};
+  x.resize(2);
+
+  EXPECT_TRUE(gauss_seidel(A, b, x));
+  EXPECT_DOUBLE_EQ(1, x[0]);
+  EXPECT_DOUBLE_EQ(1, x[1]);
+}
 
 TEST_F(GaussSeidelTest, calc4){
   A = { 3, 2, 1,
