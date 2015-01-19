@@ -11,6 +11,7 @@
 #include "particle.hpp"
 #include "range.hpp"
 #include "details/delaunay_search.hpp"
+#include "details/kdtree_search.hpp"
 
 #include <utility>
 #include <vector>
@@ -119,20 +120,6 @@ class SimpleRangeSearch : public SearcherBase<T,N> {
   const T distance_;
 };
 
-namespace internal {
-
-template <class T, std::size_t N>
-struct KdTreeSearchImpl {
-
-  template <class AdjacencyList, class Particles>
-  static void search(AdjacencyList& adjacency_list, const Particles& particles) {
-
-  }
-};
-
-}  // namespace internal
-
-
 /**
  * @todo 2-d
  * @brief searchs adjacencies using Delaunay triangulation
@@ -169,8 +156,10 @@ class KdTreeSearcher : public SearcherBase<T, N> {
 
   void search(adjacency_list_type& adjacency_list,
               const std::vector<particle_type>& particles) {
-    internal::KdTreeSearchImpl<T, N>::search(adjacency_list, particles);
+    internal::KdTreeSearchImpl<T, N>::search(adjacency_list, particles, r_);
   }
+
+  void set_r(T r) { r_ = r; }
 
  private:
   T r_;

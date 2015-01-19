@@ -122,3 +122,18 @@ TEST(SearchTest, delaunay3) {
   EXPECT_EQ(4, adjacency_list[5].size());
   EXPECT_EQ(5, adjacency_list[6].size());
 }
+
+TEST(SearchTest, kdtree) {
+  std::vector<P2> particles;
+  for(int i=0; i<5; i++) particles.push_back(P2({(double)i,0},{0,0}));
+
+  search::KdTreeSearcher<double, 2> searcher(1.2);
+  auto adjacency_list = searcher.create_adjacency_list(particles.size());
+  searcher.search(adjacency_list, particles);
+
+  EXPECT_EQ(2, adjacency_list[0].size());
+  EXPECT_EQ(3, adjacency_list[1].size());
+  EXPECT_EQ(3, adjacency_list[2].size());
+  EXPECT_EQ(3, adjacency_list[3].size());
+  EXPECT_EQ(2, adjacency_list[4].size());
+}
