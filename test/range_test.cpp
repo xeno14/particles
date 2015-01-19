@@ -1,5 +1,5 @@
-#include "range.hpp"
-#include "vec.hpp"
+#include "particles/range.hpp"
+#include "particles/vec.hpp"
 
 #include <gtest/gtest.h>
 
@@ -220,4 +220,16 @@ TEST(RangeTest, enumerate) {
   EXPECT_EQ(2, v[0]);
   EXPECT_EQ(3, v[1]);
   EXPECT_EQ(4, v[2]);
+}
+
+TEST(RangeTest, push_back_iterator) {
+  std::vector<int> v {1, 2, 3, 4};
+  std::vector<int> res {0};
+  std::copy(v.begin(), v.end(), range::push_back_iterator(res));
+  ASSERT_EQ(5, res.size());
+  EXPECT_EQ(0, res[0]);
+  EXPECT_EQ(1, res[1]);
+  EXPECT_EQ(2, res[2]);
+  EXPECT_EQ(3, res[3]);
+  EXPECT_EQ(4, res[4]);
 }

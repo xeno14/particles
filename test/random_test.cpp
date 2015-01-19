@@ -1,6 +1,6 @@
-#include "io.hpp"
-#include "random.hpp"
-#include "vec.hpp"
+#include "particles/io.hpp"
+#include "particles/random.hpp"
+#include "particles/vec.hpp"
 
 #include <gtest/gtest.h>
 

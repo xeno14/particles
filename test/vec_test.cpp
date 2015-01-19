@@ -1,4 +1,4 @@
-#include "vec.hpp"
+#include "particles/vec.hpp"
 
 #include <gtest/gtest.h>
 

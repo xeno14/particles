@@ -413,6 +413,61 @@ inline auto average(Iterator first, Iterator last) {
   return res;
 }
 
+/**
+ * @brief call push_back instead of assigning.
+ *
+ * This class has a reference to a list such as std::vector. When assigning to
+ * the value this iterator is pointing, push_back is called.
+ */
+template <class L>
+class PushBackIterator
+    : public std::iterator<std::output_iterator_tag, typename L::value_type> {
+ private:
+  /**
+   * @brief Assigning operator is used for push_back
+   */
+  class PushBackImpl {
+   public:
+    PushBackImpl(L& l) : l_(l) {}
+    template <class T>
+    void operator=(const T& x) { this->l_.push_back(x); }
+
+   private:
+    L& l_;
+  };
+
+ public:
+  PushBackIterator(L& l) : l_(l) {}
+  PushBackIterator(const PushBackIterator& it) : l_(it.l_) {}
+  PushBackIterator& operator=(const PushBackIterator& it) {
+    l_ = it.l_;
+    return *this;
+  }
+  PushBackIterator& operator++() { return *this; }
+  PushBackIterator& operator++(int) { return *this; }
+  PushBackImpl operator*() { return PushBackImpl(l_); }
+
+ private:
+  L& l_;
+};
+
+/**
+ * @brief create PushBackIterator
+ *
+ * @code
+ * std::vector<int> v {1, 2, 3, 4};
+ * std::vector<int> res {0};
+ * // res: {0, 1, 2, 3, 4}
+ * std::copy(v.begin(), v.end(), range::push_back_iterator(res));
+ * @endcode
+ * 
+ * @pre type L has member function push_back and member type value_type
+ * @tparam L list type (e.g. std::vector)
+ * @param l list
+ */
+template <class L>
+auto push_back_iterator(L& l) { return PushBackIterator<L>(l); }
+
 }  // namespace range
 }  // namespace particles
 
@@ -420,29 +475,3 @@ using namespace particles;
 OVERLOAD_STD_BEGIN_AND_END(class... Range,
                            range::ZipRange<Range...>);
 OVERLOAD_STD_BEGIN_AND_END(class T, range::XRange<T>);
-
-/**
- * @brief enumerate macro
- * @todo remove this after fixing enumerate
- *
- * Usage:
- *
- * @code
- * std::vector<int> v {1, 2, 3};
- * ENUMERATE_BEGIN(i, x, v) {
- *   x += i;
- * } ENUMERATE_END;
- * // v = {1, 3, 5}
- * @endcode
- */
-#define ENUMERATE_BEGIN(I, ELEM, RANGE) { \
-  particles::range::EnumerateRange<decltype(RANGE)> enum_range(RANGE, 0); \
-  auto it = enum_range.begin(); \
-  while(it != enum_range.end()) { \
-    std::size_t I = std::get<0>(*it); \
-    auto& ELEM = std::get<1>(*it);
-
-#define ENUMERATE_END \
-    ++it; \
-  } \
-}

@@ -38,7 +38,7 @@ macro(add_gtest test_name src libs)
   add_test(${test_exec} ${CMAKE_CURRENT_BINARY_DIR}/${test_exec})
 endmacro(add_gtest)
 
-include_directories(src)
+include_directories(include)
 
 add_subdirectory(test)
 add_subdirectory(example)
