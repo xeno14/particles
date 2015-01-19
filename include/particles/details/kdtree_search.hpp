@@ -1,3 +1,9 @@
+/**
+ * @file kdtree_search.hpp
+ *
+ * @brief implemention of kdtree search (wrapping CGAL/Kd_tree)
+ */
+
 #pragma once
 
 #include "../range.hpp"
@@ -35,6 +41,14 @@ struct KdTreeSearchImpl {
     return Point_d(N, v.cbegin(), v.cend());
   }
 
+  /**
+   * @brief search using kdtree
+   * 
+   * Point with info is expressed using boost::tuple and property_map.
+   *
+   * See here for the detail.
+   * http://doc.cgal.org/latest/Spatial_searching/index.html#title11
+   */
   template <class AdjacencyList, class Particles>
   static void search(AdjacencyList& adjacency_list, const Particles& particles,
                      const T r) {

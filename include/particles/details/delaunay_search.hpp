@@ -1,3 +1,9 @@
+/**
+ * @file delaunay_search.hpp
+ *
+ * @brief implemention of delaunay_search (wrapping CGAL/Delaunay triangulation)
+ */
+
 #pragma once
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
