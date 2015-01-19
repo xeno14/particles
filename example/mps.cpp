@@ -48,6 +48,7 @@ void inital_condition(std::vector<P>& particles) {
       particles.push_back(P({i*L0, -L0}, {0, 0}, WALL));
       particles.push_back(P({i*L0, -2*L0}, {0, 0}, WALL));
   }
+  // Set dummy
 }
 
 
@@ -55,7 +56,7 @@ int main() {
   std::vector<P> particles, particles_mid;
   std::vector<V> accels;
   std::vector<V> viscosity;
-  // std::vector<double> pressure;
+  std::vector<double> pressure;
   V gravity = {0, -G};
   Search n_search(RE_N);
   auto adjacency_list = n_search.create_adjacency_list(particles.size());
@@ -70,6 +71,7 @@ int main() {
   particles_mid.resize(particles.size());
   accels.resize(particles.size());
   viscosity.resize(particles.size());
+  pressure.resize(particles.size());
 
     io::output_particles(std::cout, particles.begin(), particles.end());
     std::cout << "\n\n";
