@@ -121,7 +121,6 @@ class SimpleRangeSearch : public SearcherBase<T,N> {
 };
 
 /**
- * @todo 2-d
  * @brief searchs adjacencies using Delaunay triangulation
  * @tparam T floating point
  * @tparam N dimension
@@ -146,6 +145,14 @@ class DelaunaySearcher : public SearcherBase<T, N> {
   Delaunay delaunay_;
 };
 
+/**
+ * @brief searchs adjacencies using KdTree
+ *
+ * Pick particles with distance less than \f$r\f$
+ *
+ * @tparam T floating point
+ * @tparam N dimension
+ */
 template <class T, std::size_t N>
 class KdTreeSearcher : public SearcherBase<T, N> {
  public:
@@ -159,6 +166,7 @@ class KdTreeSearcher : public SearcherBase<T, N> {
     internal::KdTreeSearchImpl<T, N>::search(adjacency_list, particles, r_);
   }
 
+  /** @brief set searching radious */
   void set_r(T r) { r_ = r; }
 
  private:

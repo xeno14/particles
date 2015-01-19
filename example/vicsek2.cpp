@@ -64,7 +64,7 @@ int main() {
   boundary::PeriodicBoundary<double, 2> boundary(0, L, 0, L);
 
   // Search: interaction with particles within distamce r0
-  search::SimpleRangeSearch<double, 2> searcher(r0);
+  search::KdTreeSearcher<double, 2> searcher(r0);
 
   // List of pointers to particles interact with
   typename decltype(searcher)::adjacency_list_type adjacency_list;

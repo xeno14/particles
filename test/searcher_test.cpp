@@ -127,7 +127,7 @@ TEST(SearchTest, kdtree) {
   std::vector<P2> particles;
   for(int i=0; i<100000; i++) particles.push_back(P2({(double)i,0},{0,0}));
 
-  search::KdTreeSearcher<double, 2> searcher(1.2);
+  search::KdTreeSearcher<double, 2> searcher(1.1);
   auto adjacency_list = searcher.create_adjacency_list(particles.size());
   searcher.search(adjacency_list, particles);
 

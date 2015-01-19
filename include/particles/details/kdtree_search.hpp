@@ -65,6 +65,7 @@ struct KdTreeSearchImpl {
               boost::make_zip_iterator(
                   boost::make_tuple(points.end(), indices.end())));
 
+    adjacency_list.resize(particles.size());
     std::vector<Point_and_index> result;
     for (std::size_t i = 0; i < particles.size(); i++) {
       result.clear();
