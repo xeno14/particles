@@ -1,3 +1,11 @@
+/**
+ * @file langtons_ant.cpp
+ *
+ * @brief implemention of lantons's ant
+ *
+ * About langton's ant: http://en.wikipedia.org/wiki/Langton%27s_ant
+ */
+
 #include "particles/particles.hpp"
 
 #include <algorithm>
@@ -75,7 +83,7 @@ int main() {
     std::cout << "t=" << t << " @ "  << ant.pos[0] << " " << ant.pos[1] << "\n";
     field.output();
 
-    std::this_thread::sleep_for (std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
 
   return 0;
