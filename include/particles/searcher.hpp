@@ -259,6 +259,15 @@ struct DelaunayType<T, 2> {
   typedef Delaunay type;
 };
 
+template <class T, std::size_t N>
+struct KdTreeSearchImpl {
+
+  template <class AdjacencyList, class Particles>
+  static void search(AdjacencyList& adjacency_list, const Particles& particles) {
+
+  }
+};
+
 }  // namespace internal
 
 
@@ -286,6 +295,23 @@ class DelaunaySearcher : public SearcherBase<T, N> {
 
  private:
   Delaunay delaunay_;
+};
+
+template <class T, std::size_t N>
+class KdTreeSearcher : public SearcherBase<T, N> {
+ public:
+  typedef typename SearcherBase<T, N>::particle_type particle_type;
+  typedef typename SearcherBase<T, N>::adjacency_list_type adjacency_list_type;
+
+  KdTreeSearcher(T r) : r_(r) {}
+
+  void search(adjacency_list_type& adjacency_list,
+              const std::vector<particle_type>& particles) {
+    internal::KdTreeSearchImpl<T, N>::search(adjacency_list, particles);
+  }
+
+ private:
+  T r_;
 };
 
 }  // namespace search
