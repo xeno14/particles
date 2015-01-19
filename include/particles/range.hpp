@@ -475,29 +475,3 @@ using namespace particles;
 OVERLOAD_STD_BEGIN_AND_END(class... Range,
                            range::ZipRange<Range...>);
 OVERLOAD_STD_BEGIN_AND_END(class T, range::XRange<T>);
-
-/**
- * @brief enumerate macro
- * @todo remove this after fixing enumerate
- *
- * Usage:
- *
- * @code
- * std::vector<int> v {1, 2, 3};
- * ENUMERATE_BEGIN(i, x, v) {
- *   x += i;
- * } ENUMERATE_END;
- * // v = {1, 3, 5}
- * @endcode
- */
-#define ENUMERATE_BEGIN(I, ELEM, RANGE) { \
-  particles::range::EnumerateRange<decltype(RANGE)> enum_range(RANGE, 0); \
-  auto it = enum_range.begin(); \
-  while(it != enum_range.end()) { \
-    std::size_t I = std::get<0>(*it); \
-    auto& ELEM = std::get<1>(*it);
-
-#define ENUMERATE_END \
-    ++it; \
-  } \
-}
