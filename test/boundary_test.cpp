@@ -1,5 +1,5 @@
-#include "boundary.hpp"
-#include "particle.hpp"
+#include "particles/boundary.hpp"
+#include "particles/particle.hpp"
 
 #include <gtest/gtest.h>
 

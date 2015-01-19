@@ -1,4 +1,4 @@
-#include "particle.hpp"
+#include "particles/particle.hpp"
 
 #include <gtest/gtest.h>
 

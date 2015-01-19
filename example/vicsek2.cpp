@@ -6,11 +6,7 @@
  * @todo wrtie explanation about Vicsek model
  */
 
-#include "boundary.hpp"
-#include "io.hpp"
-#include "particle.hpp"
-#include "random.hpp"
-#include "searcher.hpp"
+#include "particles/particles.hpp"
 
 #include <iomanip>
 #include <iostream>

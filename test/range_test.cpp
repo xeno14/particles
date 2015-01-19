@@ -1,5 +1,5 @@
-#include "range.hpp"
-#include "vec.hpp"
+#include "particles/range.hpp"
+#include "particles/vec.hpp"
 
 #include <gtest/gtest.h>
 

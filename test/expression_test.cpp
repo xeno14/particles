@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "expression.hpp"
+#include "particles/expression.hpp"
 
 #include <tuple>
 
