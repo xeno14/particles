@@ -31,8 +31,8 @@ struct ToOStreamImpl {
   template <class T, class Str>
   static std::ostream& apply(std::ostream& os, const T& t,
                              const Str& delimiter) {
-    ToOStreamImpl<I-1>::apply(os, t, delimiter);
-    return os << delimiter <<  std::get<I - 1>(t);
+    return ToOStreamImpl<I-1>::apply(os, t, delimiter) 
+              << delimiter <<  std::get<I - 1>(t);
   }
 };
 
@@ -42,6 +42,22 @@ struct ToOStreamImpl<1> {
   static std::ostream& apply(std::ostream& os, const T& t,
                              const Str& delimiter) {
     return os << std::get<0>(t);
+  }
+};
+
+template <std::size_t I>
+struct FromIStreamImpl {
+  template <class T>
+  static std::istream& apply(std::istream& is, T& t) {
+    return FromIStreamImpl<I-1>::apply(is, t) >> std::get<I-1>(t);
+  }
+};
+
+template <>
+struct FromIStreamImpl<1> {
+  template <class T>
+  static std::istream& apply(std::istream& is, T& t) {
+    return is >> std::get<0>(t);
   }
 };
 
@@ -171,6 +187,11 @@ ostream& operator<<(ostream& os, particles::Particle<T,N>& p) {
   os << ", ";
   particles::io::output<N>(os, p.velocity(), ", ", "[", "]");
   return os << ", " << p.mass() << '}';
+}
+
+template <class T, size_t N>
+istream& operator>>(istream& is, particles::Vec<T, N>& v) {
+  return particles::io::internal::FromIStreamImpl<N>::apply(is, v);
 }
 
 /** @todo to_string */
