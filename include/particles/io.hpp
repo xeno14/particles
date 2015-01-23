@@ -186,7 +186,7 @@ ostream& operator<<(ostream& os, particles::Particle<T,N>& p) {
   particles::io::output<N>(os, p.position(), ", ", "[", "]");
   os << ", ";
   particles::io::output<N>(os, p.velocity(), ", ", "[", "]");
-  return os << ", " << p.mass() << '}';
+  return os << '}';
 }
 
 template <class T, size_t N>

@@ -42,7 +42,7 @@ TEST_F(IOTest, output_vec) {
 }
 
 TEST_F(IOTest, output_particle) {
-  Particle<int, 2> p({1,2},{3,4},5);
+  Particle<int, 2> p({1,2},{3,4});
   io::output_particle(ss, p, ",");
   EXPECT_EQ("1,2,3,4", ss.str());
 }
@@ -77,9 +77,9 @@ TEST_F(OutputParticlesTest, with_sep) {
 }
 
 TEST_F(IOTest, Particle_ostream) {
-  Particle<int, 2> p({1,2},{3,4},5);
+  Particle<int, 2> p({1,2},{3,4});
   ss << p << "@";
-  EXPECT_EQ("{[1, 2], [3, 4], 5}@", ss.str());
+  EXPECT_EQ("{[1, 2], [3, 4]}@", ss.str());
 }
 
 TEST_F(IOTest, vec_istream) {

@@ -22,13 +22,6 @@ TEST(ParticleTest, constructor) {
   EXPECT_DOUBLE_EQ(2, p2.position(1)); 
   EXPECT_DOUBLE_EQ(3, p2.velocity(0)); 
   EXPECT_DOUBLE_EQ(4, p2.velocity(1)); 
-
-  Particle<double, 2> p3({1,2},{3,4},5);
-  EXPECT_DOUBLE_EQ(1, p3.position(0)); 
-  EXPECT_DOUBLE_EQ(2, p3.position(1)); 
-  EXPECT_DOUBLE_EQ(3, p3.velocity(0)); 
-  EXPECT_DOUBLE_EQ(4, p3.velocity(1)); 
-  EXPECT_DOUBLE_EQ(5, p3.mass()); 
 }
 
 TEST(ParticleConstructorTest, info) {
