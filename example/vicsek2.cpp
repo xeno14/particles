@@ -44,14 +44,15 @@ void initial_condition(std::vector<P>& particles) {
   particles.resize(N);
 
   // Initial condition: set position and velocity randomly
-  random::UniformRand<double>::set_range(0, L);
+  random::UniformGenerator<double> pos_gen(0, L);
+  random::UniformOnSphere<double, 2> vel_gen(v0);
+
+  pos_gen.seed_dev();
+  vel_gen.seed_dev();
+
   for (auto& p : particles) {
-    p.position() = random::UniformRand<double>::get_vec();
-  }
-  random::UniformRand<double>::set_range(-1, 1);
-  for (auto& p : particles) {
-    p.velocity() = random::UniformRand<double>::get_vec();
-    p.velocity().normalize(v0);
+    p.position() = pos_gen;
+    p.velocity() = vel_gen();
   }
 }
 
@@ -80,7 +81,8 @@ int main() {
   io::output_particles(fout, particles.begin(), particles.end(), "\t")
       << "\n\n";
 
-  random::UniformRand<double>::set_range(-eta, eta);
+  random::UniformOnSphere<double, 2> eta_gen(eta);
+  eta_gen.seed_dev();
 
   // Time evolution!!
   for (int t = 0; t < 3000; ++t) {
@@ -105,7 +107,7 @@ int main() {
       // Get average velocity among neighbors
       nv = range::average(range::convert_iterator(neighbors.begin(), get_v),
                           range::convert_iterator(neighbors.end(),   get_v)) +
-           random::UniformRand<double>::get_vec();
+           eta_gen();
       nv.normalize(v0);
     };
 
