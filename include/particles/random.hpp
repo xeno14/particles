@@ -10,6 +10,7 @@
 #include "util.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <cstdlib>
 #include <cmath>
 #include <functional>
@@ -17,9 +18,11 @@
 #include <type_traits>
 #include <vector>
 
+#include <iostream>
+
 namespace particles {
 namespace random {
-namespace {
+namespace internal {
 
 /**
  * @biref set sequence of randoms generated at random_devide
@@ -32,6 +35,15 @@ void set_seed_seq(Engine& engine, std::size_t n = 10) {
   std::vector<std::uint_least32_t> v(n);
   std::generate(v.begin(), v.end(), std::ref(rd));
   std::seed_seq seed(v.begin(), v.end());
+  engine.seed(seed);
+}
+
+/**
+ * @brief set seed to current time
+ */
+template <class Engine>
+void set_seed_now(Engine& engine) {
+  auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
   engine.seed(seed);
 }
 
@@ -62,19 +74,19 @@ class RandomGeneratorBase {
  */
 template <class T, bool is_integral = std::is_integral<T>::value,
           bool is_floating_point = std::is_floating_point<T>::value>
-struct UniformDistribution;
+struct UniformDistributionType;
 
 template <class T>
-struct UniformDistribution<T, true, false> {
+struct UniformDistributionType<T, true, false> {
   typedef std::uniform_int_distribution<T> type;
 };
 
 template<class T>
-struct UniformDistribution<T, false, true> {
+struct UniformDistributionType<T, false, true> {
   typedef std::uniform_real_distribution<T> type;
 };
 
-}  // anonymous namespace
+}  // namespace internal
 
 
 /**
@@ -93,7 +105,7 @@ struct UniformDistribution<T, false, true> {
  */
 template <class T, class Engine = std::mt19937>
 class UniformRand
-    : public RandomGeneratorBase<UniformRand<T, Engine>, Engine> {
+    : public internal::RandomGeneratorBase<UniformRand<T, Engine>, Engine> {
  public:
   UniformRand() : distribution_(0, 1) {}
 
@@ -139,7 +151,7 @@ class UniformRand
   }
 
  private:
-  typename UniformDistribution<T>::type distribution_;
+  typename internal::UniformDistributionType<T>::type distribution_;
 };
 
 template <class T>
@@ -182,6 +194,54 @@ struct IsotoropicRand<T, 3, Engine> {
     T operator[](std::size_t i) const { return x[i]; }
   };
   static Expression get_vec(T r) { return Expression(r); }
+};
+
+
+/**
+ * @brief random number generator of uniform distribution
+ * 
+ * Operations between Vec is available if UniformGenerator is placed at most
+ * right position.
+ *
+ * @code
+ * UniformGenerator<int> gen(0, 10);  // 0, ..., 10
+ * cout << gen() << endl;
+ * Vec<int, 2> v;
+ * v = gen;
+ * cout << v << endl;
+ * @endcode
+ */
+template <class T, class Engine = std::mt19937>
+class UniformGenerator {
+ public:
+  typedef T value_type;
+
+  UniformGenerator() : engine_(), distribution_() {}
+  UniformGenerator(T a, T b) : engine_(), distribution_(a, b) {}
+
+  /** @brief set seed to the current time */
+  UniformGenerator& seed_now() {
+    internal::set_seed_now(engine_);
+    return *this;
+  }
+  /** @brief set seed using device */
+  UniformGenerator& seed_dev() {
+    internal::set_seed_seq(engine_);
+    return *this;
+  }
+  /** @brief sed seed by your self */
+  UniformGenerator& seed(typename Engine::result_type val) {
+    engine_.seed(val);
+    return *this;
+  }
+  /** @brief get a random number */
+  T operator()() const { return distribution_(engine_); }
+  /** @brief get a random number */
+  T operator[](std::size_t) const { return (*this)(); }
+
+ private:
+  mutable Engine engine_;
+  mutable typename internal::UniformDistributionType<T>::type distribution_;
 };
 
 }  // namespace random

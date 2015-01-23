@@ -110,3 +110,48 @@ TEST(RandomTest, isotoropic3) {
     // fout << "\n";
   }
 }
+
+class UniformGeneratorTest : public ::testing::Test {
+ protected:
+  UniformGeneratorTest() : gen_int(0, 10), gen_double(0, 1) {}
+
+  virtual void SetUp() {
+    gen_int.seed_dev();
+    gen_double.seed_dev();
+  }
+
+  template <class F>
+  void loop(F f, int n = 1000) {
+    for (int i = 0; i < n; i++) {
+      f();
+    }
+  }
+
+  random::UniformGenerator<int> gen_int;
+  random::UniformGenerator<double> gen_double;
+};
+
+TEST_F(UniformGeneratorTest, gen_int) {
+  loop([&]() {
+    EXPECT_GE(10, gen_int());
+    EXPECT_LE(0, gen_int());
+  });
+}
+
+TEST_F(UniformGeneratorTest, gen_double) {
+  loop([&]() {
+    EXPECT_GT(1, gen_double());
+    EXPECT_LE(0, gen_double());
+  });
+}
+
+TEST_F(UniformGeneratorTest, hoge) {
+  loop([&]() {
+    Vec<int, 2> v{1, 2};
+    v = v + v + gen_int;
+    EXPECT_GE(12, v[0]);
+    EXPECT_LE(2, v[0]);
+    EXPECT_GE(14, v[1]);
+    EXPECT_LE(4, v[1]);
+  });
+}
