@@ -11,6 +11,13 @@ using particles::random::UniformRand;
 
 const int NUM_TRY = 1000;
 
+template <class F>
+void loop(F f, int n = 1000) {
+  for (int i = 0; i < n; i++) {
+    f();
+  }
+}
+
 TEST(RandomTest, UniformRand) {
   // Default: x in [0,1) 
   for (int i=0; i<NUM_TRY;i++) {
@@ -109,4 +116,66 @@ TEST(RandomTest, isotoropic3) {
     // io::output<3>(fout, v);
     // fout << "\n";
   }
+}
+
+class UniformGeneratorTest : public ::testing::Test {
+ protected:
+  UniformGeneratorTest() : gen_int(0, 10), gen_double(0, 1) {}
+
+  virtual void SetUp() {
+    gen_int.seed_dev();
+    gen_double.seed_dev();
+  }
+
+  random::UniformGenerator<int> gen_int;
+  random::UniformGenerator<double> gen_double;
+};
+
+TEST_F(UniformGeneratorTest, gen_int) {
+  loop([&]() {
+    EXPECT_GE(10, gen_int());
+    EXPECT_LE(0, gen_int());
+  });
+}
+
+TEST_F(UniformGeneratorTest, gen_double) {
+  loop([&]() {
+    EXPECT_GT(1, gen_double());
+    EXPECT_LE(0, gen_double());
+  });
+}
+
+TEST_F(UniformGeneratorTest, hoge) {
+  loop([&]() {
+    Vec<int, 2> v{1, 2};
+    v = v + v + gen_int;
+    EXPECT_GE(12, v[0]);
+    EXPECT_LE(2, v[0]);
+    EXPECT_GE(14, v[1]);
+    EXPECT_LE(4, v[1]);
+  });
+}
+
+class UniformOnSphereTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() { circle.seed_dev(); sphere.seed_dev(); }
+
+  random::UniformOnSphere<double, 2> circle;
+  random::UniformOnSphere<double, 3> sphere;
+};
+
+TEST_F(UniformOnSphereTest, circle) {
+  loop([&]() {
+    Vec<double, 2> v;
+    v = circle();
+    EXPECT_DOUBLE_EQ(1.0, v.length());
+  });
+}
+
+TEST_F(UniformOnSphereTest, sphere) {
+  loop([&]() {
+    Vec<double, 3> v;
+    v = sphere();
+    EXPECT_DOUBLE_EQ(1.0, v.length());
+  });
 }

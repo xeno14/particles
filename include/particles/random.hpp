@@ -10,6 +10,7 @@
 #include "util.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <cstdlib>
 #include <cmath>
 #include <functional>
@@ -17,9 +18,11 @@
 #include <type_traits>
 #include <vector>
 
+#include <iostream>
+
 namespace particles {
 namespace random {
-namespace {
+namespace internal {
 
 /**
  * @biref set sequence of randoms generated at random_devide
@@ -32,6 +35,15 @@ void set_seed_seq(Engine& engine, std::size_t n = 10) {
   std::vector<std::uint_least32_t> v(n);
   std::generate(v.begin(), v.end(), std::ref(rd));
   std::seed_seq seed(v.begin(), v.end());
+  engine.seed(seed);
+}
+
+/**
+ * @brief set seed to current time
+ */
+template <class Engine>
+void set_seed_now(Engine& engine) {
+  auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
   engine.seed(seed);
 }
 
@@ -62,19 +74,19 @@ class RandomGeneratorBase {
  */
 template <class T, bool is_integral = std::is_integral<T>::value,
           bool is_floating_point = std::is_floating_point<T>::value>
-struct UniformDistribution;
+struct UniformDistributionType;
 
 template <class T>
-struct UniformDistribution<T, true, false> {
+struct UniformDistributionType<T, true, false> {
   typedef std::uniform_int_distribution<T> type;
 };
 
 template<class T>
-struct UniformDistribution<T, false, true> {
+struct UniformDistributionType<T, false, true> {
   typedef std::uniform_real_distribution<T> type;
 };
 
-}  // anonymous namespace
+}  // namespace internal
 
 
 /**
@@ -93,7 +105,7 @@ struct UniformDistribution<T, false, true> {
  */
 template <class T, class Engine = std::mt19937>
 class UniformRand
-    : public RandomGeneratorBase<UniformRand<T, Engine>, Engine> {
+    : public internal::RandomGeneratorBase<UniformRand<T, Engine>, Engine> {
  public:
   UniformRand() : distribution_(0, 1) {}
 
@@ -139,7 +151,7 @@ class UniformRand
   }
 
  private:
-  typename UniformDistribution<T>::type distribution_;
+  typename internal::UniformDistributionType<T>::type distribution_;
 };
 
 template <class T>
@@ -182,6 +194,132 @@ struct IsotoropicRand<T, 3, Engine> {
     T operator[](std::size_t i) const { return x[i]; }
   };
   static Expression get_vec(T r) { return Expression(r); }
+};
+
+template <class Engine>
+class GeneratorBase {
+ public:
+  /** @brief set seed to the current time */
+  void seed_now() { internal::set_seed_now(engine_); }
+  /** @brief set seed using device */
+  void seed_dev() { internal::set_seed_seq(engine_); }
+  /** @brief sed seed by your self */
+  void seed(typename Engine::result_type val) { engine_.seed(val); }
+
+ protected:
+  mutable Engine engine_;
+};
+
+/**
+ * @brief random number generator of uniform distribution
+ *
+ * Operations between Vec is available if UniformGenerator is placed at most
+ * right position.
+ *
+ * @code
+ * UniformGenerator<int> gen(0, 10);  // 0, ..., 10
+ * cout << gen() << endl;
+ * Vec<int, 2> v;
+ * v = gen;
+ * cout << v << endl;
+ * @endcode
+ */
+template <class T, class Engine = std::mt19937>
+class UniformGenerator : public GeneratorBase<Engine> {
+  typedef GeneratorBase<Engine> Base;
+ public:
+  typedef T value_type;
+
+  UniformGenerator() : distribution_() {}
+  UniformGenerator(T a, T b) : distribution_(a, b) {}
+
+  /** @brief get a random number */
+  value_type operator()() const { return distribution_(Base::engine_); }
+  /** @brief get a random number */
+  value_type operator[](std::size_t) const { return (*this)(); }
+
+ private:
+  mutable typename internal::UniformDistributionType<T>::type distribution_;
+};
+
+/**
+ * @brief get value on N-dimension sphere)
+ *
+ * - N=2: edge of a circle
+ * - N=3: sphere
+ *
+ * @code
+ * UniformOnSphere<double, 2> circle(1.0);
+ * Vec<double, 2> v;
+ * v = circle();  // get new value
+ * v = circle;    // same value as above
+ * v = circle();  // get new value
+ * @code
+ */
+template <class T, std::size_t N, class Engine = std::mt19937>
+class UniformOnSphere;
+
+template <class T, class Engine>
+class UniformOnSphere<T, 2, Engine> : public GeneratorBase<Engine> {
+  typedef GeneratorBase<Engine> Base;
+
+ public:
+  typedef T value_type;
+
+  UniformOnSphere(T r=1) : r_(r), dist_theta_(0, M_PI*2) {}
+
+  value_type theta() const { return dist_theta_(Base::engine_); }
+
+  /** @brief defines next value of theta */
+  UniformOnSphere& operator()() { theta_ = theta(); return *this; }
+
+  value_type operator[](std::size_t i) const {
+    typedef std::function<value_type(value_type, value_type)> func_t;
+    static func_t funcs[] = {[](value_type r,
+                                value_type theta) { return r * cos(theta); },
+                             [](value_type r,
+                                value_type theta) { return r * sin(theta); }};
+    return funcs[i](r_, theta_);
+  }
+
+ private:
+  value_type theta_;
+  const T r_;
+  mutable typename internal::UniformDistributionType<T>::type dist_theta_;
+};
+
+template <class T, class Engine>
+class UniformOnSphere<T, 3, Engine> : public GeneratorBase<Engine> {
+  typedef GeneratorBase<Engine> Base;
+
+ public:
+  typedef T value_type;
+
+  UniformOnSphere(T r=1) : r_(r), dist_phi_(0, M_PI*2), dist_theta_(0, M_PI) {}
+
+  value_type phi()   const { return dist_phi_(Base::engine_); }
+  value_type theta() const { return dist_theta_(Base::engine_); }
+
+  /** @brief defines next value of theta */
+  UniformOnSphere& operator()() { phi_ = phi(); theta_ = theta(); return *this; }
+
+  value_type operator[](std::size_t i) const {
+    typedef std::function<value_type(value_type, value_type, value_type)> func_t;
+    static func_t funcs[] =
+        {[](value_type r, value_type phi,
+            value_type theta) { return r * sin(theta) * cos(phi); },
+         [](value_type r, value_type phi,
+            value_type theta) { return r * sin(theta) * sin(phi); },
+         [](value_type r, value_type phi,
+            value_type theta) { return r * cos(theta); }};
+    return funcs[i](r_, phi_, theta_);
+  }
+
+ private:
+  value_type phi_, theta_;
+  const T r_;
+  mutable typename internal::UniformDistributionType<T>::type dist_phi_;
+  mutable typename internal::UniformDistributionType<T>::type dist_theta_;
 };
 
 }  // namespace random
