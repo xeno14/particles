@@ -12,9 +12,6 @@
 #include "util.hpp"
 #include "io.hpp"
 
-/** @todo remove me */
-#include <iostream>
-
 #include <functional>
 #include <iterator>
 #include <memory>
