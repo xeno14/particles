@@ -9,15 +9,31 @@
 #include "vec.hpp"
 
 #include <initializer_list>
+#include <functional>
+
+namespace {
+extern void* enabler;
+}
 
 namespace particles {
+namespace internal {
+
+template <class T>
+struct Info {
+  T val;
+};
+
+template <>
+struct Info<void> {};
+
+}  // namespace internal
 
 /**
  * @brief particle moving in N dimension
  * @tparam T floating point
  * @tparam N dimension
  */
-template <class T, std::size_t N>
+template <class T, std::size_t N, class I=void>
 class Particle {
  public:
   typedef T value_type;
@@ -65,9 +81,19 @@ class Particle {
   /** @brief dimension of vector */
   static constexpr std::size_t dim() { return N; }
 
+  template <class U=I, typename std::enable_if< std::is_void<U>::value>::type *& = enabler>
+  void info() const {}
+
+  template <class U=I, typename std::enable_if<!std::is_void<U>::value>::type *& = enabler>
+  auto& info() { return info_.val; }
+
+  template <class U=I, typename std::enable_if<!std::is_void<U>::value>::type *& = enabler>
+  const auto& info() const { return info_.val; }
+
  private:
   Vec<T, N> position_;
   Vec<T, N> velocity_;
+  internal::Info<I> info_;
   T mass_;
 };
 
