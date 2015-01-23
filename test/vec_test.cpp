@@ -128,3 +128,17 @@ TEST(VecTest, overload) {
 
   EXPECT_EQ(1, *std::begin(v));
 }
+
+TEST(VecTest, construct_variable_args) {
+  Vec<int, 3> v(1, 2, 3);
+  EXPECT_EQ(1, v[0]);
+  EXPECT_EQ(2, v[1]);
+  EXPECT_EQ(3, v[2]);
+}
+
+TEST(VecTest, construct_expression) {
+  Vec<int, 2> a(1, 2), b(3, 4);
+  Vec<int, 2> v = a + b;  // Exp<Vec, Plus, Vec>
+  EXPECT_EQ(4, v[0]);
+  EXPECT_EQ(6, v[1]);
+}
