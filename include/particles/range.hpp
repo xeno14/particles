@@ -10,6 +10,7 @@
 
 #include "expression.hpp"
 #include "util.hpp"
+#include "io.hpp"
 
 /** @todo remove me */
 #include <iostream>
@@ -384,10 +385,12 @@ auto convert_iterator(Iterator it, Converter f) {
  * auto s = range::sum(u.begin(), u.end());  // 6
  * @endcode
  */
-template <class Iterator>
-inline auto sum(Iterator first, Iterator last) {
+template <class InputIterator>
+inline auto sum(InputIterator first, InputIterator last) {
+  typedef typename decltype(internal::ref_to_type(*first))::type value_type;
   // get value type
-  auto res = typename decltype(internal::ref_to_type(*first))::type();
+  // avoid uninitialized warning
+  auto res = value_type();
   auto it = first;
   while (it != last) {
     res += *it;
@@ -406,11 +409,20 @@ inline auto sum(Iterator first, Iterator last) {
  * auto ave = range::average(u.begin(), u.end());   // 3
  * @endcode
  */
-template<class Iterator>
-inline auto average(Iterator first, Iterator last) {
-  auto res = sum(first, last);
-  res /= (last - first);
-  return res;
+template<class InputIterator>
+inline auto average(InputIterator first, InputIterator last) {
+  typedef typename decltype(internal::ref_to_type(*first))::type value_type;
+  std::size_t num = 0;
+  auto s = value_type();
+  auto it = first;
+  while (it != last) {
+    s += *it;
+    ++it;
+    num++;
+  }
+  s /= double(num);
+  return s;
+  /** @todo result s / double(num); why it does not work? */
 }
 
 /**

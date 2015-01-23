@@ -59,9 +59,15 @@ TEST(RangeTest, sum) {
 TEST(RangeTest, average) {
   std::vector<Vec<double, 2>> v = {{1, 2},{3, 4}};
   auto ave = range::average(v.begin(), v.end());
-  EXPECT_EQ(2, ave[0]);
-  EXPECT_EQ(3, ave[1]);
+  EXPECT_DOUBLE_EQ(2, ave[0]);
+  EXPECT_DOUBLE_EQ(3, ave[1]);
 }
+
+// TEST(RangeTest, average2) {
+//   std::vector<int> v {1, 2};
+//   auto ave = range::average(v.begin(), v.end());
+//   EXPECT_DOUBLE_EQ(1.5, ave);
+// }
 
 class ZipTest : public ::testing::Test {
  protected:
