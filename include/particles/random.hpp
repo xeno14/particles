@@ -1,8 +1,6 @@
 /**
  * @file random.hpp
  * @bried utilities for using random numbers
- *
- * @todo isotoropic rand (on a sphere)
  */
 
 #pragma once

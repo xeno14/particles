@@ -41,3 +41,12 @@ TEST(ExpressionTest, pre_increment) {
   EXPECT_EQ(3, std::get<0>(t));   // incremented twice
   EXPECT_EQ(2, std::get<1>(t));   // Not incremented
 }
+
+TEST(ExpressionTest, Assign) {
+  std::array<int, 3> a;
+  expression::assign(a, 1, 2, 3);
+
+  EXPECT_EQ(1, a[0]);
+  EXPECT_EQ(2, a[1]);
+  EXPECT_EQ(3, a[2]);
+}

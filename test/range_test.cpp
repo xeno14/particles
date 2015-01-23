@@ -59,13 +59,28 @@ TEST(RangeTest, sum) {
 TEST(RangeTest, average) {
   std::vector<Vec<double, 2>> v = {{1, 2},{3, 4}};
   auto ave = range::average(v.begin(), v.end());
-  EXPECT_EQ(2, ave[0]);
-  EXPECT_EQ(3, ave[1]);
+  EXPECT_DOUBLE_EQ(2, ave[0]);
+  EXPECT_DOUBLE_EQ(3, ave[1]);
 }
 
-/** @todo use TEST_F */
-TEST(RangeTest, ref_tuple) {
-  std::vector<int> u {1, 2, 3}, v {4, 5, 6};
+// TEST(RangeTest, average2) {
+//   std::vector<int> v {1, 2};
+//   auto ave = range::average(v.begin(), v.end());
+//   EXPECT_DOUBLE_EQ(1.5, ave);
+// }
+
+class ZipTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    u = {1, 2, 3};
+    v = {4, 5, 6};
+  }
+
+  std::vector<int> u;
+  std::vector<int> v;
+};
+
+TEST_F(ZipTest, ref_tuple) {
   auto it = std::make_tuple(u.begin(), v.begin());
   auto t = range::internal::ref_tuple<range::internal::ref>(it);
   std::get<0>(t) -= 2;
@@ -74,11 +89,10 @@ TEST(RangeTest, ref_tuple) {
   EXPECT_EQ(10, v[0]);
 }
 
-TEST(RangeTest, ZipRange) {
-  std::vector<int> u {1, 2, 3}, v {4, 5, 6};
-
+TEST_F(ZipTest, ZipRange) {
   auto zipcon = range::ZipRange<decltype(u), decltype(v)>(u, v);
 
+  // check overloads
   EXPECT_EQ(zipcon.begin(), std::begin(zipcon));
   EXPECT_EQ(zipcon.end(), std::end(zipcon));
 
@@ -102,6 +116,19 @@ TEST(RangeTest, ZipRange) {
   ++it;
 
   EXPECT_EQ(last, it);
+}
+
+TEST_F(ZipTest, zip) {
+  for(auto z : range::zip(u, v)) {
+    std::get<0>(z)--;
+    std::get<1>(z)--;
+  }
+  EXPECT_EQ(0, u[0]);
+  EXPECT_EQ(1, u[1]);
+  EXPECT_EQ(2, u[2]);
+  EXPECT_EQ(3, v[0]);
+  EXPECT_EQ(4, v[1]);
+  EXPECT_EQ(5, v[2]);
 }
 
 TEST(RangeTest, XRange) {
@@ -135,32 +162,17 @@ TEST(RangeTest, xrange) {
   EXPECT_EQ(2, result[2]);
 }
 
-TEST(RangeTest, zip) {
-  std::vector<int> u {1, 2, 3}, v {4, 5, 6};
-
-  for(auto z : range::zip(u, v)) {
-    std::get<0>(z)--;
-    std::get<1>(z)--;
+class EnumerateTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    v = {-1, -3, -5};
+    indices.clear();
   }
-  EXPECT_EQ(0, u[0]);
-  EXPECT_EQ(1, u[1]);
-  EXPECT_EQ(2, u[2]);
-  EXPECT_EQ(3, v[0]);
-  EXPECT_EQ(4, v[1]);
-  EXPECT_EQ(5, v[2]);
-}
+  std::vector<int> v;
+  std::vector<int> indices;
+};
 
-// TEST(RangeTest, zip_const) {
-//   std::vector<int> u {1, 2, 3}, v {4, 5, 6};
-//   const auto& cu = u;
-//   const auto& cv = v;
-//   for(auto z : range::zip(cu, cv)) {
-//   }
-// }
-
-TEST(RangeTest, EnumerateRange) {
-  std::vector<int> v {-1, -3, -5};
-
+TEST_F(EnumerateTest, EnumerateRange) {
   range::EnumerateRange<decltype(v)> enum_range(v, 0);
   auto first = enum_range.begin();
   auto last = enum_range.end();
@@ -184,42 +196,36 @@ TEST(RangeTest, EnumerateRange) {
   EXPECT_EQ(-10, v[2]);
 }
 
-TEST(RangeTest, EnumerateRange2) {
-  std::vector<int> v {-1, -2, -3};
-  std::vector<int> indexes;
-
+TEST_F(EnumerateTest, EnumerateRange2) {
   range::EnumerateRange<decltype(v)> enum_range(v, 1);
   auto it = enum_range.begin();
 
   // Doubles each element
   while (it != enum_range.end()) {
-    indexes.push_back(std::get<0>(*it));
+    indices.push_back(std::get<0>(*it));
     std::get<1>(*it) *= 2;
     ++it;
   }
-  EXPECT_EQ(1, indexes[0]);
-  EXPECT_EQ(2, indexes[1]);
-  EXPECT_EQ(3, indexes[2]);
+  EXPECT_EQ(1, indices[0]);
+  EXPECT_EQ(2, indices[1]);
+  EXPECT_EQ(3, indices[2]);
   EXPECT_EQ(-2, v[0]);
-  EXPECT_EQ(-4, v[1]);
-  EXPECT_EQ(-6, v[2]);
+  EXPECT_EQ(-6, v[1]);
+  EXPECT_EQ(-10, v[2]);
 }
 
-TEST(RangeTest, enumerate) {
-  std::vector<int> v {-1, -2, -3};
-  std::vector<int> indexes;
-
+TEST_F(EnumerateTest, enumerate) {
   for (auto t : range::enumerate(v, -2)) {
-    indexes.push_back(std::get<0>(t));
+    indices.push_back(std::get<0>(t));
     std::get<1>(t) *= -1; // reference check
     t.second += 1;
   }
-  EXPECT_EQ(-2, indexes[0]);
-  EXPECT_EQ(-1, indexes[1]);
-  EXPECT_EQ( 0, indexes[2]);
+  EXPECT_EQ(-2, indices[0]);
+  EXPECT_EQ(-1, indices[1]);
+  EXPECT_EQ( 0, indices[2]);
   EXPECT_EQ(2, v[0]);
-  EXPECT_EQ(3, v[1]);
-  EXPECT_EQ(4, v[2]);
+  EXPECT_EQ(4, v[1]);
+  EXPECT_EQ(6, v[2]);
 }
 
 TEST(RangeTest, push_back_iterator) {
