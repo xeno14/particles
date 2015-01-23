@@ -196,10 +196,23 @@ struct IsotoropicRand<T, 3, Engine> {
   static Expression get_vec(T r) { return Expression(r); }
 };
 
+template <class Engine>
+class GeneratorBase {
+ public:
+  /** @brief set seed to the current time */
+  void seed_now() { internal::set_seed_now(engine_); }
+  /** @brief set seed using device */
+  void seed_dev() { internal::set_seed_seq(engine_); }
+  /** @brief sed seed by your self */
+  void seed(typename Engine::result_type val) { engine_.seed(val); }
+
+ protected:
+  mutable Engine engine_;
+};
 
 /**
  * @brief random number generator of uniform distribution
- * 
+ *
  * Operations between Vec is available if UniformGenerator is placed at most
  * right position.
  *
@@ -212,37 +225,23 @@ struct IsotoropicRand<T, 3, Engine> {
  * @endcode
  */
 template <class T, class Engine = std::mt19937>
-class UniformGenerator {
+class UniformGenerator : public GeneratorBase<Engine> {
+  typedef GeneratorBase<Engine> Base;
  public:
   typedef T value_type;
 
-  UniformGenerator() : engine_(), distribution_() {}
-  UniformGenerator(T a, T b) : engine_(), distribution_(a, b) {}
+  UniformGenerator() : distribution_() {}
+  UniformGenerator(T a, T b) : distribution_(a, b) {}
 
-  /** @brief set seed to the current time */
-  UniformGenerator& seed_now() {
-    internal::set_seed_now(engine_);
-    return *this;
-  }
-  /** @brief set seed using device */
-  UniformGenerator& seed_dev() {
-    internal::set_seed_seq(engine_);
-    return *this;
-  }
-  /** @brief sed seed by your self */
-  UniformGenerator& seed(typename Engine::result_type val) {
-    engine_.seed(val);
-    return *this;
-  }
   /** @brief get a random number */
-  T operator()() const { return distribution_(engine_); }
+  value_type operator()() const { return distribution_(Base::engine_); }
   /** @brief get a random number */
-  T operator[](std::size_t) const { return (*this)(); }
+  value_type operator[](std::size_t) const { return (*this)(); }
 
  private:
-  mutable Engine engine_;
   mutable typename internal::UniformDistributionType<T>::type distribution_;
 };
+
 
 }  // namespace random
 }  // namespace particles
