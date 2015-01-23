@@ -156,18 +156,17 @@ TEST(RangeTest, xrange) {
   EXPECT_EQ(2, result[2]);
 }
 
+class EnumerateTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    v = {-1, -3, -5};
+    indices.clear();
+  }
+  std::vector<int> v;
+  std::vector<int> indices;
+};
 
-// TEST(RangeTest, zip_const) {
-//   std::vector<int> u {1, 2, 3}, v {4, 5, 6};
-//   const auto& cu = u;
-//   const auto& cv = v;
-//   for(auto z : range::zip(cu, cv)) {
-//   }
-// }
-
-TEST(RangeTest, EnumerateRange) {
-  std::vector<int> v {-1, -3, -5};
-
+TEST_F(EnumerateTest, EnumerateRange) {
   range::EnumerateRange<decltype(v)> enum_range(v, 0);
   auto first = enum_range.begin();
   auto last = enum_range.end();
@@ -191,42 +190,36 @@ TEST(RangeTest, EnumerateRange) {
   EXPECT_EQ(-10, v[2]);
 }
 
-TEST(RangeTest, EnumerateRange2) {
-  std::vector<int> v {-1, -2, -3};
-  std::vector<int> indexes;
-
+TEST_F(EnumerateTest, EnumerateRange2) {
   range::EnumerateRange<decltype(v)> enum_range(v, 1);
   auto it = enum_range.begin();
 
   // Doubles each element
   while (it != enum_range.end()) {
-    indexes.push_back(std::get<0>(*it));
+    indices.push_back(std::get<0>(*it));
     std::get<1>(*it) *= 2;
     ++it;
   }
-  EXPECT_EQ(1, indexes[0]);
-  EXPECT_EQ(2, indexes[1]);
-  EXPECT_EQ(3, indexes[2]);
+  EXPECT_EQ(1, indices[0]);
+  EXPECT_EQ(2, indices[1]);
+  EXPECT_EQ(3, indices[2]);
   EXPECT_EQ(-2, v[0]);
-  EXPECT_EQ(-4, v[1]);
-  EXPECT_EQ(-6, v[2]);
+  EXPECT_EQ(-6, v[1]);
+  EXPECT_EQ(-10, v[2]);
 }
 
-TEST(RangeTest, enumerate) {
-  std::vector<int> v {-1, -2, -3};
-  std::vector<int> indexes;
-
+TEST_F(EnumerateTest, enumerate) {
   for (auto t : range::enumerate(v, -2)) {
-    indexes.push_back(std::get<0>(t));
+    indices.push_back(std::get<0>(t));
     std::get<1>(t) *= -1; // reference check
     t.second += 1;
   }
-  EXPECT_EQ(-2, indexes[0]);
-  EXPECT_EQ(-1, indexes[1]);
-  EXPECT_EQ( 0, indexes[2]);
+  EXPECT_EQ(-2, indices[0]);
+  EXPECT_EQ(-1, indices[1]);
+  EXPECT_EQ( 0, indices[2]);
   EXPECT_EQ(2, v[0]);
-  EXPECT_EQ(3, v[1]);
-  EXPECT_EQ(4, v[2]);
+  EXPECT_EQ(4, v[1]);
+  EXPECT_EQ(6, v[2]);
 }
 
 TEST(RangeTest, push_back_iterator) {
