@@ -18,6 +18,12 @@ extern void* enabler;
 namespace particles {
 namespace internal {
 
+/**
+ * @brief info to be held in Particle
+ * 
+ * If type of info is void, this struct is empty to save memory.
+ * @tparam T type of info
+ */
 template <class T>
 struct Info {
   T val;
@@ -29,9 +35,13 @@ struct Info<void> {};
 }  // namespace internal
 
 /**
- * @brief particle moving in N dimension
+ * @brief particle moving in N dimension with info
+ *
+ * @todo construct with info
+ *
  * @tparam T floating point
  * @tparam N dimension
+ * @tparam I info of arbitrary type
  */
 template <class T, std::size_t N, class I=void>
 class Particle {
@@ -78,12 +88,15 @@ class Particle {
   /** @brief dimension of vector */
   static constexpr std::size_t dim() { return N; }
 
+  /** @brief dummy accessor for info if its type is void */
   template <class U=I, typename std::enable_if< std::is_void<U>::value>::type *& = enabler>
   void info() const {}
 
+  /** @brief accessor for info */
   template <class U=I, typename std::enable_if<!std::is_void<U>::value>::type *& = enabler>
   auto& info() { return info_.val; }
 
+  /** @brief accessor for info */
   template <class U=I, typename std::enable_if<!std::is_void<U>::value>::type *& = enabler>
   const auto& info() const { return info_.val; }
 

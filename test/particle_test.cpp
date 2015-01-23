@@ -24,7 +24,7 @@ TEST(ParticleTest, constructor) {
   EXPECT_DOUBLE_EQ(4, p2.velocity(1)); 
 }
 
-TEST(ParticleConstructorTest, info) {
+TEST(ParticleInfoTest, info) {
   Particle<int, 2, int> p;
 
   p.info() = 2;
