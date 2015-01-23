@@ -242,6 +242,32 @@ class UniformGenerator : public GeneratorBase<Engine> {
   mutable typename internal::UniformDistributionType<T>::type distribution_;
 };
 
+template <class T, std::size_t N, class Engine>
+class UniformOnSphere;
+
+template <class T, class Engine>
+class UniformOnSphere<T, 2, Engine> : public GeneratorBase<Engine> {
+  typedef GeneratorBase<Engine> Base;
+
+ public:
+  typedef T value_type;
+
+  UniformOnSphere(T r) : r(r_), dist_theta_(0, M_PI*2) {}
+
+  value_type operator[](std::size_t i) const {
+    typedef std::function<value_type(value_type, value_type)> func_t;
+    static func_t funcs = {[](value_type r,
+                              value_type theta) { return r * cos(theta); },
+                           [](value_type r,
+                              value_type theta) { return r * sin(theta); }};
+    auto theta = dist_theta_(Base::engine_);
+    return funcs[i](r_, theta);
+  }
+
+ private:
+  const T r_;
+  mutable typename internal::UniformDistributionType<T>::type dist_theta_;
+};
 
 }  // namespace random
 }  // namespace particles
