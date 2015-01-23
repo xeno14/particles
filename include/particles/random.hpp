@@ -288,5 +288,39 @@ class UniformOnSphere<T, 2, Engine> : public GeneratorBase<Engine> {
   mutable typename internal::UniformDistributionType<T>::type dist_theta_;
 };
 
+template <class T, class Engine>
+class UniformOnSphere<T, 3, Engine> : public GeneratorBase<Engine> {
+  typedef GeneratorBase<Engine> Base;
+
+ public:
+  typedef T value_type;
+
+  UniformOnSphere(T r=1) : r_(r), dist_phi_(0, M_PI*2), dist_theta_(0, M_PI) {}
+
+  value_type phi()   const { return dist_phi_(Base::engine_); }
+  value_type theta() const { return dist_theta_(Base::engine_); }
+
+  /** @brief defines next value of theta */
+  UniformOnSphere& operator()() { phi_ = phi(); theta_ = theta(); return *this; }
+
+  value_type operator[](std::size_t i) const {
+    typedef std::function<value_type(value_type, value_type, value_type)> func_t;
+    static func_t funcs[] =
+        {[](value_type r, value_type phi,
+            value_type theta) { return r * cos(theta) * cos(phi); },
+         [](value_type r, value_type phi,
+            value_type theta) { return r * cos(theta) * sin(phi); },
+         [](value_type r, value_type phi,
+            value_type theta) { return r * sin(theta); }};
+    return funcs[i](r_, phi_, theta_);
+  }
+
+ private:
+  value_type phi_, theta_;
+  const T r_;
+  mutable typename internal::UniformDistributionType<T>::type dist_phi_;
+  mutable typename internal::UniformDistributionType<T>::type dist_theta_;
+};
+
 }  // namespace random
 }  // namespace particles

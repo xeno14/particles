@@ -158,16 +158,24 @@ TEST_F(UniformGeneratorTest, hoge) {
 
 class UniformOnSphereTest : public ::testing::Test {
  protected:
-  virtual void SetUp() { circle.seed_dev(); }
+  virtual void SetUp() { circle.seed_dev(); sphere.seed_dev(); }
 
   random::UniformOnSphere<double, 2> circle;
+  random::UniformOnSphere<double, 3> sphere;
 };
 
 TEST_F(UniformOnSphereTest, circle) {
   loop([&]() {
     Vec<double, 2> v;
     v = circle();
-    // std::cout << v << v.length() << std::endl;
     EXPECT_DOUBLE_EQ(1.0, v.length());
-  }, 100);
+  });
+}
+
+TEST_F(UniformOnSphereTest, sphere) {
+  loop([&]() {
+    Vec<double, 3> v;
+    v = sphere();
+    EXPECT_DOUBLE_EQ(1.0, v.length());
+  });
 }
