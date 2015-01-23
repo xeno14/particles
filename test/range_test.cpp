@@ -63,9 +63,18 @@ TEST(RangeTest, average) {
   EXPECT_EQ(3, ave[1]);
 }
 
-/** @todo use TEST_F */
-TEST(RangeTest, ref_tuple) {
-  std::vector<int> u {1, 2, 3}, v {4, 5, 6};
+class ZipTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    u = {1, 2, 3};
+    v = {4, 5, 6};
+  }
+
+  std::vector<int> u;
+  std::vector<int> v;
+};
+
+TEST_F(ZipTest, ref_tuple) {
   auto it = std::make_tuple(u.begin(), v.begin());
   auto t = range::internal::ref_tuple<range::internal::ref>(it);
   std::get<0>(t) -= 2;
@@ -74,11 +83,10 @@ TEST(RangeTest, ref_tuple) {
   EXPECT_EQ(10, v[0]);
 }
 
-TEST(RangeTest, ZipRange) {
-  std::vector<int> u {1, 2, 3}, v {4, 5, 6};
-
+TEST_F(ZipTest, ZipRange) {
   auto zipcon = range::ZipRange<decltype(u), decltype(v)>(u, v);
 
+  // check overloads
   EXPECT_EQ(zipcon.begin(), std::begin(zipcon));
   EXPECT_EQ(zipcon.end(), std::end(zipcon));
 
@@ -102,6 +110,19 @@ TEST(RangeTest, ZipRange) {
   ++it;
 
   EXPECT_EQ(last, it);
+}
+
+TEST_F(ZipTest, zip) {
+  for(auto z : range::zip(u, v)) {
+    std::get<0>(z)--;
+    std::get<1>(z)--;
+  }
+  EXPECT_EQ(0, u[0]);
+  EXPECT_EQ(1, u[1]);
+  EXPECT_EQ(2, u[2]);
+  EXPECT_EQ(3, v[0]);
+  EXPECT_EQ(4, v[1]);
+  EXPECT_EQ(5, v[2]);
 }
 
 TEST(RangeTest, XRange) {
@@ -135,20 +156,6 @@ TEST(RangeTest, xrange) {
   EXPECT_EQ(2, result[2]);
 }
 
-TEST(RangeTest, zip) {
-  std::vector<int> u {1, 2, 3}, v {4, 5, 6};
-
-  for(auto z : range::zip(u, v)) {
-    std::get<0>(z)--;
-    std::get<1>(z)--;
-  }
-  EXPECT_EQ(0, u[0]);
-  EXPECT_EQ(1, u[1]);
-  EXPECT_EQ(2, u[2]);
-  EXPECT_EQ(3, v[0]);
-  EXPECT_EQ(4, v[1]);
-  EXPECT_EQ(5, v[2]);
-}
 
 // TEST(RangeTest, zip_const) {
 //   std::vector<int> u {1, 2, 3}, v {4, 5, 6};
