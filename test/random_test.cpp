@@ -11,6 +11,13 @@ using particles::random::UniformRand;
 
 const int NUM_TRY = 1000;
 
+template <class F>
+void loop(F f, int n = 1000) {
+  for (int i = 0; i < n; i++) {
+    f();
+  }
+}
+
 TEST(RandomTest, UniformRand) {
   // Default: x in [0,1) 
   for (int i=0; i<NUM_TRY;i++) {
@@ -120,13 +127,6 @@ class UniformGeneratorTest : public ::testing::Test {
     gen_double.seed_dev();
   }
 
-  template <class F>
-  void loop(F f, int n = 1000) {
-    for (int i = 0; i < n; i++) {
-      f();
-    }
-  }
-
   random::UniformGenerator<int> gen_int;
   random::UniformGenerator<double> gen_double;
 };
@@ -154,4 +154,20 @@ TEST_F(UniformGeneratorTest, hoge) {
     EXPECT_GE(14, v[1]);
     EXPECT_LE(4, v[1]);
   });
+}
+
+class UniformOnSphereTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() { circle.seed_dev(); }
+
+  random::UniformOnSphere<double, 2> circle;
+};
+
+TEST_F(UniformOnSphereTest, circle) {
+  loop([&]() {
+    Vec<double, 2> v;
+    v = circle();
+    // std::cout << v << v.length() << std::endl;
+    EXPECT_DOUBLE_EQ(1.0, v.length());
+  }, 100);
 }

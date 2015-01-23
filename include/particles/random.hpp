@@ -242,7 +242,21 @@ class UniformGenerator : public GeneratorBase<Engine> {
   mutable typename internal::UniformDistributionType<T>::type distribution_;
 };
 
-template <class T, std::size_t N, class Engine>
+/**
+ * @brief get value on N-dimension sphere)
+ *
+ * - N=2: edge of a circle
+ * - N=3: sphere
+ *
+ * @code
+ * UniformOnSphere<double, 2> circle(1.0);
+ * Vec<double, 2> v;
+ * v = circle();  // get new value
+ * v = circle;    // same value as above
+ * v = circle();  // get new value
+ * @code
+ */
+template <class T, std::size_t N, class Engine = std::mt19937>
 class UniformOnSphere;
 
 template <class T, class Engine>
@@ -252,19 +266,24 @@ class UniformOnSphere<T, 2, Engine> : public GeneratorBase<Engine> {
  public:
   typedef T value_type;
 
-  UniformOnSphere(T r) : r(r_), dist_theta_(0, M_PI*2) {}
+  UniformOnSphere(T r=1) : r_(r), dist_theta_(0, M_PI*2) {}
+
+  value_type theta() const { return dist_theta_(Base::engine_); }
+
+  /** @brief defines next value of theta */
+  UniformOnSphere& operator()() { theta_ = theta(); return *this; }
 
   value_type operator[](std::size_t i) const {
     typedef std::function<value_type(value_type, value_type)> func_t;
-    static func_t funcs = {[](value_type r,
-                              value_type theta) { return r * cos(theta); },
-                           [](value_type r,
-                              value_type theta) { return r * sin(theta); }};
-    auto theta = dist_theta_(Base::engine_);
-    return funcs[i](r_, theta);
+    static func_t funcs[] = {[](value_type r,
+                                value_type theta) { return r * cos(theta); },
+                             [](value_type r,
+                                value_type theta) { return r * sin(theta); }};
+    return funcs[i](r_, theta_);
   }
 
  private:
+  value_type theta_;
   const T r_;
   mutable typename internal::UniformDistributionType<T>::type dist_theta_;
 };
