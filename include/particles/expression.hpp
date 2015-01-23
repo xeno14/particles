@@ -21,6 +21,7 @@
 
 namespace particles {
 namespace expression {
+
 template <class L, class Op, class R>
 struct Exp;
 }
@@ -261,6 +262,35 @@ struct Exp<L, Op, Scalar<T>> {
   }
 };
 
-}  // namespace expression
 
+namespace internal {
+
+template <std::size_t I, class L>
+void assign_impl(L& l) {}
+
+template <std::size_t I, class L, class T, class... Us>
+void assign_impl(L& l, const T& t, const Us&... us) {
+  std::get<I>(l) = t;
+  assign_impl<I+1, L>(l, us...);
+}
+
+}  // namespace internal
+
+
+/**
+ * @brief assign from variable arguments
+ *
+ * Assign to object std::get is available for
+ * @code
+ * std::array<int, 3> a;
+ * assign(a, 1, 2, 3);
+ * @endcode
+ */
+template <class L, class... Args>
+L& assign(L& l, const Args&... args) {
+  internal::assign_impl<0>(l, args...);
+  return l;
+}
+
+}  // namespace expression
 }  // namespace particles
