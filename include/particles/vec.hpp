@@ -221,7 +221,20 @@ inline bool Vec<T, N>::parallel(const Vec<T, N>& v, T eps) const {
   return length() * v.length() - dot(v) < eps;
 }
 
+/**
+ * @brief cross product for 3d vectors
+ */
+template <class T>
+inline Vec<T, 3> cross(const Vec<T, 3>& u, const Vec<T, 3>& v) {
+  return {
+    u[1] * v[2] - u[2] * v[1],
+    u[2] * v[0] - u[0] * v[2],
+    u[0] * v[1] - u[1] * v[0],
+  };
+}
+
 }  // namespace particles
+
 
 namespace std {
 using namespace particles;

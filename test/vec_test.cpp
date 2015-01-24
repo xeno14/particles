@@ -142,3 +142,23 @@ TEST(VecTest, construct_expression) {
   EXPECT_EQ(4, v[0]);
   EXPECT_EQ(6, v[1]);
 }
+
+class CrossTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() { result.fill(0); }
+  Vec<int, 3> result;
+};
+
+TEST_F(CrossTest, test1) {
+  Vec<int, 3> a{1, 2, 3}, b{4, 5, 6};
+  result = cross(a, b);
+  EXPECT_EQ(-3, result[0]);
+  EXPECT_EQ( 6, result[1]);
+  EXPECT_EQ(-3, result[2]);
+}
+
+TEST_F(CrossTest, parallel) {
+  Vec<int, 3> a{1, 2, 3}, b{2, 4, 6};
+  result = cross(a, b);
+  EXPECT_EQ(0, result.squared_length());
+}
