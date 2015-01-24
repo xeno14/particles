@@ -11,6 +11,9 @@
 #include <initializer_list>
 #include <functional>
 
+template <bool B, class T=void>
+using enable_if = typename std::enable_if<B, T>::type*&;
+
 namespace {
 extern void* enabler;
 }
@@ -89,15 +92,15 @@ class Particle {
   static constexpr std::size_t dim() { return N; }
 
   /** @brief dummy accessor for info if its type is void */
-  template <class U=I, typename std::enable_if< std::is_void<U>::value>::type *& = enabler>
+  template <class U=I, enable_if< std::is_void<U>{}> = enabler>
   void info() const {}
 
   /** @brief accessor for info */
-  template <class U=I, typename std::enable_if<!std::is_void<U>::value>::type *& = enabler>
+  template <class U=I, enable_if<!std::is_void<U>{}> = enabler>
   auto& info() { return info_.val; }
 
   /** @brief accessor for info */
-  template <class U=I, typename std::enable_if<!std::is_void<U>::value>::type *& = enabler>
+  template <class U=I, enable_if<!std::is_void<U>{}> = enabler>
   const auto& info() const { return info_.val; }
 
  private:
