@@ -4,28 +4,45 @@
 
 using particles::Vec;
 
-TEST(VecTest, operators) {
+class OperatorTest : public ::testing::Test {
+ protected:
+  OperatorTest () {}
+  ~OperatorTest() {}
+  virtual void SetUp() {
+    v1 = {0, 1, 2};
+    v2 = {1, 2, 3};
+    v3 = {2, 3, 4};
+    result = decltype(result)::zero();
+  }
   Vec<double, 3> v1{0, 1, 2};
   Vec<double, 3> v2{1, 2, 3};
   Vec<double, 3> v3{2, 3, 4};
   Vec<double, 3> result;
+};
 
+TEST_F(OperatorTest, zero) {
   auto zero = particles::Vec<double, 3>::zero();
 
   EXPECT_DOUBLE_EQ(0, zero[0]);
   EXPECT_DOUBLE_EQ(0, zero[1]);
   EXPECT_DOUBLE_EQ(0, zero[2]);
+}
 
+TEST_F(OperatorTest, fill) {
   result.fill(1);
   EXPECT_DOUBLE_EQ(1, result[0]);
   EXPECT_DOUBLE_EQ(1, result[1]);
   EXPECT_DOUBLE_EQ(1, result[2]);
+}
 
+TEST_F(OperatorTest, assign) {
   result = v1;
   EXPECT_DOUBLE_EQ(0, result[0]);
   EXPECT_DOUBLE_EQ(1, result[1]);
   EXPECT_DOUBLE_EQ(2, result[2]);
+}
 
+TEST_F(OperatorTest, add) {
   result = v1 + v2 + v3;
   EXPECT_DOUBLE_EQ(3, result[0]);
   EXPECT_DOUBLE_EQ(6, result[1]);
@@ -33,12 +50,16 @@ TEST(VecTest, operators) {
   EXPECT_DOUBLE_EQ(3, std::get<0>(result));
   EXPECT_DOUBLE_EQ(6, std::get<1>(result));
   EXPECT_DOUBLE_EQ(9, std::get<2>(result));
+}
 
+TEST_F(OperatorTest, plus_and_minus) {
   result = v1 + v2 - v3;
   EXPECT_DOUBLE_EQ(-1, result[0]);
   EXPECT_DOUBLE_EQ(0, result[1]);
   EXPECT_DOUBLE_EQ(1, result[2]);
+}
 
+TEST_F(OperatorTest, multiply) {
   result = v1 + v2;  // 1, 3, 5
   result *= 2;
   EXPECT_DOUBLE_EQ(2, result[0]);
@@ -49,7 +70,9 @@ TEST(VecTest, operators) {
   EXPECT_DOUBLE_EQ(2, result[0]);
   EXPECT_DOUBLE_EQ(4, result[1]);
   EXPECT_DOUBLE_EQ(6, result[2]);
+}
 
+TEST_F(OperatorTest, multiply_and_plus) {
   result = v1 * 2.0 + v2;
   EXPECT_DOUBLE_EQ(1, result[0]);
   EXPECT_DOUBLE_EQ(4, result[1]);
@@ -59,7 +82,9 @@ TEST(VecTest, operators) {
   EXPECT_DOUBLE_EQ(2, result[0]);
   EXPECT_DOUBLE_EQ(5, result[1]);
   EXPECT_DOUBLE_EQ(8, result[2]);
+}
 
+TEST_F(OperatorTest, devide) {
   result = v1 / 2 + v2;
   EXPECT_DOUBLE_EQ(1, result[0]);
   EXPECT_DOUBLE_EQ(2.5, result[1]);
@@ -69,19 +94,16 @@ TEST(VecTest, operators) {
   EXPECT_DOUBLE_EQ(0.5, result[0]);
   EXPECT_DOUBLE_EQ(2, result[1]);
   EXPECT_DOUBLE_EQ(3.5, result[2]);
+}
 
-  result.fill(0);
+TEST_F(OperatorTest, plus_and_assign) {
   result += v1 + v2;
   EXPECT_DOUBLE_EQ(result[0], 1);
   EXPECT_DOUBLE_EQ(result[1], 3);
   EXPECT_DOUBLE_EQ(result[2], 5);
+}
 
-  result.fill(0);
-  result -= v1 + v2;
-  EXPECT_DOUBLE_EQ(result[0], -1);
-  EXPECT_DOUBLE_EQ(result[1], -3);
-  EXPECT_DOUBLE_EQ(result[2], -5);
-
+TEST_F(OperatorTest, compare) {
   const auto& z = decltype(result)::zero();
   result = z; 
   EXPECT_TRUE(result == z);
@@ -90,7 +112,8 @@ TEST(VecTest, operators) {
   EXPECT_FALSE(result != z);
 }
 
-TEST(VecTest, mathmatics) {
+
+TEST(MathTest, length) {
   Vec<double, 2> v1 {3, 4};
   Vec<double, 2> v2 {3, 6};
 
@@ -99,15 +122,18 @@ TEST(VecTest, mathmatics) {
   EXPECT_DOUBLE_EQ(4, v1.squared_distance(v2));
   EXPECT_DOUBLE_EQ(2, v1.distance(v2));
   EXPECT_DOUBLE_EQ(33, v1.dot(v2));
+}
 
-  Vec<double, 2> u1 {3, 4};
-  Vec<double, 2> u2 {3, 4};
-  EXPECT_TRUE(u1.parallel(v1));
-  EXPECT_TRUE(u1.parallel(v1, 1e-4));
-  EXPECT_FALSE(u1.parallel(v2, 1e-6));
-  EXPECT_FALSE(u2.parallel(v2, 1e-6));
-  EXPECT_TRUE(u2.parallel(v2, 1));
+TEST(MathTest, parallel) {
+  Vec<double, 2> u {3, 4};
+  EXPECT_TRUE( u.parallel({3, 4}));
+  EXPECT_TRUE( u.parallel({3, 4}, 1e-4));
+  EXPECT_FALSE(u.parallel({3, 6}, 1e-6));
+  EXPECT_FALSE(u.parallel({3, 6}, 1e-6));
+  EXPECT_TRUE( u.parallel({3, 6}, 1));
+}
 
+TEST(MathTest, normalize) {
   Vec<double, 2> n;
   n = {10, 0};
   n.normalize(100);
