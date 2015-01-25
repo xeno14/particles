@@ -333,11 +333,16 @@ struct InnerProdImpl<0, L, R>  {
  *
  * @pre std::tuple_size and std::get both are available
  */
+template <std::size_t N, class L, class R>
+inline auto inner_prod(const L& l, const R& r) {
+  return expression::internal::InnerProdImpl<N, L, R>::apply(l, r);
+}
+
 template <class L, class R>
-auto inner_prod(const L& l, const R& r) {
+inline auto inner_prod(const L& l, const R& r) {
   static_assert(std::tuple_size<L>::value == std::tuple_size<R>::value,
                 "size of tuple must be same." );
-  return expression::internal::InnerProdImpl<std::tuple_size<L>::value, L, R>::apply(l, r);
+  return inner_prod<std::tuple_size<L>::value>(l, r);
 }
 
 /**
@@ -346,6 +351,11 @@ auto inner_prod(const L& l, const R& r) {
 template <class T>
 auto euclidean_norm(const T& x) {
   return std::sqrt(inner_prod(x, x));
+}
+
+template <std::size_t N, class T>
+auto euclidean_norm(const T& x) {
+  return std::sqrt(inner_prod<N>(x, x));
 }
 
 }  // namespace particles

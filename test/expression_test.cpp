@@ -55,8 +55,12 @@ TEST(ExpressionTest, Assign) {
 TEST(ExpressionTest, inner_prod) {
   auto t = std::make_tuple(1, 2, 3);
   auto u = std::make_tuple(2, 3, 4);
-  int n = inner_prod(t, u);
-  EXPECT_EQ(20, n);
+  EXPECT_EQ(20, inner_prod(t, u));
+}
+
+TEST(ExpressionTest, inner_prod2) {
+  EXPECT_EQ(8, inner_prod<2>(
+    std::make_tuple(1, 2, 3, 4), std::make_tuple(2, 3)));
 }
 
 TEST(ExpressionTest, euclidean_norm) {
