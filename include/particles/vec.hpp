@@ -236,6 +236,11 @@ const inline T& get(const particles::Vec<T, N>& v) noexcept {
   return v.get<I>();
 }
 
+template <class T, size_t N>
+struct tuple_size<particles::Vec<T, N>> {
+  static constexpr size_t value = N;
+};
+
 }  // namespace std
 
 using namespace particles;

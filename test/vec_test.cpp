@@ -1,6 +1,7 @@
 #include "particles/vec.hpp"
 
 #include <gtest/gtest.h>
+#include <tuple>    // for testing tuple_size
 
 using particles::Vec;
 
@@ -153,13 +154,25 @@ TEST(MathTest, normalize) {
   EXPECT_DOUBLE_EQ(1, n.length());
 }
 
-TEST(VecTest, overload) {
-  Vec<int, 2> v {1, 2};
+class OverloadTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    v = {1, 2};
+  }
+  Vec<int, 2> v;
+};
 
+TEST_F(OverloadTest, get) {
   EXPECT_EQ(1, std::get<0>(v));
   EXPECT_EQ(2, std::get<1>(v));
+}
 
+TEST_F(OverloadTest, begin) {
   EXPECT_EQ(1, *std::begin(v));
+}
+
+TEST_F(OverloadTest, tuple_size) {
+  EXPECT_EQ(2, std::tuple_size<decltype(v)>::value);
 }
 
 TEST(VecTest, construct_variable_args) {
