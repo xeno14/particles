@@ -58,6 +58,7 @@
 
 namespace particles {
 namespace util {
+
 namespace internal {
 
 /** @brief output nothing */
@@ -85,7 +86,40 @@ class CheckImpl {
   std::ostream& ost_;
 };
 
+template <class T>
+struct Type {
+  typedef T type;
+};
+
 }  // namespace internal
+
+template <class T>
+constexpr internal::Type<T> ref_to_type(T&);
+template <class T>
+constexpr internal::Type<T> ref_to_type(const T&);
+
+/**
+ * @brief choose type following condition
+ *
+ * @code
+ * class Hoge {
+ *   ...
+ * };
+ * typedef Hoge value_type;
+ *
+ * // Hoge
+ * typename type_cond<std::is_class<value_type>::value, value_type, int>::type a; 
+ * @endcode
+ */
+template <bool cond, class T, class F>
+struct type_cond;
+
+template <class T, class F>
+struct type_cond<true, T, F> { typedef T type; };
+
+template <class T, class F>
+struct type_cond<false, T, F> { typedef F type; };
+
 
 }  // namespace util
 }  // namespace particles

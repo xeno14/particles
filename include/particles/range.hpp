@@ -72,15 +72,6 @@ inline auto ref_tuple(std::tuple<Iterator...>& t) {
   return RefTupleImpl<Ref, true>::make_tuple(t);
 }
 
-template <class T>
-struct Type {
-  typedef T type;
-};
-template <class T>
-constexpr Type<T> ref_to_type(T&);
-template <class T>
-constexpr Type<T> ref_to_type(const T&);
-
 }  // namespace internal
 
 
@@ -290,53 +281,6 @@ class ConvertIterator {
 
 
 /**
- * @brief sum over iterators
- *
- * @code
- * std::vector<int> u {1, 2, 3};
- * auto s = range::sum(u.begin(), u.end());  // 6
- * @endcode
- */
-template <class InputIterator>
-inline auto sum(InputIterator first, InputIterator last) {
-  typedef typename decltype(internal::ref_to_type(*first))::type value_type;
-  // get value type
-  // avoid uninitialized warning
-  auto res = value_type();
-  auto it = first;
-  while (it != last) {
-    res += *it;
-    ++it;
-  }
-  return res;
-}
-
-/**
- * @todo return double when calculating average over list of int
- *
- * @brief average
- *
- * @code
- * vector<double> u {1, 2, 3};
- * auto ave = range::average(u.begin(), u.end());   // 3
- * @endcode
- */
-template<class InputIterator>
-inline double average(InputIterator first, InputIterator last) {
-  typedef typename decltype(internal::ref_to_type(*first))::type value_type;
-  std::size_t num = 0;
-  double s = value_type();
-  auto it = first;
-  while (it != last) {
-    s += *it;
-    ++it;
-    num++;
-  }
-  return s / num;
-  /** @todo result s / double(num); why it does not work? */
-}
-
-/**
  * @brief call push_back instead of assigning.
  *
  * This class has a reference to a list such as std::vector. When assigning to
@@ -375,6 +319,62 @@ class PushBackIterator
 };
 
 }  // namespace range
+
+
+/**
+ * @brief sum over iterators
+ *
+ * @code
+ * std::vector<int> u {1, 2, 3};
+ * auto s = range::sum(u.begin(), u.end());  // 6
+ * @endcode
+ */
+template <class InputIterator>
+inline auto sum(InputIterator first, InputIterator last) {
+  typedef typename decltype(util::ref_to_type(*first))::type value_type;
+  // get value type
+  // avoid uninitialized warning
+  auto res = value_type();
+  auto it = first;
+  while (it != last) {
+    res += *it;
+    ++it;
+  }
+  return res;
+}
+
+/**
+ * @todo return double when calculating average over list of int
+ *
+ * @brief average
+ *
+ * @code
+ * vector<double> u {1, 2, 3};
+ * average(u.begin(), u.end());    // 3
+ *
+ * // for integral types, result is in float.
+ * vector<int> v {1, 2};
+ * average(v.begin(), v.begin());  // 1.5
+ * @endcode
+ */
+template<class InputIterator>
+inline auto average(InputIterator first, InputIterator last) {
+  typedef typename decltype(util::ref_to_type(*first))::type value_type;
+  typedef typename util::type_cond<
+                      std::is_integral<value_type>::value,
+                      double, value_type>::type result_type;
+  std::size_t num = 0;
+  auto s = result_type();
+  auto it = first;
+  while (it != last) {
+    s += *it;
+    ++it;
+    num++;
+  }
+  s /= double(num);
+  return s;
+  /** @todo return s / double(num); why it does not work for Vec? */
+}
 
 /**
  * @brief python-like xrange

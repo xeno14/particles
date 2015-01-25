@@ -64,11 +64,12 @@ TEST(RangeTest, average) {
   EXPECT_DOUBLE_EQ(3, ave[1]);
 }
 
-// TEST(RangeTest, average2) {
-//   std::vector<int> v {1, 2};
-//   auto ave = average(v.begin(), v.end());
-//   EXPECT_DOUBLE_EQ(1.5, ave);
-// }
+TEST(RangeTest, average2) {
+  std::vector<int> v {1, 2};
+  // double
+  auto ave = average(v.begin(), v.end());
+  EXPECT_DOUBLE_EQ(1.5, ave);
+}
 
 class ZipTest : public ::testing::Test {
  protected:

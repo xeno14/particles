@@ -105,8 +105,8 @@ int main() {
 
       // Velocity at next step
       // Get average velocity among neighbors
-      nv = range::average(convert_iterator(neighbors.begin(), get_v),
-                          convert_iterator(neighbors.end(),   get_v)) +
+      nv = average(convert_iterator(neighbors.begin(), get_v),
+                   convert_iterator(neighbors.end(),   get_v)) +
            eta_gen();
       nv.normalize(v0);
     };
