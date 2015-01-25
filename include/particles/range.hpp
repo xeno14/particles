@@ -322,18 +322,17 @@ inline auto sum(InputIterator first, InputIterator last) {
  * @endcode
  */
 template<class InputIterator>
-inline auto average(InputIterator first, InputIterator last) {
+inline double average(InputIterator first, InputIterator last) {
   typedef typename decltype(internal::ref_to_type(*first))::type value_type;
   std::size_t num = 0;
-  auto s = value_type();
+  double s = value_type();
   auto it = first;
   while (it != last) {
     s += *it;
     ++it;
     num++;
   }
-  s /= double(num);
-  return s;
+  return s / num;
   /** @todo result s / double(num); why it does not work? */
 }
 
