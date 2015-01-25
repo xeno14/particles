@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <tuple>
 #include <cstdlib>
 #include <iostream>
@@ -337,6 +338,14 @@ auto inner_prod(const L& l, const R& r) {
   static_assert(std::tuple_size<L>::value == std::tuple_size<R>::value,
                 "size of tuple must be same." );
   return expression::internal::InnerProdImpl<std::tuple_size<L>::value, L, R>::apply(l, r);
+}
+
+/**
+ * @brief Euclidian norm
+ */
+template <class T>
+auto euclidean_norm(const T& x) {
+  return std::sqrt(inner_prod(x, x));
 }
 
 }  // namespace particles

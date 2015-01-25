@@ -58,3 +58,7 @@ TEST(ExpressionTest, inner_prod) {
   int n = inner_prod(t, u);
   EXPECT_EQ(20, n);
 }
+
+TEST(ExpressionTest, euclidean_norm) {
+  EXPECT_DOUBLE_EQ(5, euclidean_norm(std::make_tuple(3, 4)));
+}
