@@ -62,6 +62,7 @@ TEST(ExpressionTest, euclidean_norm) {
   std::vector<int> a{3, 4};
   EXPECT_DOUBLE_EQ(5, euclidean_norm<3>(a));
 }
+
 // TEST(ExpressionTest, inner_prod) {
 //   auto t = std::make_tuple(1, 2, 3);
 //   auto u = std::make_tuple(2, 3, 4);
