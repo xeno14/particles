@@ -199,7 +199,11 @@ TEST(VecTest, construct_expression) {
 }
 
 TEST(VecTest, inner_prod) {
-  Vec<int, 3> a(1, 2, 3);
-  Vec<int, 3> b(2, 3, 4);
+  Vec<int, 3> a(1, 2, 3), b(2, 3, 4);
   EXPECT_EQ(20, inner_prod<3>(a, b));
+}
+
+TEST(VecTest, euclidean_norm) {
+  Vec<int, 2> a(4, 5), b(1, 1);
+  EXPECT_DOUBLE_EQ(5, euclidean_norm<2>(a - b));
 }
