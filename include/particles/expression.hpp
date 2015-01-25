@@ -292,5 +292,51 @@ L& assign(L& l, const Args&... args) {
   return l;
 }
 
+namespace internal {
+template <std::size_t I, class L, class R>
+struct InnerProdImpl {
+  inline static auto apply(const L& l, const R& r) {
+    return std::get<I-1>(l) * std::get<I-1>(r) + InnerProdImpl<I-1, L, R>::apply(l, r);
+  }
+};
+
+template <class L, class R>
+struct InnerProdImpl<1, L, R>  {
+  inline static auto apply(const L& l, const R& r) {
+    return std::get<0>(l) * std::get<0>(r);
+  }
+};
+
+template <class L, class R>
+struct InnerProdImpl<0, L, R>  {
+  inline static auto apply(const L& l, const R& r) {
+    return 0;
+  }
+};
+} // namespace internal
+
 }  // namespace expression
+
+
+/**
+ * @brief inner product
+ *
+ * Calculate inner product between tuple-like objects. All operations are
+ * expanded at compiling.
+ *
+ * @code
+ * auto t = std::make_tuple(1, 2, 3);
+ * auto u = std::make_tuple(2, 3, 4);
+ * int n = inner_prod(t, u);  // 20
+ * @endcode
+ *
+ * @pre std::tuple_size and std::get both are available
+ */
+template <class L, class R>
+auto inner_prod(const L& l, const R& r) {
+  static_assert(std::tuple_size<L>::value == std::tuple_size<R>::value,
+                "size of tuple must be same." );
+  return expression::internal::InnerProdImpl<std::tuple_size<L>::value, L, R>::apply(l, r);
+}
+
 }  // namespace particles

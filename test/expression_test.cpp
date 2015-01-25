@@ -5,6 +5,7 @@
 #include <tuple>
 
 using namespace particles;
+using namespace particles::expression;
 
 TEST(ExpressionTest, assign) {
   std::tuple<int, int> t;
@@ -49,4 +50,11 @@ TEST(ExpressionTest, Assign) {
   EXPECT_EQ(1, a[0]);
   EXPECT_EQ(2, a[1]);
   EXPECT_EQ(3, a[2]);
+}
+
+TEST(ExpressionTest, inner_prod) {
+  auto t = std::make_tuple(1, 2, 3);
+  auto u = std::make_tuple(2, 3, 4);
+  int n = inner_prod(t, u);
+  EXPECT_EQ(20, n);
 }
