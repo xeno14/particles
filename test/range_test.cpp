@@ -9,13 +9,14 @@
 #include <vector>
 
 using namespace particles;
+using namespace particles::range;
 
 template <class T, class U>
 inline T& pair_first(std::pair<T, U>& p) { return p.first; }
 
 template<class Itr>
 inline auto first_iterator(Itr it) {
-  return range::convert_iterator(
+  return convert_iterator(
       it, [](std::pair<int, int>& u) { return std::ref(u.first); });
 }
 
@@ -41,31 +42,31 @@ TEST(RangeTest, ConvertIterator) {
 
 TEST(RangeTest, sum) {
   std::vector<int> u = {1, 2, 3};
-  EXPECT_EQ(6, range::sum(u.begin(), u.end()));
+  EXPECT_EQ(6, sum(u.begin(), u.end()));
 
   std::vector<Vec<double, 2>> v = {{1, 2},{3, 4}};
-  auto s = range::sum(v.begin(), v.end());
+  auto s = sum(v.begin(), v.end());
   EXPECT_DOUBLE_EQ(4, s[0]);
   EXPECT_DOUBLE_EQ(6, s[1]);
 
   std::vector<std::pair<int, int>> w = {{1,2},{3,4}};
   // auto cvt = [](std::pair<int, int>& p) { return p.first; };
-  auto first = range::convert_iterator(w.begin(), pair_first<int, int>);
-  auto last = range::convert_iterator(w.end(), pair_first<int,int>);
-  auto t = range::sum(first, last);
+  auto first = convert_iterator(w.begin(), pair_first<int, int>);
+  auto last = convert_iterator(w.end(), pair_first<int,int>);
+  auto t = sum(first, last);
   EXPECT_EQ(4, t);
 }
 
 TEST(RangeTest, average) {
   std::vector<Vec<double, 2>> v = {{1, 2},{3, 4}};
-  auto ave = range::average(v.begin(), v.end());
+  auto ave = average(v.begin(), v.end());
   EXPECT_DOUBLE_EQ(2, ave[0]);
   EXPECT_DOUBLE_EQ(3, ave[1]);
 }
 
 // TEST(RangeTest, average2) {
 //   std::vector<int> v {1, 2};
-//   auto ave = range::average(v.begin(), v.end());
+//   auto ave = average(v.begin(), v.end());
 //   EXPECT_DOUBLE_EQ(1.5, ave);
 // }
 
@@ -90,7 +91,7 @@ TEST_F(ZipTest, ref_tuple) {
 }
 
 TEST_F(ZipTest, ZipRange) {
-  auto zipcon = range::ZipRange<decltype(u), decltype(v)>(u, v);
+  auto zipcon = ZipRange<decltype(u), decltype(v)>(u, v);
 
   // check overloads
   EXPECT_EQ(zipcon.begin(), std::begin(zipcon));
@@ -119,7 +120,7 @@ TEST_F(ZipTest, ZipRange) {
 }
 
 TEST_F(ZipTest, zip) {
-  for(auto z : range::zip(u, v)) {
+  for(auto z : zip(u, v)) {
     std::get<0>(z)--;
     std::get<1>(z)--;
   }
@@ -132,7 +133,7 @@ TEST_F(ZipTest, zip) {
 }
 
 TEST(RangeTest, XRange) {
-  range::XRange<int> xrange(1, 4); // 1, 2, 3
+  XRange<int> xrange(1, 4); // 1, 2, 3
   auto it = xrange.begin();
 
   EXPECT_EQ(1, *it); ++it;
@@ -145,7 +146,7 @@ TEST(RangeTest, xrange) {
   std::vector<int> result;
 
   result.clear();
-  for(auto n : range::xrange(-3, 0)) {
+  for(auto n : xrange(-3, 0)) {
     result.push_back(n);
   }
   EXPECT_EQ(-3, result[0]);
@@ -153,7 +154,7 @@ TEST(RangeTest, xrange) {
   EXPECT_EQ(-1, result[2]);
 
   result.clear();
-  for(auto n : range::xrange(3)) {
+  for(auto n : xrange(3)) {
     result.push_back(n);
     n++;  // reference does not harm iterator
   }
@@ -173,7 +174,7 @@ class EnumerateTest : public ::testing::Test {
 };
 
 TEST_F(EnumerateTest, EnumerateRange) {
-  range::EnumerateRange<decltype(v)> enum_range(v, 0);
+  EnumerateRange<decltype(v)> enum_range(v, 0);
   auto first = enum_range.begin();
   auto last = enum_range.end();
 
@@ -197,7 +198,7 @@ TEST_F(EnumerateTest, EnumerateRange) {
 }
 
 TEST_F(EnumerateTest, EnumerateRange2) {
-  range::EnumerateRange<decltype(v)> enum_range(v, 1);
+  EnumerateRange<decltype(v)> enum_range(v, 1);
   auto it = enum_range.begin();
 
   // Doubles each element
@@ -215,7 +216,7 @@ TEST_F(EnumerateTest, EnumerateRange2) {
 }
 
 TEST_F(EnumerateTest, enumerate) {
-  for (auto t : range::enumerate(v, -2)) {
+  for (auto t : enumerate(v, -2)) {
     indices.push_back(std::get<0>(t));
     std::get<1>(t) *= -1; // reference check
     t.second += 1;
@@ -231,7 +232,7 @@ TEST_F(EnumerateTest, enumerate) {
 TEST(RangeTest, push_back_iterator) {
   std::vector<int> v {1, 2, 3, 4};
   std::vector<int> res {0};
-  std::copy(v.begin(), v.end(), range::push_back_iterator(res));
+  std::copy(v.begin(), v.end(), push_back_iterator(res));
   ASSERT_EQ(5, res.size());
   EXPECT_EQ(0, res[0]);
   EXPECT_EQ(1, res[1]);

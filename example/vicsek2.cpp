@@ -91,7 +91,7 @@ int main() {
     // Create adjacency list for all particles
     searcher.search(adjacency_list, particles);
 
-    for (auto e : range::enumerate(particles)) {
+    for (auto e : enumerate(particles)) {
       auto  i = e.first;    // index of the particle
       auto& p = e.second;   // i-th particle
       const auto& x = p.position();
@@ -105,8 +105,8 @@ int main() {
 
       // Velocity at next step
       // Get average velocity among neighbors
-      nv = range::average(range::convert_iterator(neighbors.begin(), get_v),
-                          range::convert_iterator(neighbors.end(),   get_v)) +
+      nv = range::average(convert_iterator(neighbors.begin(), get_v),
+                          convert_iterator(neighbors.end(),   get_v)) +
            eta_gen();
       nv.normalize(v0);
     };
