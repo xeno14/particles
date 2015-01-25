@@ -165,6 +165,15 @@ class OverloadTest : public ::testing::Test {
 TEST_F(OverloadTest, get) {
   EXPECT_EQ(1, std::get<0>(v));
   EXPECT_EQ(2, std::get<1>(v));
+
+  std::get<0>(v) = 100;  // reference
+  EXPECT_EQ(100, v[0]);
+
+  auto f = [](const decltype(v)& u) {
+    return std::get<0>(u);
+  };
+
+  EXPECT_EQ(100, f(v));
 }
 
 TEST_F(OverloadTest, begin) {
@@ -187,4 +196,10 @@ TEST(VecTest, construct_expression) {
   Vec<int, 2> v = a + b;  // Exp<Vec, Plus, Vec>
   EXPECT_EQ(4, v[0]);
   EXPECT_EQ(6, v[1]);
+}
+
+TEST(VecTest, inner_prod) {
+  Vec<int, 3> a(1, 2, 3);
+  Vec<int, 3> b(2, 3, 4);
+  EXPECT_EQ(20, inner_prod<3>(a, b));
 }

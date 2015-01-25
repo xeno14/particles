@@ -24,17 +24,17 @@ namespace particles {
 namespace expression {
 template <class L, class Op, class R>
 struct Exp;
-}
-}
+}  // namespace particles
+}  // namespace expression
 
-namespace std {
 
-template <size_t I, class L, class Op, class R>
-inline auto& get(particles::expression::Exp<L, Op, R>& e) {
-  return Op::apply(get<I>(e.l), get<I>(e.r));
-}
+// namespace std {
+// template <size_t I, class L, class Op, class R>
+// inline auto& get(particles::expression::Exp<L, Op, R>& e) {
+//   return Op::apply(get<I>(e.l), get<I>(e.r));
+// }
+// }  // namespace std
 
-}  // namespace std
 
 namespace particles {
 namespace expression {
@@ -293,18 +293,21 @@ L& assign(L& l, const Args&... args) {
   return l;
 }
 
+/** @todo prepare both std::get and operator[] */
 namespace internal {
 template <std::size_t I, class L, class R>
 struct InnerProdImpl {
   inline static auto apply(const L& l, const R& r) {
-    return std::get<I-1>(l) * std::get<I-1>(r) + InnerProdImpl<I-1, L, R>::apply(l, r);
+    // return std::get<I-1>(l) * std::get<I-1>(r) + InnerProdImpl<I-1, L, R>::apply(l, r);
+    return l[I-1] * r[I-1] + InnerProdImpl<I-1, L, R>::apply(l, r);
   }
 };
 
 template <class L, class R>
 struct InnerProdImpl<1, L, R>  {
   inline static auto apply(const L& l, const R& r) {
-    return std::get<0>(l) * std::get<0>(r);
+    // return std::get<0>(l) * std::get<0>(r);
+    return l[0] * r[0];
   }
 };
 
@@ -338,24 +341,30 @@ inline auto inner_prod(const L& l, const R& r) {
   return expression::internal::InnerProdImpl<N, L, R>::apply(l, r);
 }
 
-template <class L, class R>
-inline auto inner_prod(const L& l, const R& r) {
-  static_assert(std::tuple_size<L>::value == std::tuple_size<R>::value,
-                "size of tuple must be same." );
-  return inner_prod<std::tuple_size<L>::value>(l, r);
-}
+// template <class L, class R>
+// inline auto inner_prod(const L& l, const R& r) {
+//   static_assert(std::tuple_size<L>::value == std::tuple_size<R>::value,
+//                 "size of tuple must be same." );
+//   return inner_prod<std::tuple_size<L>::value>(l, r);
+// }
+
+// template <class T>
+// auto euclidean_norm(const T& x) {
+//   return std::sqrt(inner_prod(x, x));
+// }
 
 /**
  * @brief Euclidian norm
  */
-template <class T>
-auto euclidean_norm(const T& x) {
-  return std::sqrt(inner_prod(x, x));
-}
-
 template <std::size_t N, class T>
 auto euclidean_norm(const T& x) {
   return std::sqrt(inner_prod<N>(x, x));
 }
 
 }  // namespace particles
+
+
+template <size_t I, class L, class Op, class R>
+auto& std::get(particles::expression::Exp<L, Op, R>& e) {
+  return e[I];
+}

@@ -53,16 +53,26 @@ TEST(ExpressionTest, Assign) {
 }
 
 TEST(ExpressionTest, inner_prod) {
-  auto t = std::make_tuple(1, 2, 3);
-  auto u = std::make_tuple(2, 3, 4);
-  EXPECT_EQ(20, inner_prod(t, u));
-}
-
-TEST(ExpressionTest, inner_prod2) {
-  EXPECT_EQ(8, inner_prod<2>(
-    std::make_tuple(1, 2, 3, 4), std::make_tuple(2, 3)));
+  auto t = std::vector<int>({1, 2, 3});
+  auto u = std::vector<int>({2, 3, 4});
+  EXPECT_EQ(20, inner_prod<3>(t, u));
 }
 
 TEST(ExpressionTest, euclidean_norm) {
-  EXPECT_DOUBLE_EQ(5, euclidean_norm(std::make_tuple(3, 4)));
+  std::vector<int> a{3, 4};
+  EXPECT_DOUBLE_EQ(5, euclidean_norm<3>(a));
 }
+// TEST(ExpressionTest, inner_prod) {
+//   auto t = std::make_tuple(1, 2, 3);
+//   auto u = std::make_tuple(2, 3, 4);
+//   EXPECT_EQ(20, inner_prod(t, u));
+// }
+//
+// TEST(ExpressionTest, inner_prod2) {
+//   EXPECT_EQ(8, inner_prod<2>(
+//     std::make_tuple(1, 2, 3, 4), std::make_tuple(2, 3)));
+// }
+//
+// TEST(ExpressionTest, euclidean_norm) {
+//   EXPECT_DOUBLE_EQ(5, euclidean_norm(std::make_tuple(3, 4)));
+// }
