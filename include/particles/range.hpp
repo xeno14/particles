@@ -155,10 +155,10 @@ class XRange {
   public:
     class iterator {
       public:
-        iterator(T i) : count_(i) {}
+        iterator(T i, T step) : count_(i), step_(step) {}
         iterator(const iterator& it) : count_(it.count_) {}
         iterator& operator++() {
-          ++count_;
+          count_ += step_;
           return *this;
         }
         iterator operator++(int) {
@@ -176,18 +176,22 @@ class XRange {
         bool operator!=(const iterator& it) const {
           return count_ != it.count_;
         }
-        T& operator*() { res_ = count_; return std::ref(res_); }
+        T operator*() { return count_; }
       private:
-        T count_;  // changed only by operator++
-        T res_;
+        T count_, step_;
     };
     
-    XRange(T first, T last) : first_(first), last_(last) {}
-    auto begin() { return iterator(first_); }
-    auto end() { return iterator(last_); }
+    XRange(T first, T last, T step=1) : first_(first), last_(last), step_(step) {
+      // to make sure incrementing by step does not skip last
+      if ((last - first) % step != 0) {
+        last_ = last_ + step - (last - first) % step;
+      }
+    }
+    auto begin() { return iterator(first_, step_); }
+    auto end() { return iterator(last_, step_); }
 
   private:
-    T first_, last_;
+    T first_, last_, step_;
 };
 
 
@@ -374,20 +378,30 @@ class PushBackIterator
 }  // namespace range
 
 /**
+ * @brief python-like xrange
+ *
+ * @code
+ * // 0, 2, 4
+ * for (auto n : xrange(0, 6, 2)) {
+ *   ...
+ * }
+ * // 0, 2, 4
+ * for (auto n : xrange(0, 5, 2)) {
+ *   ...
+ * }
  * @pre first <= last
  */
 template <class T=int>
-inline auto xrange(T first, T last) {
-  return range::XRange<T>(first, last);
+inline auto xrange(T first, T last, T step=1) {
+  return range::XRange<T>(first, last, step);
 }
 
 /**
  * @brief python-line xrange
- * @todo step
  *
  * @code
  * int sum=0;
- * for (auto n : range::xrange(1, 10)) {  // n=1,2,...,9
+ * for (auto n : xrange(1, 10)) {  // 1, 2,..., 9
  *   sum+=n;
  * }
  * cout << n << endl;   // 45

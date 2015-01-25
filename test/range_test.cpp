@@ -142,25 +142,48 @@ TEST(RangeTest, XRange) {
   EXPECT_EQ(xrange.end(), it);
 }
 
-TEST(RangeTest, xrange) {
+class xrangeTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    result.clear();
+  }
   std::vector<int> result;
+};
 
-  result.clear();
+TEST_F(xrangeTest, last_only) {
+  for(auto n : xrange(3)) {
+    result.push_back(n);
+  }
+  EXPECT_EQ(0, result[0]);
+  EXPECT_EQ(1, result[1]);
+  EXPECT_EQ(2, result[2]);
+}
+
+TEST_F(xrangeTest, first_and_last) {
   for(auto n : xrange(-3, 0)) {
     result.push_back(n);
   }
   EXPECT_EQ(-3, result[0]);
   EXPECT_EQ(-2, result[1]);
   EXPECT_EQ(-1, result[2]);
+}
 
-  result.clear();
-  for(auto n : xrange(3)) {
+TEST_F(xrangeTest, step) {
+  for (auto n : xrange(0, 6, 2)) {
     result.push_back(n);
-    n++;  // reference does not harm iterator
   }
   EXPECT_EQ(0, result[0]);
-  EXPECT_EQ(1, result[1]);
-  EXPECT_EQ(2, result[2]);
+  EXPECT_EQ(2, result[1]);
+  EXPECT_EQ(4, result[2]);
+}
+
+TEST_F(xrangeTest, step2) {
+  for (auto n : xrange(0, 5, 2)) {
+    result.push_back(n);
+  }
+  EXPECT_EQ(0, result[0]);
+  EXPECT_EQ(2, result[1]);
+  EXPECT_EQ(4, result[2]);
 }
 
 class EnumerateTest : public ::testing::Test {
