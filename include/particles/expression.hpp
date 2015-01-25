@@ -293,8 +293,9 @@ L& assign(L& l, const Args&... args) {
   return l;
 }
 
-/** @todo prepare both std::get and operator[] */
 namespace internal {
+
+/** @todo prepare both std::get and operator[] */
 template <std::size_t I, class L, class R>
 struct InnerProdImpl {
   inline static auto apply(const L& l, const R& r) {
@@ -329,8 +330,8 @@ struct InnerProdImpl<0, L, R>  {
  * expanded at compiling.
  *
  * @code
- * auto t = std::make_tuple(1, 2, 3);
- * auto u = std::make_tuple(2, 3, 4);
+ * std::vector<int> t {1, 2, 3};
+ * std::vector<int> u {2, 3, 4};
  * int n = inner_prod(t, u);  // 20
  * @endcode
  *
@@ -341,6 +342,7 @@ inline auto inner_prod(const L& l, const R& r) {
   return expression::internal::InnerProdImpl<N, L, R>::apply(l, r);
 }
 
+// Recover me after implemention for tuple
 // template <class L, class R>
 // inline auto inner_prod(const L& l, const R& r) {
 //   static_assert(std::tuple_size<L>::value == std::tuple_size<R>::value,
