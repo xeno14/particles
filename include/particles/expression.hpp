@@ -21,7 +21,6 @@
 
 namespace particles {
 namespace expression {
-
 template <class L, class Op, class R>
 struct Exp;
 }
@@ -185,6 +184,7 @@ template <class T>
 struct Scalar {
   T value;
   Scalar(T x) : value(x) {}
+  Scalar(const Scalar<T>& s) : value(s.value) {}
   T operator[](std::size_t i) const { return value; }
 };
 
@@ -216,13 +216,13 @@ struct Exp {
   }
 
   template <class T>
-  auto operator*(const Scalar<T>& s) {
-    return Exp<Exp<L, Op, R>, Multiply<T>, Scalar<T>>(*this, s);
+  auto operator*(T x) {
+    return Exp<Exp<L, Op, R>, Multiply<T>, Scalar<T>>(*this, Scalar<T>(x));
   }
 
   template <class T>
-  auto operator/(const Scalar<T>& s) {
-    return Exp<Exp<L, Op, R>, Divide<value_type>, Scalar<T>>(*this, s);
+  auto operator/(T x) {
+    return Exp<Exp<L, Op, R>, Divide<T>, Scalar<T>>(*this, Scalar<T>(x));
   }
 };
 

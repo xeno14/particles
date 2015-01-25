@@ -112,6 +112,13 @@ TEST_F(OperatorTest, compare) {
   EXPECT_FALSE(result != z);
 }
 
+TEST_F(OperatorTest, exp_and_scalar) {
+  result = (v1 + v3) / 2 + v2;
+  EXPECT_DOUBLE_EQ(2, result[0]);
+  EXPECT_DOUBLE_EQ(4, result[1]);
+  EXPECT_DOUBLE_EQ(6, result[2]);
+}
+
 
 TEST(MathTest, length) {
   Vec<double, 2> v1 {3, 4};
