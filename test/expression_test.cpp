@@ -66,3 +66,16 @@ TEST(ExpressionTest, inner_prod2) {
 TEST(ExpressionTest, euclidean_norm) {
   EXPECT_DOUBLE_EQ(5, euclidean_norm(std::make_tuple(3, 4)));
 }
+
+class TupleForEachTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() { t = std::make_tuple(1, 2, 3); }
+  std::tuple<int, int, int> t;
+};
+
+TEST_F(TupleForEachTest, increment) {
+  tuple_for_each(t, [](int& n) { n++; });
+  EXPECT_EQ(2, std::get<0>(t));
+  EXPECT_EQ(3, std::get<1>(t));
+  EXPECT_EQ(4, std::get<2>(t));
+}

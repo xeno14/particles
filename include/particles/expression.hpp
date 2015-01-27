@@ -305,8 +305,21 @@ struct InnerProdImpl<0, L, R>  {
     return 0;
   }
 };
-} // namespace internal
 
+template <std::size_t I, std::size_t Last, class Tuple, class Function>
+inline typename std::enable_if<I == Last, Function>::type
+tuple_for_each_impl(Tuple& t, Function fn) {
+  return fn;
+}
+
+template <std::size_t I, std::size_t Last, class Tuple, class Function>
+inline typename std::enable_if<(I < Last), Function>::type
+tuple_for_each_impl(Tuple& t, Function fn) {
+  fn(std::get<I>(t));
+  return tuple_for_each_impl<I+1, Last, Tuple, Function>(t, fn);
+}
+
+}  // namespace internal
 }  // namespace expression
 
 
@@ -352,6 +365,21 @@ auto euclidean_norm(const T& x) {
 template <class T>
 auto euclidean_norm(const T& x) {
   return std::sqrt(inner_prod<std::tuple_size<T>::value>(x, x));
+}
+
+/**
+ * @brief call a function for each element of tuple-like object
+ *
+ * @code
+ * auto t = make_tuple(1, 2, 3);
+ * tuple_for_each(t, [](int& n){n++;});  // t = (2, 3, 4)
+ * @endcode
+ */
+template <class Tuple, class Function>
+Function tuple_for_each(Tuple& t, Function fn) {
+  expression::internal::
+  tuple_for_each_impl<0, std::tuple_size<Tuple>::value>(t, fn);
+  return std::move(fn);
 }
 
 }  // namespace particles
