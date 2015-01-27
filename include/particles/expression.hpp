@@ -316,7 +316,7 @@ template <std::size_t I, std::size_t Last, class Tuple, class Function>
 inline typename std::enable_if<(I < Last), Function>::type
 tuple_for_each_impl(Tuple& t, Function fn) {
   fn(std::get<I>(t));
-  return tuple_for_each_impl<I+1, Last, Tuple, Function>(t, fn);
+  return tuple_for_each_impl<I+1, Last>(t, fn);
 }
 
 }  // namespace internal

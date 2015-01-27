@@ -79,3 +79,9 @@ TEST_F(TupleForEachTest, increment) {
   EXPECT_EQ(3, std::get<1>(t));
   EXPECT_EQ(4, std::get<2>(t));
 }
+
+TEST_F(TupleForEachTest, sum) {
+  int sum = 0;
+  tuple_for_each(t, [&](int n) { sum += n; });
+  EXPECT_EQ(6, sum);
+}
