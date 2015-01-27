@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "decl_overloads.h"
 #include "expression.hpp"
 #include "util.hpp"
 
@@ -241,18 +242,15 @@ using namespace particles;
 
 template <size_t I, class T, size_t N>
 inline T& get(Vec<T, N>& v) noexcept {
+  static_assert(I < N, "index is out of bounds");
   return v.get<I>();
 }
 
 template <size_t I, class T, size_t N>
 inline const T& get(const Vec<T, N>& v) noexcept {
+  static_assert(I < N, "index is out of bounds");
   return v.get<I>();
 }
-
-template <class T, size_t N>
-struct tuple_size<particles::Vec<T, N>> {
-  static constexpr size_t value = N;
-};
 }  // namespace std
 
 using namespace particles;

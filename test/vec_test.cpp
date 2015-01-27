@@ -1,7 +1,6 @@
 #include "particles/vec.hpp"
 
 #include <gtest/gtest.h>
-#include <tuple>    // for testing tuple_size
 
 using particles::Vec;
 
