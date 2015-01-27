@@ -15,26 +15,19 @@
 
 #pragma once
 
+#include "decl_overloads.h"
+
 #include <cmath>
 #include <tuple>
 #include <cstdlib>
 #include <iostream>
 
-namespace particles {
-namespace expression {
-template <class L, class Op, class R>
-struct Exp;
-}  // namespace particles
-}  // namespace expression
-
-
-// namespace std {
-// template <size_t I, class L, class Op, class R>
-// inline auto& get(particles::expression::Exp<L, Op, R>& e) {
-//   return Op::apply(get<I>(e.l), get<I>(e.r));
-// }
-// }  // namespace std
-
+namespace std {
+template <size_t I, class L, class Op, class R>
+inline auto get(const particles::expression::Exp<L, Op, R>& e) {
+  return Op::apply(get<I>(e.l), get<I>(e.r));
+}
+}  // namespace std
 
 namespace particles {
 namespace expression {
@@ -364,9 +357,3 @@ auto euclidean_norm(const T& x) {
 }
 
 }  // namespace particles
-
-
-template <size_t I, class L, class Op, class R>
-auto& std::get(particles::expression::Exp<L, Op, R>& e) {
-  return e[I];
-}
