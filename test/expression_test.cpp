@@ -69,7 +69,9 @@ TEST(ExpressionTest, euclidean_norm) {
 
 class TupleForEachTest : public ::testing::Test {
  protected:
-  virtual void SetUp() { t = std::make_tuple(1, 2, 3); }
+  virtual void SetUp() {
+    t = std::make_tuple(1, 2, 3);
+  }
   std::tuple<int, int, int> t;
 };
 
@@ -84,4 +86,10 @@ TEST_F(TupleForEachTest, sum) {
   int sum = 0;
   tuple_for_each(t, [&](int n) { sum += n; });
   EXPECT_EQ(6, sum);
+}
+
+TEST(ExpressionTest, element_at) {
+  int x,y,z;
+  element_at<0>(x, y, z) = 100;
+  EXPECT_EQ(100, x);
 }

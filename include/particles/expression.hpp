@@ -18,9 +18,10 @@
 #include "decl_overloads.h"
 
 #include <cmath>
-#include <tuple>
 #include <cstdlib>
+#include <functional>
 #include <iostream>
+#include <tuple>
 
 
 namespace particles {
@@ -320,6 +321,20 @@ tuple_for_each_impl(Tuple& t, Function fn) {
 }
 
 }  // namespace internal
+
+/**
+ * @brief access i-th element of variable arguments
+ * @code
+ * int x=0, y=0, z=0;
+ * element_at<0>(x, y, z) = 100;  // x=100
+ * @endcode
+ * @todo do not use make_tuple
+ */
+template <std::size_t I, class... Args>
+inline auto& element_at(Args&... args) {
+  return std::get<I>(std::make_tuple(std::ref(args)...));
+}
+
 }  // namespace expression
 
 
