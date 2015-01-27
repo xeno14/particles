@@ -388,6 +388,9 @@ auto euclidean_norm(const T& x) {
  * @code
  * auto t = make_tuple(1, 2, 3);
  * tuple_for_each(t, [](int& n){n++;});  // t = (2, 3, 4)
+ *
+ * int sum = 0;
+ * tuple_for_each(t, [&](int n){sum+=n;} // sum = 6
  * @endcode
  */
 template <class Tuple, class Function>
