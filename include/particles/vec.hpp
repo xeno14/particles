@@ -66,29 +66,29 @@ class Vec {
 
   template <class R>
   auto operator+(const R& r) const {
-    typedef expression::Plus Op;
-    typedef expression::Exp<Vec, Op, R> Exp;
+    typedef ET::Plus Op;
+    typedef ET::Exp<Vec, Op, R> Exp;
     return Exp(*this, r);
   }
 
   template <class R>
   auto operator-(const R& r) const {
-    typedef expression::Minus Op;
-    typedef expression::Exp<Vec, Op, R> Exp;
+    typedef ET::Minus Op;
+    typedef ET::Exp<Vec, Op, R> Exp;
     return Exp(*this, r);
   }
 
   auto operator*(T x) const {
-    typedef expression::Multiply Op;
-    typedef expression::Scalar<T> Scalar;
-    typedef expression::Exp<Vec, Op, Scalar> Exp;
+    typedef ET::Multiply Op;
+    typedef ET::Scalar<T> Scalar;
+    typedef ET::Exp<Vec, Op, Scalar> Exp;
     return Exp(*this, Scalar(x));
   }
 
   auto operator/(T x) const {
-    typedef expression::Divide Op;
-    typedef expression::Scalar<T> Scalar;
-    typedef expression::Exp<Vec, Op, Scalar> Exp;
+    typedef ET::Divide Op;
+    typedef ET::Scalar<T> Scalar;
+    typedef ET::Exp<Vec, Op, Scalar> Exp;
     return Exp(*this, Scalar(x));
   }
 
