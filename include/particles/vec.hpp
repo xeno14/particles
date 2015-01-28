@@ -65,32 +65,11 @@ class Vec {
   Vec& operator/=(T x);
 
   template <class R>
-  auto operator+(const R& r) const {
-    typedef ET::Plus Op;
-    typedef ET::Exp<Vec, Op, R> Exp;
-    return Exp(*this, r);
-  }
-
+  auto operator+(const R& r) const;
   template <class R>
-  auto operator-(const R& r) const {
-    typedef ET::Minus Op;
-    typedef ET::Exp<Vec, Op, R> Exp;
-    return Exp(*this, r);
-  }
-
-  auto operator*(T x) const {
-    typedef ET::Multiply Op;
-    typedef ET::Scalar<T> Scalar;
-    typedef ET::Exp<Vec, Op, Scalar> Exp;
-    return Exp(*this, Scalar(x));
-  }
-
-  auto operator/(T x) const {
-    typedef ET::Divide Op;
-    typedef ET::Scalar<T> Scalar;
-    typedef ET::Exp<Vec, Op, Scalar> Exp;
-    return Exp(*this, Scalar(x));
-  }
+  auto operator-(const R& r) const;
+  auto operator*(T x) const;
+  auto operator/(T x) const;
 
   // Iterators
   /** @toro range test */
@@ -177,6 +156,28 @@ template <class T, std::size_t N>
 inline Vec<T, N>& Vec<T, N>::operator/=(T x) {
   for (std::size_t i = 0; i < N; ++i) (*this)[i] /= x;
   return *this;
+}
+
+template <class T, std::size_t N>
+template <class R>
+auto Vec<T, N>::operator+(const R& r) const {
+  return ET::Exp<Vec, ET::Plus, R>(*this, r);
+}
+
+template <class T, std::size_t N>
+template <class R>
+auto Vec<T, N>::operator-(const R& r) const {
+  return ET::Exp<Vec, ET::Minus, R>(*this, r);
+}
+
+template <class T, std::size_t N>
+auto Vec<T, N>::operator*(T x) const {
+  return ET::Exp<Vec, ET::Multiply, ET::Scalar<T>>(*this, x);
+}
+
+template <class T, std::size_t N>
+auto Vec<T, N>::operator/(T x) const {
+  return ET::Exp<Vec, ET::Divide, ET::Scalar<T>>(*this, x);
 }
 
 template <class T, std::size_t N>

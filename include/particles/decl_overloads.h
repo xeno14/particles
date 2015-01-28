@@ -13,11 +13,6 @@ namespace particles {
 template <class T, std::size_t N> 
 class Vec;
 
-namespace expression {
-template <class L, class Op, class R>
-struct Exp;
-}  // namespace expression
-
 namespace ET {
 template <class L, class Op, class R>
 struct Exp;

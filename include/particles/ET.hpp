@@ -3,19 +3,18 @@
  *
  * @brief Expression template
  *
- * Concept about Expression
- *
- * operator[]
  */
 
 
 namespace particles {
+
+/**
+ * @brief Expression Template
+ *
+ * Consepts of expression template class:
+ *  - has operator[]
+ */
 namespace ET {
-namespace internal {
-
-struct ExpBase {};
-
-}
 
 // Operators
 struct Plus {
@@ -55,36 +54,41 @@ struct Scalar {
 /**
  * @brief Expression!
  *
- * Each operators return this object instead of value itself. As a result,
- * expression will be evaluated at assigning operator.
+ * Operations return Exp class object instead of value itself in order to avoid
+ * creating temporary objects. Expression will be evaluated when operator[] is
+ * called.
  */
 template <class L, class Op, class R>
 struct Exp {
   typedef R value_type;
+  typedef Exp<L, Op, R> THIS;
+
   const L& l;
   const R& r;
 
   Exp(const L& l, const R& r) : l(l), r(r) {}
+
+  /** @brief accessor and apply operation. */
   auto operator[](std::size_t i) const { return Op::apply(l[i], r[i]); }
 
   template <class R2>
   auto operator+(const R2& r2) {
-    return Exp<Exp<L, Op, R>, Plus, R2>(*this, r2);
+    return Exp<THIS, Plus, R2>(*this, r2);
   }
 
   template <class R2>
   auto operator-(const R2& r2) {
-    return Exp<Exp<L, Op, R>, Minus, R2>(*this, r2);
+    return Exp<THIS, Minus, R2>(*this, r2);
   }
 
   template <class T>
   auto operator*(T x) {
-    return Exp<Exp<L, Op, R>, Multiply, Scalar<T>>(*this, Scalar<T>(x));
+    return Exp<THIS, Multiply, Scalar<T>>(*this, Scalar<T>(x));
   }
 
   template <class T>
   auto operator/(T x) {
-    return Exp<Exp<L, Op, R>, Divide, Scalar<T>>(*this, Scalar<T>(x));
+    return Exp<THIS, Divide, Scalar<T>>(*this, Scalar<T>(x));
   }
 };
 
@@ -98,30 +102,33 @@ template <class L, class Op, class T>
 struct Exp<L, Op, Scalar<T>> {
   typedef T value_type;
   typedef Scalar<T> R;
+  typedef Exp<L, Op, R> THIS;
+
   const L& l;
   const R r;
 
   Exp(const L& l, const R& r) : l(l), r(r) {}
+  Exp(const L& l, T r) : l(l), r(r) {}
   auto operator[](std::size_t i) const { return Op::apply(l[i], r[i]); }
 
   template <class R2>
   auto operator+(const R2& r2) {
-    return Exp<Exp<L, Op, R>, Plus, R2>(*this, r2);
+    return Exp<THIS, Plus, R2>(*this, r2);
   }
 
   template <class R2>
   auto operator-(const R2& r2) {
-    return Exp<Exp<L, Op, R>, Minus, R2>(*this, r2);
+    return Exp<THIS, Minus, R2>(*this, r2);
   }
 
   template <class U>
   auto operator*(const Scalar<U>& s) {
-    return Exp<Exp<L, Op, R>, Multiply, Scalar<U>>(*this, s);
+    return Exp<THIS, Multiply, Scalar<U>>(*this, s);
   }
 
   template <class U>
   auto operator/(const Scalar<U>& s) {
-    return Exp<Exp<L, Op, R>, Divide, Scalar<U>>(*this, s);
+    return Exp<THIS, Divide, Scalar<U>>(*this, s);
   }
 };
 
