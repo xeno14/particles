@@ -2,15 +2,6 @@
  * @file expression.hpp
  *
  * @brief template meta programming liblary
- *
- * Consept:
- * - Exp
- * - Index Operator: 
- *   @code
- *   struct IndexOperator {
- *     constexpr std::size_t operator()(std::size_t i) { ... }
- *   };
- *   @endcode
  */
 
 #pragma once

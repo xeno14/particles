@@ -11,6 +11,11 @@
 
 namespace particles {
 namespace ET {
+namespace internal {
+
+struct ExpBase {};
+
+}
 
 // Operators
 struct Plus {
@@ -85,7 +90,9 @@ struct Exp {
 
 
 /**
- * @brief copy the right side for scalar
+ * @brief Partial specialization for Scalar type
+ *
+ * Copy the right side for scalar.
  */
 template <class L, class Op, class T>
 struct Exp<L, Op, Scalar<T>> {
@@ -117,13 +124,16 @@ struct Exp<L, Op, Scalar<T>> {
     return Exp<Exp<L, Op, R>, Divide, Scalar<U>>(*this, s);
   }
 };
+
 }  // namespace ET
 }  // namespace particles
 
 
 namespace std {
+using namespace particles;
+
 template <size_t I, class L, class Op, class R>
-inline auto get(const particles::ET::Exp<L, Op, R>& e) {
+inline auto get(const ET::Exp<L, Op, R>& e) {
   return Op::apply(get<I>(e.l), get<I>(e.r));
 }
 }  // namespace std
