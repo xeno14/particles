@@ -240,7 +240,7 @@ TEST_F(CrossTest, parallel) {
 
 TEST_F(CrossTest, ET) {
   Vec<int, 3> a(1, 0, 0), b(0, 1, 0), c(0, 0, 1);
-  result = cross(a, b) + cross(b, c) * 2;
+  result = cross(a - b, b) + cross(b, c + b) * 2;
   EXPECT_EQ(2, result[0]);
   EXPECT_EQ(1, std::get<2>(result));
 }
