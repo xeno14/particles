@@ -144,24 +144,24 @@ inline void assign_from_odd(L& l, const R& r) {
 //
 // Operators
 //
-template <class T>
 struct Plus {
-  static T apply(T l, T r) { return l + r; }
+  template <class L, class R>
+  static auto apply(L l, R r) { return l + r; }
 };
 
-template <class T>
 struct Minus {
-  static T apply(T l, T r) { return l - r; }
+  template <class L, class R>
+  static auto apply(L l, R r) { return l - r; }
 };
 
-template <class T>
 struct Multiply {
-  static T apply(T l, T r) { return l * r; }
+  template <class L, class R>
+  static auto apply(L l, R r) { return l * r; }
 };
 
-template <class T>
 struct Divide {
-  static T apply(T l, T r) { return l / r; }
+  template <class L, class R>
+  static auto apply(L l, R r) { return l / r; }
 };
 
 /**
@@ -194,24 +194,22 @@ struct Exp {
 
   template <class R2>
   auto operator+(const R2& r2) {
-    typedef typename R2::value_type value_type;
-    return Exp<Exp<L, Op, R>, Plus<value_type>, R2>(*this, r2);
+    return Exp<Exp<L, Op, R>, Plus, R2>(*this, r2);
   }
 
   template <class R2>
   auto operator-(const R2& r2) {
-    typedef typename R2::value_type value_type;
-    return Exp<Exp<L, Op, R>, Minus<value_type>, R2>(*this, r2);
+    return Exp<Exp<L, Op, R>, Minus, R2>(*this, r2);
   }
 
   template <class T>
   auto operator*(T x) {
-    return Exp<Exp<L, Op, R>, Multiply<T>, Scalar<T>>(*this, Scalar<T>(x));
+    return Exp<Exp<L, Op, R>, Multiply, Scalar<T>>(*this, Scalar<T>(x));
   }
 
   template <class T>
   auto operator/(T x) {
-    return Exp<Exp<L, Op, R>, Divide<T>, Scalar<T>>(*this, Scalar<T>(x));
+    return Exp<Exp<L, Op, R>, Divide, Scalar<T>>(*this, Scalar<T>(x));
   }
 };
 
@@ -230,24 +228,22 @@ struct Exp<L, Op, Scalar<T>> {
 
   template <class R2>
   auto operator+(const R2& r2) {
-    typedef typename R2::value_type value_type;
-    return Exp<Exp<L, Op, R>, Plus<value_type>, R2>(*this, r2);
+    return Exp<Exp<L, Op, R>, Plus, R2>(*this, r2);
   }
 
   template <class R2>
   auto operator-(const R2& r2) {
-    typedef typename R2::value_type value_type;
-    return Exp<Exp<L, Op, R>, Minus<value_type>, R2>(*this, r2);
+    return Exp<Exp<L, Op, R>, Minus, R2>(*this, r2);
   }
 
   template <class U>
   auto operator*(const Scalar<U>& s) {
-    return Exp<Exp<L, Op, R>, Multiply<U>, Scalar<U>>(*this, s);
+    return Exp<Exp<L, Op, R>, Multiply, Scalar<U>>(*this, s);
   }
 
   template <class U>
   auto operator/(const Scalar<U>& s) {
-    return Exp<Exp<L, Op, R>, Divide<U>, Scalar<U>>(*this, s);
+    return Exp<Exp<L, Op, R>, Divide, Scalar<U>>(*this, s);
   }
 };
 
