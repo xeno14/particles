@@ -156,8 +156,10 @@ TEST(MathTest, normalize) {
 class OverloadTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
+    u = {0, 1};
     v = {1, 2};
   }
+  Vec<int, 2> u;
   Vec<int, 2> v;
 };
 
@@ -181,6 +183,14 @@ TEST_F(OverloadTest, begin) {
 
 TEST_F(OverloadTest, tuple_size) {
   EXPECT_EQ(2, std::tuple_size<decltype(v)>::value);
+}
+
+TEST_F(OverloadTest, swap) {
+  std::swap(u, v);
+  EXPECT_EQ(1, u[0]);
+  EXPECT_EQ(2, u[1]);
+  EXPECT_EQ(0, v[0]);
+  EXPECT_EQ(1, v[1]);
 }
 
 TEST(VecTest, construct_variable_args) {

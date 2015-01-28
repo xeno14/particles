@@ -49,6 +49,7 @@ class Vec {
   template <std::size_t I>
   const T& get() const { return std::get<I>(value_); }
   void fill(const T val) { value_.fill(val); }
+  void swap(Vec& v) { value_.swap(v.value_); }
 
   template <class E>
   Vec& operator=(const E& r);
@@ -251,6 +252,12 @@ inline const T& get(const Vec<T, N>& v) noexcept {
   static_assert(I < N, "index is out of bounds");
   return v.get<I>();
 }
+
+template <class T, size_t N>
+inline void swap(Vec<T, N>& u, Vec<T, N>& v) noexcept {
+  u.swap(v);
+}
+
 }  // namespace std
 
 using namespace particles;
