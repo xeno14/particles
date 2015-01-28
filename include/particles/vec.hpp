@@ -69,10 +69,7 @@ class Vec {
   Vec& operator*=(T x);
   Vec& operator/=(T x);
 
-  ET_OPERATOR_PLUS(THIS);
-  ET_OPERATOR_MINUS(THIS);
-  ET_OPERATOR_MULTIPLY(THIS);
-  ET_OPERATOR_DIVIDE(THIS);
+  ET_OPERATORS(THIS);
 
   /** @brief inner product */
   inline auto operator*(const Vec& u) const;

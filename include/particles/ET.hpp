@@ -33,6 +33,16 @@ inline auto operator/(_R2 r2) const { \
   return ET::Exp<THIS, ET::Divide, ET::Scalar<_R2>>(*this, r2); \
 } \
 
+/**
+ * @brief Overload operators + - * /
+ *
+ * Returns ET::Exp
+ */
+#define ET_OPERATORS(THIS) \
+ET_OPERATOR_PLUS(THIS); \
+ET_OPERATOR_MINUS(THIS); \
+ET_OPERATOR_MULTIPLY(THIS); \
+ET_OPERATOR_DIVIDE(THIS); \
 
 namespace particles {
 
@@ -103,10 +113,7 @@ struct Exp {
   /** @brief accessor and apply operation. */
   auto operator[](std::size_t i) const { return Op::apply(l[i], r[i]); }
 
-  ET_OPERATOR_PLUS(THIS);
-  ET_OPERATOR_MINUS(THIS);
-  ET_OPERATOR_MULTIPLY(THIS);
-  ET_OPERATOR_DIVIDE(THIS);
+  ET_OPERATORS(THIS);
 };
 
 
@@ -202,10 +209,7 @@ struct Cross {
     return l[j] * r[k] * sign(j, k) + l[k] * r[j] * sign(k, j);
   }
 
-  ET_OPERATOR_PLUS(THIS);
-  ET_OPERATOR_MINUS(THIS);
-  ET_OPERATOR_MULTIPLY(THIS);
-  ET_OPERATOR_DIVIDE(THIS);
+  ET_OPERATORS(THIS);
 };
 
 }  // namespace ET
