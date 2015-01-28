@@ -16,6 +16,10 @@
 #include <initializer_list>
 #include <ostream>
 
+namespace {
+extern void* enabler;
+}
+
 namespace particles {
 
 /**
@@ -68,8 +72,30 @@ class Vec {
   auto operator+(const R& r) const;
   template <class R>
   auto operator-(const R& r) const;
-  auto operator*(T x) const;
-  auto operator/(T x) const;
+
+  /**
+   * @brief multiply by a scalar
+   * @tparam U arithmetic type
+   */
+  template <
+      typename U,
+      typename std::enable_if<std::is_arithmetic<U>{}>::type *& = enabler>
+  auto operator*(U u) const {
+    return ET::Exp<Vec, ET::Multiply, ET::Scalar<T>>(*this, u);
+  }
+  /** @brief inner product */
+  inline auto operator*(const Vec& u) const;
+
+  /**
+   * @brief divide by a scalar
+   * @tparam U arithmetic type
+   */
+  template <
+      typename U,
+      typename std::enable_if<std::is_arithmetic<U>{}>::type *& = enabler>
+  auto operator/(U u) const {
+    return ET::Exp<Vec, ET::Divide, ET::Scalar<T>>(*this, u);
+  }
 
   // Iterators
   auto begin() { return value_.begin(); }
@@ -180,13 +206,8 @@ auto Vec<T, N>::operator-(const R& r) const {
 }
 
 template <class T, std::size_t N>
-auto Vec<T, N>::operator*(T x) const {
-  return ET::Exp<Vec, ET::Multiply, ET::Scalar<T>>(*this, x);
-}
-
-template <class T, std::size_t N>
-auto Vec<T, N>::operator/(T x) const {
-  return ET::Exp<Vec, ET::Divide, ET::Scalar<T>>(*this, x);
+inline auto Vec<T, N>::operator*(const Vec<T, N>& u) const {
+  return dot(u);
 }
 
 template <class T, std::size_t N>
@@ -214,9 +235,7 @@ inline T Vec<T, N>::length() const {
 
 template <class T, std::size_t N>
 inline T Vec<T, N>::dot(const Vec<T, N>& v) const {
-  T d = 0;
-  for (std::size_t i = 0; i < N; ++i) d += (*this)[i] * v[i];
-  return d;
+  return inner_prod(*this, v);
 }
 
 template <class T, std::size_t N>
