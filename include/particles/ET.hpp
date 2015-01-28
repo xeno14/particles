@@ -7,8 +7,38 @@
 
 #pragma once
 
+extern void* enabler;
+
+#define ET_OPERATOR_PLUS(THIS) \
+template <class _R2> \
+inline auto operator+(const _R2& r2) const { \
+  return ET::Exp<THIS, ET::Plus, _R2>(*this, r2); \
+} \
+
+#define ET_OPERATOR_MINUS(THIS) \
+template <class _R2> \
+inline auto operator-(const _R2& r2) const { \
+  return ET::Exp<THIS, ET::Minus, _R2>(*this, r2); \
+} \
+
+#define ET_OPERATOR_MULTIPLY(THIS) \
+template <typename _R2, enabler_if<std::is_arithmetic<_R2>{}> = enabler> \
+inline auto operator*(_R2 r2) const { \
+  return ET::Exp<THIS, ET::Multiply, ET::Scalar<_R2>>(*this, r2); \
+} \
+
+#define ET_OPERATOR_DIVIDE(THIS) \
+template <typename _R2, enabler_if<std::is_arithmetic<_R2>{}> = enabler> \
+inline auto operator/(_R2 r2) const { \
+  return ET::Exp<THIS, ET::Divide, ET::Scalar<_R2>>(*this, r2); \
+} \
+
 
 namespace particles {
+
+template<bool B, typename T = void>
+using enabler_if = typename std::enable_if<B, T>::type*&;
+
 
 /**
  * @brief Expression Template
@@ -73,25 +103,10 @@ struct Exp {
   /** @brief accessor and apply operation. */
   auto operator[](std::size_t i) const { return Op::apply(l[i], r[i]); }
 
-  template <class R2>
-  auto operator+(const R2& r2) {
-    return Exp<THIS, Plus, R2>(*this, r2);
-  }
-
-  template <class R2>
-  auto operator-(const R2& r2) {
-    return Exp<THIS, Minus, R2>(*this, r2);
-  }
-
-  template <class T>
-  auto operator*(T x) {
-    return Exp<THIS, Multiply, Scalar<T>>(*this, Scalar<T>(x));
-  }
-
-  template <class T>
-  auto operator/(T x) {
-    return Exp<THIS, Divide, Scalar<T>>(*this, Scalar<T>(x));
-  }
+  ET_OPERATOR_PLUS(THIS);
+  ET_OPERATOR_MINUS(THIS);
+  ET_OPERATOR_MULTIPLY(THIS);
+  ET_OPERATOR_DIVIDE(THIS);
 };
 
 
@@ -154,6 +169,8 @@ struct Sign {
  */
 template <class L, class R>
 struct Cross {
+  typedef Cross<L, R> THIS;
+
   const L& l;
   const R& r;
 
@@ -184,6 +201,11 @@ struct Cross {
     get_pair(i, j, k);
     return l[j] * r[k] * sign(j, k) + l[k] * r[j] * sign(k, j);
   }
+
+  ET_OPERATOR_PLUS(THIS);
+  ET_OPERATOR_MINUS(THIS);
+  ET_OPERATOR_MULTIPLY(THIS);
+  ET_OPERATOR_DIVIDE(THIS);
 };
 
 }  // namespace ET

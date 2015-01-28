@@ -14,6 +14,9 @@ template <class T, std::size_t N>
 class Vec;
 
 namespace ET {
+template <class L>
+struct EToperators;
+
 template <class L, class Op, class R>
 struct Exp;
 
