@@ -14,9 +14,7 @@
 template <bool B, class T=void>
 using enable_if = typename std::enable_if<B, T>::type*&;
 
-namespace {
 extern void* enabler;
-}
 
 namespace particles {
 namespace internal {
