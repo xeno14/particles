@@ -134,19 +134,22 @@ struct Exp<L, Op, Scalar<T>> {
   }
 };
 
+#define CROSS_PAIR_FIRST(I)  ((I+1)%3)
+#define CROSS_PAIR_SECOND(I) ((I+2)%3)
+#define CROSS_SIGN(I, J) (I==J ? 0 : (I+1)%3==J ? 1 : -1)
 
 template <std::size_t I>
 struct Pair {
-  static constexpr std::size_t first  = (I+1)%3;
-  static constexpr std::size_t second = (I+2)%3;
+  static constexpr std::size_t first  = CROSS_PAIR_FIRST(I);
+  static constexpr std::size_t second = CROSS_PAIR_SECOND(I);
 };
 
 template <std::size_t I, std::size_t J>
 struct Sign {
-  static constexpr int value = I==J ? 0 : (I+1)%3==J ? 1 : -1;
+  static constexpr int value = CROSS_SIGN(I, J);
 };
 
-/** @brief 4
+/** @brief Implementation of multiplying between quaternions
  * @todo implement 8
  */
 template <class L, class R>
@@ -166,6 +169,20 @@ struct Cross {
 
     return std::get<J>(l) * std::get<K>(r) * s1 +
            std::get<K>(l) * std::get<J>(r) * s2;
+  }
+
+  void get_pair(std::size_t i, std::size_t& j, std::size_t& k) const {
+    j = CROSS_PAIR_FIRST(i); k = CROSS_PAIR_SECOND(i);
+  }
+
+  int sign(std::size_t i, std::size_t j) const {
+    return CROSS_SIGN(i, j);
+  }
+
+  auto operator[] (std::size_t i) const {
+    std::size_t j, k;
+    get_pair(i, j, k);
+    return l[j] * r[k] * sign(j, k) + l[k] * r[j] * sign(k, j);
   }
 };
 

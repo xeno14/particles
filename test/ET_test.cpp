@@ -3,6 +3,7 @@
 #include "particles/ET.hpp"
 
 #include <tuple>
+#include <vector>
 
 
 using namespace particles;
@@ -152,4 +153,13 @@ TEST_F(CrossTest, std_get) {
   EXPECT_EQ(0, std::get<0>(result));
   EXPECT_EQ(0, std::get<1>(result));
   EXPECT_EQ(1, std::get<2>(result));
+}
+
+TEST(CrossOperatorTest, use_operator) {
+  std::vector<int> e0 {1, 0, 0};
+  std::vector<int> e1 {0, 1, 0};
+  auto result = cross(e0, e1);
+  EXPECT_EQ(0, result[0]);
+  EXPECT_EQ(0, result[1]);
+  EXPECT_EQ(1, result[2]);
 }
