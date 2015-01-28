@@ -31,12 +31,12 @@ class Vec {
   typedef std::array<T, N> array_t;
 
   Vec() : value_() { value_.fill(0); }
-  Vec(std::initializer_list<T> init_list);
   Vec(const Vec& v) : value_(v.value_) {}
-  template <class... Args>
-  Vec(Args... args) { expression::assign(value_, args...); }
   template <class E>
   Vec(const E& r) { for(std::size_t i=0; i<N; i++) value_[i] = r[i]; }
+  Vec(std::initializer_list<T> init_list);
+  template <class... Args>
+  Vec(Args... args);
 
   T& operator[](std::size_t i) { return value_[i]; }
   T& operator()(std::size_t i) { return (*this)[i]; }
@@ -72,7 +72,6 @@ class Vec {
   auto operator/(T x) const;
 
   // Iterators
-  /** @toro range test */
   auto begin() { return value_.begin(); }
   auto end() { return value_.end(); }
   auto cbegin() const { return value_.cbegin(); }
@@ -83,6 +82,8 @@ class Vec {
   auto crend() const { return value_.crend(); }
 
   // Mathematical functions
+
+  /** @brief zero vector */
   static const Vec<T, N>& zero() { static Vec<T, N> z; return z; }
 
   T squared_distance(const Vec& v) const;
@@ -100,6 +101,7 @@ class Vec {
   bool parallel(const Vec& v, T eps=1e-8) const;
 
  private:
+  /** @brief Container to hold values */
   array_t value_;
 };
 
@@ -108,6 +110,13 @@ Vec<T, N>::Vec(std::initializer_list<T> init_list) {
   /** @todo size check */
   auto it = value_.begin();
   for (auto x : init_list) *(it++) = x;
+}
+
+template <class T, std::size_t N>
+template <class... Args>
+Vec<T, N>::Vec(Args... args) {
+  static_assert(N == sizeof...(args), "size mismatch.");
+  expression::assign(value_, args...);
 }
 
 template <class T, std::size_t N>

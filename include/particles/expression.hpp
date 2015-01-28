@@ -18,7 +18,7 @@
 
 namespace particles {
 namespace expression {
-namespace operators {
+namespace op {
 
 /**
  * IndexOperator concept
@@ -39,6 +39,9 @@ struct Even {
   constexpr std::size_t operator()(const std::size_t n) { return n * 2; }
 };
 
+/**
+ * @brief call assigning operator l = r
+ */
 struct Assign {
   template <class L, class R>
   static L& apply(L& l, const R& r) {
@@ -46,12 +49,16 @@ struct Assign {
   }
 };
 
+/**
+ * @brief call pre-increment operator ++x
+ */
 struct PreIncrement {
   template <class T>
   static T& apply(T& t) { return ++t; }
 };
 
-}  // namespace operators
+}  // namespace op
+
 
 namespace internal {
 
@@ -74,7 +81,7 @@ struct ExpandUnaryOpImpl<0, T, Op> {
 /**
  * Execute assigning at index I-1.
  *
- * @brief expand assigning operators
+ * @brief expand assigning op
  * @pre FL and FR have constexpr method named get
  * @tparam I index of elements
  * @tparam L substitute to
@@ -97,80 +104,26 @@ struct ExpandBinaryOpImpl<0, L, Op, R> {
   static void apply(L& l, const R& r, FL fl, FR fr) { return; }
 };
 
-}  // namespace internal
-
-/**
- * @brief pre-increment all elements 
- * @tparam N num of elements
- * @tparam T type
- * @tparam F index operator concept
- * @todo skip odd and skip even
- */
-template <std::size_t N, class T, class F=operators::Identity>
-inline void pre_increment(T& t, F f=operators::Identity()) {
-  typedef operators::PreIncrement Op;
-  internal::ExpandUnaryOpImpl<N, T, Op>::apply(t, f);
-}
-
-/** @brief assign [0, 1, ..., N-1] <- [0, 1, ..., N-1] */
-template <std::size_t N, class L, class R, class FL = operators::Identity,
-          class FR = operators::Identity>
-inline void assign(L& l, const R& r, FL fl = operators::Identity(),
-                   FR fr = operators::Identity()) {
-  typedef operators::Assign Op;
-  internal::ExpandBinaryOpImpl<N, L, Op, R>::apply(l, r, fl, fr);
-}
-
-/** @brief assign [0, 1, ..., N-1] <- [0, 2, ..., 2N-2] */
-template <std::size_t N, class L, class R>
-inline void assign_from_even(L& l, const R& r) {
-  assign<N, L, R>(l, r, operators::Identity(), operators::Even());
-}
-
-/** @brief assign [0, 1, ..., N-1] <- [1, 3, ..., 2N-1] */
-template <std::size_t N, class L, class R>
-inline void assign_from_odd(L& l, const R& r) {
-  assign<N, L, R>(l, r, operators::Identity(), operators::Odd());
-}
-
-
-
-namespace internal {
 
 template <std::size_t I, class L>
 void assign_impl(L& l) {}
 
+/** @see assign */
 template <std::size_t I, class L, class T, class... Us>
 void assign_impl(L& l, const T& t, const Us&... us) {
   std::get<I>(l) = t;
   assign_impl<I+1, L>(l, us...);
 }
 
-}  // namespace internal
 
-
-/**
- * @brief assign from variable arguments
- *
- * Assign to object std::get is available for
- * @code
- * std::array<int, 3> a;
- * assign(a, 1, 2, 3);
- * @endcode
+/** 
+ * @see inner_prod
  */
-template <class L, class... Args>
-L& assign(L& l, const Args&... args) {
-  internal::assign_impl<0>(l, args...);
-  return l;
-}
-
-namespace internal {
-
-/** @todo prepare both std::get and operator[] */
 template <std::size_t I, class L, class R>
 struct InnerProdImpl {
   inline static auto apply(const L& l, const R& r) {
     return std::get<I-1>(l) * std::get<I-1>(r) + InnerProdImpl<I-1, L, R>::apply(l, r);
+    /** @todo prepare both std::get and operator[] */
     // return l[I-1] * r[I-1] + InnerProdImpl<I-1, L, R>::apply(l, r);
   }
 };
@@ -204,6 +157,55 @@ tuple_for_each_impl(Tuple& t, Function fn) {
 }
 
 }  // namespace internal
+
+/**
+ * @brief pre-increment all elements 
+ * @tparam N num of elements
+ * @tparam T type
+ * @tparam F index operator concept
+ * @todo skip odd and skip even
+ */
+template <std::size_t N, class T, class F=op::Identity>
+inline void pre_increment(T& t, F f=op::Identity()) {
+  typedef op::PreIncrement Op;
+  internal::ExpandUnaryOpImpl<N, T, Op>::apply(t, f);
+}
+
+/** @brief assign [0, 1, ..., N-1] <- [0, 1, ..., N-1] */
+template <std::size_t N, class L, class R, class FL = op::Identity,
+          class FR = op::Identity>
+inline void assign(L& l, const R& r, FL fl = op::Identity(),
+                   FR fr = op::Identity()) {
+  typedef op::Assign Op;
+  internal::ExpandBinaryOpImpl<N, L, Op, R>::apply(l, r, fl, fr);
+}
+
+/** @brief assign [0, 1, ..., N-1] <- [0, 2, ..., 2N-2] */
+template <std::size_t N, class L, class R>
+inline void assign_from_even(L& l, const R& r) {
+  assign<N, L, R>(l, r, op::Identity(), op::Even());
+}
+
+/** @brief assign [0, 1, ..., N-1] <- [1, 3, ..., 2N-1] */
+template <std::size_t N, class L, class R>
+inline void assign_from_odd(L& l, const R& r) {
+  assign<N, L, R>(l, r, op::Identity(), op::Odd());
+}
+
+/**
+ * @brief assign from variable arguments
+ *
+ * Assign to object std::get is available for
+ * @code
+ * std::array<int, 3> a;
+ * assign(a, 1, 2, 3);  // a = [1, 2, 3]
+ * @endcode
+ */
+template <class L, class... Args>
+L& assign(L& l, const Args&... args) {
+  internal::assign_impl<0>(l, args...);
+  return l;
+}
 
 /**
  * @brief access i-th element of variable arguments
