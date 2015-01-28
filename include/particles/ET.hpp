@@ -146,6 +146,9 @@ struct Sign {
   static constexpr int value = I==J ? 0 : (I+1)%3==J ? 1 : -1;
 };
 
+/** @brief 4
+ * @todo implement 8
+ */
 template <class L, class R>
 struct Cross {
   const L& l;
@@ -154,7 +157,8 @@ struct Cross {
   Cross(const L& l, const R& r) : l(l), r(r) {}
 
   template <std::size_t I>
-  auto get() {
+  auto get() const {
+    static_assert(I < 3, "index is out of bounds");
     constexpr auto J  = Pair<I>::first;
     constexpr auto K  = Pair<I>::second;
     constexpr auto s1 = Sign<J, K>::value;
@@ -181,5 +185,10 @@ using namespace particles;
 template <size_t I, class L, class Op, class R>
 inline auto get(const ET::Exp<L, Op, R>& e) {
   return Op::apply(get<I>(e.l), get<I>(e.r));
+}
+
+template <size_t I, class L, class R>
+inline auto get(const ET::Cross<L, R>& e) {
+  return e.get<I>();
 }
 }  // namespace std

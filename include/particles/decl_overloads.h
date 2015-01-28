@@ -16,6 +16,9 @@ class Vec;
 namespace ET {
 template <class L, class Op, class R>
 struct Exp;
+
+template <class L, class R>
+struct Cross;
 }  // namespace ET
 }  // namespace particles
 
@@ -42,6 +45,10 @@ inline void swap(Vec<T, N>& u, Vec<T, N>& v) noexcept;
 
 // for Exp
 template <size_t I, class L, class Op, class R>
-inline auto get(const ET::Exp<L, Op, R>& e);
+inline auto get(const ET::Exp<L, Op, R>&);
+
+// for Cross
+template <class L, class R>
+inline auto get(const ET::Cross<L, R>&);
 
 }  // namespace std

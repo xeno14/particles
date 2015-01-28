@@ -146,3 +146,10 @@ TEST_F(CrossTest, cross_22) {
   EXPECT_EQ(0, result.get<1>());
   EXPECT_EQ(0, result.get<2>());
 }
+
+TEST_F(CrossTest, std_get) {
+  auto result = cross(e0, e1);
+  EXPECT_EQ(0, std::get<0>(result));
+  EXPECT_EQ(0, std::get<1>(result));
+  EXPECT_EQ(1, std::get<2>(result));
+}
