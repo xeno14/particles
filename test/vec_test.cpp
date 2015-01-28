@@ -119,6 +119,10 @@ TEST_F(OperatorTest, exp_and_scalar) {
   EXPECT_DOUBLE_EQ(6, result[2]);
 }
 
+TEST_F(OperatorTest, inner_product) {
+  EXPECT_DOUBLE_EQ(8, v1 * v2);
+}
+
 
 TEST(MathTest, length) {
   Vec<double, 2> v1 {3, 4};
@@ -129,6 +133,11 @@ TEST(MathTest, length) {
   EXPECT_DOUBLE_EQ(4, v1.squared_distance(v2));
   EXPECT_DOUBLE_EQ(2, v1.distance(v2));
   EXPECT_DOUBLE_EQ(33, v1.dot(v2));
+}
+
+TEST(MathTest, dot) {
+  Vec<int, 2> u(1, 2), v(3, 4);
+  EXPECT_EQ(11, u.dot(v));
 }
 
 TEST(MathTest, parallel) {

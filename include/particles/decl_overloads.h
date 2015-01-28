@@ -13,10 +13,10 @@ namespace particles {
 template <class T, std::size_t N> 
 class Vec;
 
-namespace expression {
+namespace ET {
 template <class L, class Op, class R>
 struct Exp;
-}  // namespace expression
+}  // namespace ET
 }  // namespace particles
 
 
@@ -42,6 +42,6 @@ inline void swap(Vec<T, N>& u, Vec<T, N>& v) noexcept;
 
 // for Exp
 template <size_t I, class L, class Op, class R>
-inline auto get(const expression::Exp<L, Op, R>& e);
+inline auto get(const ET::Exp<L, Op, R>& e);
 
 }  // namespace std
