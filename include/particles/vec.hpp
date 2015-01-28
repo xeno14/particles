@@ -16,9 +16,8 @@
 #include <initializer_list>
 #include <ostream>
 
-namespace {
 extern void* enabler;
-}
+
 
 namespace particles {
 
@@ -77,12 +76,8 @@ class Vec {
    * @brief multiply by a scalar
    * @tparam U arithmetic type
    */
-  template <
-      typename U,
-      typename std::enable_if<std::is_arithmetic<U>{}>::type *& = enabler>
-  auto operator*(U u) const {
-    return ET::Exp<Vec, ET::Multiply, ET::Scalar<T>>(*this, u);
-  }
+  template <typename U, enabler_if<std::is_arithmetic<U>{}> = enabler>
+  auto operator*(U u) const { return ET::Exp<Vec, ET::Multiply, ET::Scalar<T>>(*this, u); }
   /** @brief inner product */
   inline auto operator*(const Vec& u) const;
 
@@ -90,12 +85,8 @@ class Vec {
    * @brief divide by a scalar
    * @tparam U arithmetic type
    */
-  template <
-      typename U,
-      typename std::enable_if<std::is_arithmetic<U>{}>::type *& = enabler>
-  auto operator/(U u) const {
-    return ET::Exp<Vec, ET::Divide, ET::Scalar<T>>(*this, u);
-  }
+  template <typename U, enabler_if<std::is_arithmetic<U>{}> = enabler>
+  auto operator/(U u) const { return ET::Exp<Vec, ET::Divide, ET::Scalar<T>>(*this, u); }
 
   // Iterators
   auto begin() { return value_.begin(); }

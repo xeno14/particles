@@ -17,6 +17,10 @@
 
 
 namespace particles {
+
+template<bool B, typename T = void>
+using enabler_if = typename std::enable_if<B, T>::type*&;
+
 namespace expression {
 namespace op {
 
