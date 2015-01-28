@@ -29,6 +29,8 @@ namespace particles {
  */
 template <class T, std::size_t N>
 class Vec {
+  typedef Vec<T, N> THIS;
+
  public:
   typedef T value_type;
   typedef std::array<T, N> array_t;
@@ -67,26 +69,10 @@ class Vec {
   Vec& operator*=(T x);
   Vec& operator/=(T x);
 
-  template <class R>
-  auto operator+(const R& r) const;
-  template <class R>
-  auto operator-(const R& r) const;
+  ET_OPERATORS(THIS);
 
-  /**
-   * @brief multiply by a scalar
-   * @tparam U arithmetic type
-   */
-  template <typename U, enabler_if<std::is_arithmetic<U>{}> = enabler>
-  auto operator*(U u) const { return ET::Exp<Vec, ET::Multiply, ET::Scalar<T>>(*this, u); }
   /** @brief inner product */
   inline auto operator*(const Vec& u) const;
-
-  /**
-   * @brief divide by a scalar
-   * @tparam U arithmetic type
-   */
-  template <typename U, enabler_if<std::is_arithmetic<U>{}> = enabler>
-  auto operator/(U u) const { return ET::Exp<Vec, ET::Divide, ET::Scalar<T>>(*this, u); }
 
   // Iterators
   auto begin() { return value_.begin(); }
@@ -182,18 +168,6 @@ template <class T, std::size_t N>
 inline Vec<T, N>& Vec<T, N>::operator/=(T x) {
   for (std::size_t i = 0; i < N; ++i) (*this)[i] /= x;
   return *this;
-}
-
-template <class T, std::size_t N>
-template <class R>
-auto Vec<T, N>::operator+(const R& r) const {
-  return ET::Exp<Vec, ET::Plus, R>(*this, r);
-}
-
-template <class T, std::size_t N>
-template <class R>
-auto Vec<T, N>::operator-(const R& r) const {
-  return ET::Exp<Vec, ET::Minus, R>(*this, r);
 }
 
 template <class T, std::size_t N>
