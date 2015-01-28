@@ -5,7 +5,11 @@ particles
 
 Particle system simulation library in C++.
 
-# Build
+*This library is still under construction. API may be modified without previous
+notice*.
+
+
+# Build examples and tests
 
 ```bash
 mkdir build
@@ -20,6 +24,7 @@ make install
 
 - [CGAL](https://www.cgal.org/)
 - [googletest](https://code.google.com/p/googletest/) (for testing)
+
 
 # Minimum example
 
@@ -58,3 +63,7 @@ mkdir build && cd build
 cmake ..
 make
 ```
+
+# License
+
+GPL
