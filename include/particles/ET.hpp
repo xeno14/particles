@@ -5,6 +5,8 @@
  *
  */
 
+#pragma once
+
 
 namespace particles {
 
@@ -132,7 +134,44 @@ struct Exp<L, Op, Scalar<T>> {
   }
 };
 
+
+template <std::size_t I>
+struct Pair {
+  static constexpr std::size_t first  = (I+1)%3;
+  static constexpr std::size_t second = (I+2)%3;
+};
+
+template <std::size_t I, std::size_t J>
+struct Sign {
+  static constexpr int value = I==J ? 0 : (I+1)%3==J ? 1 : -1;
+};
+
+template <class L, class R>
+struct Cross {
+  const L& l;
+  const R& r;
+
+  Cross(const L& l, const R& r) : l(l), r(r) {}
+
+  template <std::size_t I>
+  auto get() {
+    constexpr auto J  = Pair<I>::first;
+    constexpr auto K  = Pair<I>::second;
+    constexpr auto s1 = Sign<J, K>::value;
+    constexpr auto s2 = Sign<K, J>::value;
+
+    return std::get<J>(l) * std::get<K>(r) * s1 +
+           std::get<K>(l) * std::get<J>(r) * s2;
+  }
+};
+
 }  // namespace ET
+
+template <class L, class R>
+inline auto cross(const L& l, const R& r) {
+  return ET::Cross<L, R>(l, r);
+}
+
 }  // namespace particles
 
 
