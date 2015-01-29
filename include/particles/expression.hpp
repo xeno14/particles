@@ -231,11 +231,6 @@ struct Type {
 }  // namespace internal
 
 
-template <class T>
-constexpr internal::Type<T> ref_to_type(T&);
-template <class T>
-constexpr internal::Type<T> ref_to_type(const T&);
-
 template <class F, class Arg>
 struct ReturnType {
   typedef decltype((*reinterpret_cast<F*>(0))(*reinterpret_cast<Arg*>(0))) type;

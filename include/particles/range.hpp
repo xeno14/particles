@@ -336,7 +336,7 @@ class PushBackIterator
  */
 template <class InputIterator>
 inline auto sum(InputIterator first, InputIterator last) {
-  typedef typename decltype(util::ref_to_type(*first))::type value_type;
+  typedef typename std::remove_reference<decltype(*first)>::type value_type;
   // get value type
   // avoid uninitialized warning
   auto res = value_type();
@@ -364,7 +364,7 @@ inline auto sum(InputIterator first, InputIterator last) {
  */
 template<class InputIterator>
 inline auto average(InputIterator first, InputIterator last) {
-  typedef typename decltype(util::ref_to_type(*first))::type value_type;
+  typedef typename std::remove_reference<decltype(*first)>::type value_type;
   typedef typename util::type_cond<
                       std::is_integral<value_type>::value,
                       double, value_type>::type result_type;

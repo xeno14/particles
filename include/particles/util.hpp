@@ -93,11 +93,6 @@ struct Type {
 
 }  // namespace internal
 
-template <class T>
-constexpr internal::Type<T> ref_to_type(T&);
-template <class T>
-constexpr internal::Type<T> ref_to_type(const T&);
-
 /**
  * @brief choose type following condition
  *
