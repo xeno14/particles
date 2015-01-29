@@ -220,6 +220,12 @@ inline auto& element_at(Args&... args) {
   return std::get<I>(std::make_tuple(std::ref(args)...));
 }
 
+
+template <class F, class Arg>
+struct ReturnType {
+  typedef decltype((*reinterpret_cast<F*>(0))(*reinterpret_cast<Arg*>(0))) type;
+};
+
 }  // namespace expression
 
 

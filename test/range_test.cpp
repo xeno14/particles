@@ -20,26 +20,6 @@ inline auto first_iterator(Itr it) {
       it, [](std::pair<int, int>& u) { return std::ref(u.first); });
 }
 
-TEST(RangeTest, ConvertIterator) {
-  std::vector<std::pair<int, int>> v{{1, 2}, {3, 4}, {5, 6}, {7, 8}};
-
-  auto first = first_iterator(v.begin());
-  auto last = first_iterator(v.end());
-  auto it = first;
-  EXPECT_EQ(1, *it); ++it;
-  EXPECT_EQ(3, *(it++));
-  EXPECT_EQ(5, *(it++));
-  EXPECT_EQ(7, *(it++));
-  EXPECT_TRUE(it == last);
-  EXPECT_TRUE(it == v.end());
-
-  // reference check
-  it = first;
-  (*it) *= -1;
-  EXPECT_EQ(-1, v[0].first);
-  EXPECT_EQ( 2, v[0].second);
-}
-
 TEST(RangeTest, sum) {
   std::vector<int> u = {1, 2, 3};
   EXPECT_EQ(6, sum(u.begin(), u.end()));
@@ -273,21 +253,31 @@ class ConvertIteratorTest : public ::testing::Test {
   std::vector<std::pair<int, int>> v;
 };
 
+TEST_F(ConvertIteratorTest, increments) {
+  auto it = convert_iterator(v.begin(), [](auto& p) { return p.first; });
+  EXPECT_EQ(1, *it); it++;
+  EXPECT_EQ(3, *it++);
+  EXPECT_EQ(5, *it);
+}
+
 TEST_F(ConvertIteratorTest, compare) {
   auto it1 = convert_iterator(v.begin(), [](auto& p) { return p.first; });
   auto it2 = convert_iterator(v.begin(), [](auto&) {});
   auto it3 = convert_iterator(v.end(),   [](auto&) {});
 
-  EXPECT_TRUE(it1 == it2);
+  EXPECT_TRUE (it1 == it2);
+  EXPECT_FALSE(it1 != it2);
   EXPECT_FALSE(it1 == it3);
+  EXPECT_TRUE (it1 != it3);
   EXPECT_FALSE(it2 == it3);
+  EXPECT_TRUE (it2 != it3);
 }
 
 TEST_F(ConvertIteratorTest, reference) {
   auto it1 = convert_iterator(v.begin(),
                               [](auto& p) { return std::ref(p.first); });
-  (*it1)++;
-  EXPECT_EQ(2, v.begin()->first);
+  (*it1)--;
+  EXPECT_EQ(0, v.begin()->first);
   EXPECT_EQ(2, v.begin()->second);
 }
 
@@ -297,7 +287,7 @@ TEST_F(ConvertIteratorTest, copy) {
   auto first = convert_iterator(v.begin(), op);
   auto last  = convert_iterator(v.end(),   op);
   // It does not work...
-  // std::copy(first, last, result.begin());
+  std::copy(first, last, result.begin());
   auto it = result.begin();
   while (first != last) {
     *it = *first;

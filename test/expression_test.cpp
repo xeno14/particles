@@ -93,3 +93,15 @@ TEST(ExpressionTest, element_at) {
   element_at<0>(x, y, z) = 100;
   EXPECT_EQ(100, x);
 }
+
+TEST(ExpressionTest, ReturnType_int) {
+  auto a = [](int n) { return n; };
+  typedef typename ReturnType<decltype(a), int>::type type;
+  EXPECT_TRUE((std::is_same<int, type>::value));
+}
+
+TEST(ExpressionTest, ReturnType_void) {
+  auto a = [](int) {};
+  typedef typename ReturnType<decltype(a), int>::type type;
+  EXPECT_TRUE((std::is_same<void, type>::value));
+}
