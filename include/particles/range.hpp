@@ -252,12 +252,15 @@ class EnumerateRange {
 template <class Iterator, class UnaryOperation>
 class ConvertIterator {
  public:
-  ConvertIterator(Iterator it, UnaryOperation f) : it_(it), op_(f) {}
+  ConvertIterator(Iterator it, UnaryOperation op) : it_(it), op_(op) {}
+  ConvertIterator(const ConvertIterator& cit) : it_(cit.it_), op_(cit.op_) {}
+  ConvertIterator& operator++() { ++it_; return *this; }
+  ConvertIterator  operator++(int) { auto res = *this; operator++(); return res; }
 
   auto operator*() { return op_(*it_); }
 
-  auto operator++() { ++it_; return *this; }
-  auto operator++(int) { auto res = *this; ++it_; return res; }
+  bool operator==(const ConvertIterator& cit) const { return it_ == cit.it_; }
+  bool operator!=(const ConvertIterator& cit) const { return it_ != cit.it_; }
 
   template <class F>
   bool operator==(const ConvertIterator<Iterator, F>& cit) const {

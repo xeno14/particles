@@ -115,7 +115,7 @@ template <bool cond, class T, class F>
 struct type_cond;
 
 template <class T, class F>
-struct type_cond<true, T, F> { typedef T type; };
+struct type_cond<true, T, F>  { typedef T type; };
 
 template <class T, class F>
 struct type_cond<false, T, F> { typedef F type; };

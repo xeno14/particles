@@ -221,10 +221,32 @@ inline auto& element_at(Args&... args) {
 }
 
 
+namespace internal {
+
+template <class T>
+struct Type {
+  typedef T type;
+};
+
+}  // namespace internal
+
+
+template <class T>
+constexpr internal::Type<T> ref_to_type(T&);
+template <class T>
+constexpr internal::Type<T> ref_to_type(const T&);
+
 template <class F, class Arg>
 struct ReturnType {
   typedef decltype((*reinterpret_cast<F*>(0))(*reinterpret_cast<Arg*>(0))) type;
 };
+
+template <class F, class Arg>
+using return_type = typename ReturnType<F, Arg>::type;
+
+template <class Iterator>
+using iterator_value_type =
+  typename std::remove_reference<decltype(**reinterpret_cast<Iterator*>(0))>::type;
 
 }  // namespace expression
 

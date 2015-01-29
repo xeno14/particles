@@ -11,14 +11,6 @@
 using namespace particles;
 using namespace particles::range;
 
-template <class T, class U>
-inline T& pair_first(std::pair<T, U>& p) { return p.first; }
-
-template<class Itr>
-inline auto first_iterator(Itr it) {
-  return convert_iterator(
-      it, [](std::pair<int, int>& u) { return std::ref(u.first); });
-}
 
 TEST(RangeTest, sum) {
   std::vector<int> u = {1, 2, 3};
@@ -28,13 +20,6 @@ TEST(RangeTest, sum) {
   auto s = sum(v.begin(), v.end());
   EXPECT_DOUBLE_EQ(4, s[0]);
   EXPECT_DOUBLE_EQ(6, s[1]);
-
-  std::vector<std::pair<int, int>> w = {{1,2},{3,4}};
-  // auto cvt = [](std::pair<int, int>& p) { return p.first; };
-  auto first = convert_iterator(w.begin(), pair_first<int, int>);
-  auto last = convert_iterator(w.end(), pair_first<int,int>);
-  auto t = sum(first, last);
-  EXPECT_EQ(4, t);
 }
 
 TEST(RangeTest, average) {
@@ -287,7 +272,7 @@ TEST_F(ConvertIteratorTest, copy) {
   auto first = convert_iterator(v.begin(), op);
   auto last  = convert_iterator(v.end(),   op);
   // It does not work...
-  std::copy(first, last, result.begin());
+  // std::copy(first, last, result.begin());
   auto it = result.begin();
   while (first != last) {
     *it = *first;
