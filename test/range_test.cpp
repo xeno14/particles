@@ -264,3 +264,46 @@ TEST(RangeTest, push_back_iterator) {
   EXPECT_EQ(3, res[3]);
   EXPECT_EQ(4, res[4]);
 }
+
+class ConvertIteratorTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    v = {{1, 2}, {3, 4}, {5, 6}};  
+  }
+  std::vector<std::pair<int, int>> v;
+};
+
+TEST_F(ConvertIteratorTest, compare) {
+  auto it1 = convert_iterator(v.begin(), [](auto& p) { return p.first; });
+  auto it2 = convert_iterator(v.begin(), [](auto&) {});
+  auto it3 = convert_iterator(v.end(),   [](auto&) {});
+
+  EXPECT_TRUE(it1 == it2);
+  EXPECT_FALSE(it1 == it3);
+  EXPECT_FALSE(it2 == it3);
+}
+
+TEST_F(ConvertIteratorTest, reference) {
+  auto it1 = convert_iterator(v.begin(),
+                              [](auto& p) { return std::ref(p.first); });
+  (*it1)++;
+  EXPECT_EQ(2, v.begin()->first);
+  EXPECT_EQ(2, v.begin()->second);
+}
+
+TEST_F(ConvertIteratorTest, copy) {
+  std::vector<int> result(3);
+  auto op = [](auto& p) {return p.first;};
+  auto first = convert_iterator(v.begin(), op);
+  auto last  = convert_iterator(v.end(),   op);
+  // It does not work...
+  // std::copy(first, last, result.begin());
+  auto it = result.begin();
+  while (first != last) {
+    *it = *first;
+    ++it; ++first;
+  }
+  EXPECT_EQ(1, result[0]);
+  EXPECT_EQ(3, result[1]);
+  EXPECT_EQ(5, result[2]);
+}

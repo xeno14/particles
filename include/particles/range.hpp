@@ -241,6 +241,9 @@ class EnumerateRange {
  * other converter and Iterator.
  *
  * Use this through convert_iterator.
+ *  
+ * TODO rename into transform iterator
+ * TODO inherit std::iterator
  *
  * @see convert_iterator
  * @brief convert iterator
@@ -250,7 +253,6 @@ class EnumerateRange {
 template <class Iterator, class Converter>
 class ConvertIterator {
  public:
-  typedef Converter converter_type;
   ConvertIterator(Iterator it, Converter f) : it_(it), converter_(f) {}
 
   auto operator*() { return converter_(*it_); }
@@ -258,13 +260,13 @@ class ConvertIterator {
   auto operator++() { ++it_; return *this; }
   auto operator++(int) { auto res = *this; ++it_; return res; }
 
-  ConvertIterator& operator=(const ConvertIterator<Iterator, Converter>& cit) {
+  ConvertIterator& operator=(const ConvertIterator& cit) {
     it_ = cit.it_;
     return *this;
   }
   template <class F>
   bool operator==(const ConvertIterator<Iterator, F>& cit) const {
-    return it_ == cit.it_;
+    return it_ == cit.it();
   }
   template <class F>
   bool operator!=(const ConvertIterator<Iterator, F>& cit) const {
@@ -272,7 +274,12 @@ class ConvertIterator {
   }
   bool operator==(const Iterator& it) const { return it_ == it; }
   bool operator!=(const Iterator& it) const { return it_ != it; }
-  auto operator-(const ConvertIterator& it) const { return it_ - it.it_; }
+
+  template <class F>
+  auto operator-(const ConvertIterator<Iterator, F>& it) const {
+    return std::distance(it_, it.it_);
+  }
+  const Iterator& it() const { return it_; }
 
  private:
   Iterator it_;
@@ -473,6 +480,11 @@ inline auto enumerate(Range& range, std::size_t start=0) {
 template <class Iterator, class Converter>
 auto convert_iterator(Iterator it, Converter f) {
   return range::ConvertIterator<Iterator, Converter>(it, f);
+}
+
+template <class Iterator, class Converter>
+auto convert_iterator(Iterator first, Iterator last, Converter f) {
+  return std::make_pair(convert_iterator(first, f), convert_iterator(last, f));
 }
 
 /**
