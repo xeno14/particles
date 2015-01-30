@@ -247,10 +247,13 @@ class EnumerateRange {
  * @see convert_iterator
  * @brief convert iterator
  * @tparam Iterator iterator
- * @tparam UnaryOperation rule to convert iterator
+ * @tparam UnaryOperation aaa;
  */
-template <class Iterator, class UnaryOperation>
-class ConvertIterator {
+template <class Iterator, class UnaryOperation,
+          class ValueType = expression::return_type<
+                                UnaryOperation, typename Iterator::value_type>>
+class ConvertIterator : public std::iterator<std::input_iterator_tag, ValueType> 
+{
  public:
   ConvertIterator(Iterator it, UnaryOperation op) : it_(it), op_(op) {}
   ConvertIterator(const ConvertIterator& cit) : it_(cit.it_), op_(cit.op_) {}

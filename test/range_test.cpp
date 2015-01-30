@@ -247,8 +247,8 @@ TEST_F(ConvertIteratorTest, increments) {
 
 TEST_F(ConvertIteratorTest, compare) {
   auto it1 = convert_iterator(v.begin(), [](auto& p) { return p.first; });
-  auto it2 = convert_iterator(v.begin(), [](auto&) {});
-  auto it3 = convert_iterator(v.end(),   [](auto&) {});
+  auto it2 = convert_iterator(v.begin(), [](auto&) { return 0; });
+  auto it3 = convert_iterator(v.end(),   [](auto&) { return 0; });
 
   EXPECT_TRUE (it1 == it2);
   EXPECT_FALSE(it1 != it2);
@@ -268,16 +268,9 @@ TEST_F(ConvertIteratorTest, reference) {
 
 TEST_F(ConvertIteratorTest, copy) {
   std::vector<int> result(3);
-  auto op = [](auto& p) {return p.first;};
-  auto first = convert_iterator(v.begin(), op);
-  auto last  = convert_iterator(v.end(),   op);
-  // It does not work...
-  // std::copy(first, last, result.begin());
-  auto it = result.begin();
-  while (first != last) {
-    *it = *first;
-    ++it; ++first;
-  }
+  auto iter =
+      convert_iterator(v.begin(), v.end(), [](auto& p) {return p.first;});
+  std::copy(iter.first, iter.second, result.begin());
   EXPECT_EQ(1, result[0]);
   EXPECT_EQ(3, result[1]);
   EXPECT_EQ(5, result[2]);
