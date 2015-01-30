@@ -156,6 +156,22 @@ tuple_for_each_impl(Tuple& t, Function fn) {
   return tuple_for_each_impl<I+1, Last>(t, fn);
 }
 
+template <class F, class Arg, bool IsReference>
+struct ReturnType;
+
+template <class F, class Arg>
+struct ReturnType<F, Arg, true> {
+  typedef decltype((*reinterpret_cast<F*>(0))(
+            std::ref(*reinterpret_cast<
+                typename std::remove_reference<Arg>::type*>(0)))) type;
+};
+
+template <class F, class Arg>
+struct ReturnType<F, Arg, false> {
+  typedef decltype((*reinterpret_cast<F*>(0))(*reinterpret_cast<Arg*>(0))) type;
+};
+
+
 }  // namespace internal
 
 /**
@@ -220,28 +236,11 @@ inline auto& element_at(Args&... args) {
   return std::get<I>(std::make_tuple(std::ref(args)...));
 }
 
-
-namespace internal {
-
-template <class T>
-struct Type {
-  typedef T type;
-};
-
-}  // namespace internal
-
+template <class F, class Arg, bool IsReference = std::is_reference<Arg>{}>
+using return_type = typename internal::ReturnType<F, Arg, IsReference>::type;
 
 template <class F, class Arg>
-struct ReturnType {
-  typedef decltype((*reinterpret_cast<F*>(0))(*reinterpret_cast<Arg*>(0))) type;
-};
-
-template <class F, class Arg>
-using return_type = typename ReturnType<F, Arg>::type;
-
-template <class Iterator>
-using iterator_value_type =
-  typename std::remove_reference<decltype(**reinterpret_cast<Iterator*>(0))>::type;
+return_type<F, Arg> return_type_inferenece(F f, Arg arg);
 
 }  // namespace expression
 

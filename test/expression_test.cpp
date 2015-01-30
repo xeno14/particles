@@ -94,14 +94,39 @@ TEST(ExpressionTest, element_at) {
   EXPECT_EQ(100, x);
 }
 
-TEST(ExpressionTest, ReturnType_int) {
+class ReturnTypeTest : public ::testing::Test {
+  protected:
+    static int  f(int n)  { return n; }
+    static int& g(int& n) { return std::ref(n); }
+    static auto h(std::tuple<int,int>& t) { return std::ref(t); }
+};
+
+TEST_F(ReturnTypeTest, value) {
   auto a = [](int n) { return n; };
-  typedef typename ReturnType<decltype(a), int>::type type;
-  EXPECT_TRUE((std::is_same<int, type>::value));
+  static_assert(
+    std::is_same<int, return_type<decltype(a), int>>{},
+    "mismatch");
 }
 
-TEST(ExpressionTest, ReturnType_void) {
-  auto a = [](int) {};
-  typedef typename ReturnType<decltype(a), int>::type type;
-  EXPECT_TRUE((std::is_same<void, type>::value));
+TEST_F(ReturnTypeTest, inference_value) {
+  static_assert(
+    std::is_same<int, decltype(return_type_inferenece(f, 0))>{},
+    "mismatch");
+}
+
+TEST_F(ReturnTypeTest, inference_ref) {
+  int  n = 0;
+  int& m = n;
+  static_assert(
+    std::is_same<int&, decltype(return_type_inferenece(g, m))>{},
+    "mismatch");
+}
+
+TEST_F(ReturnTypeTest, inference_ref2) {
+  auto t = std::make_tuple(1, 2);
+  auto l = [](auto& x)->decltype(t)& { return std::ref(x); };
+  std::get<0>(l(t)) = 0;
+  EXPECT_EQ(0, std::get<0>(t));
+  typedef decltype(return_type_inferenece(l, t)) type;
+  static_assert(std::is_same<decltype(t)&, type>{}, "mismatch");
 }
