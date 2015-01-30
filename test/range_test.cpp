@@ -239,16 +239,16 @@ class ConvertIteratorTest : public ::testing::Test {
 };
 
 TEST_F(ConvertIteratorTest, increments) {
-  auto it = convert_iterator(v.begin(), [](auto& p) { return p.first; });
+  auto it = transform_iterator(v.begin(), [](auto& p) { return p.first; });
   EXPECT_EQ(1, *it); it++;
   EXPECT_EQ(3, *it++);
   EXPECT_EQ(5, *it);
 }
 
 TEST_F(ConvertIteratorTest, compare) {
-  auto it1 = convert_iterator(v.begin(), [](auto& p) { return p.first; });
-  auto it2 = convert_iterator(v.begin(), [](auto&) { return 0; });
-  auto it3 = convert_iterator(v.end(),   [](auto&) { return 0; });
+  auto it1 = transform_iterator(v.begin(), [](auto& p) { return p.first; });
+  auto it2 = transform_iterator(v.begin(), [](auto&) { return 0; });
+  auto it3 = transform_iterator(v.end(),   [](auto&) { return 0; });
 
   EXPECT_TRUE (it1 == it2);
   EXPECT_FALSE(it1 != it2);
@@ -259,7 +259,7 @@ TEST_F(ConvertIteratorTest, compare) {
 }
 
 TEST_F(ConvertIteratorTest, reference) {
-  auto it1 = convert_iterator(v.begin(),
+  auto it1 = transform_iterator(v.begin(),
                               [](auto& p) { return std::ref(p.first); });
   (*it1)--;
   EXPECT_EQ(0, v.begin()->first);
@@ -269,7 +269,7 @@ TEST_F(ConvertIteratorTest, reference) {
 TEST_F(ConvertIteratorTest, copy) {
   std::vector<int> result(3);
   auto iter =
-      convert_iterator(v.begin(), v.end(), [](auto& p) {return p.first;});
+      transform_iterator(v.begin(), v.end(), [](auto& p) {return p.first;});
   std::copy(iter.first, iter.second, result.begin());
   EXPECT_EQ(1, result[0]);
   EXPECT_EQ(3, result[1]);

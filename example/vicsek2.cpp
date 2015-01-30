@@ -105,8 +105,9 @@ int main() {
 
       // Velocity at next step
       // Get average velocity among neighbors
-      nv = average(convert_iterator(neighbors.begin(), get_v),
-                   convert_iterator(neighbors.end(),   get_v)) +
+      auto iter = transform_iterator(neighbors.begin(), neighbors.end(),
+                                     [](auto* p) { return p->velocity(); });
+      nv = average(iter.first, iter.second);
            eta_gen();
       nv.normalize(v0);
     };

@@ -237,14 +237,14 @@ class EnumerateRange {
 };
 
 /**
- * Comparision (operator==, operator!=) is defined between ConvertIterator with
+ * Comparision (operator==, operator!=) is defined between TransformIterator with
  * other converter and Iterator.
  *
- * Use this through convert_iterator.
+ * Use this through transform_iterator.
  *  
  * TODO rename into transform iterator
  *
- * @see convert_iterator
+ * @see transform_iterator
  * @brief convert iterator
  * @tparam Iterator iterator
  * @tparam UnaryOperation aaa;
@@ -252,32 +252,32 @@ class EnumerateRange {
 template <class Iterator, class UnaryOperation,
           class ValueType = expression::return_type<
                                 UnaryOperation, typename Iterator::value_type>>
-class ConvertIterator : public std::iterator<std::input_iterator_tag, ValueType> 
+class TransformIterator : public std::iterator<std::input_iterator_tag, ValueType> 
 {
  public:
-  ConvertIterator(Iterator it, UnaryOperation op) : it_(it), op_(op) {}
-  ConvertIterator(const ConvertIterator& cit) : it_(cit.it_), op_(cit.op_) {}
-  ConvertIterator& operator++() { ++it_; return *this; }
-  ConvertIterator  operator++(int) { auto res = *this; operator++(); return res; }
+  TransformIterator(Iterator it, UnaryOperation op) : it_(it), op_(op) {}
+  TransformIterator(const TransformIterator& cit) : it_(cit.it_), op_(cit.op_) {}
+  TransformIterator& operator++() { ++it_; return *this; }
+  TransformIterator  operator++(int) { auto res = *this; operator++(); return res; }
 
   auto operator*() { return op_(*it_); }
 
-  bool operator==(const ConvertIterator& cit) const { return it_ == cit.it_; }
-  bool operator!=(const ConvertIterator& cit) const { return it_ != cit.it_; }
+  bool operator==(const TransformIterator& cit) const { return it_ == cit.it_; }
+  bool operator!=(const TransformIterator& cit) const { return it_ != cit.it_; }
 
   template <class F>
-  bool operator==(const ConvertIterator<Iterator, F>& cit) const {
+  bool operator==(const TransformIterator<Iterator, F>& cit) const {
     return it_ == cit.it();
   }
   template <class F>
-  bool operator!=(const ConvertIterator<Iterator, F>& cit) const {
+  bool operator!=(const TransformIterator<Iterator, F>& cit) const {
     return it_ != cit.it();
   }
   bool operator==(const Iterator& it) const { return it_ == it; }
   bool operator!=(const Iterator& it) const { return it_ != it; }
 
   template <class F>
-  auto operator-(const ConvertIterator<Iterator, F>& it) const {
+  auto operator-(const TransformIterator<Iterator, F>& it) const {
     return std::distance(it_, it.it_);
   }
   const Iterator& it() const { return it_; }
@@ -460,7 +460,7 @@ inline auto enumerate(Range& range, std::size_t start=0) {
 }
 
 /**
- * @brief wrap ConvertIterator to expect type inference
+ * @brief wrap TransformIterator to expect type inference
  * @tparam Iterator iterator
  * @tparam UnaryOperation rule to convert iterator
  * @param it iterator to hold
@@ -471,7 +471,7 @@ inline auto enumerate(Range& range, std::size_t start=0) {
  *
  * // Copy. If you want to get reference, use std::ref as return value of
  * // the converter. 
- * auto it convert_iterator(v.begin(), [](pair<int,int>& u){return u.first;});
+ * auto it transform_iterator(v.begin(), [](pair<int,int>& u){return u.first;});
  * // 1, 3, 5, 7
  * while (it != v.end()) 
  *   cout << *(it++) << endl;
@@ -479,13 +479,13 @@ inline auto enumerate(Range& range, std::size_t start=0) {
  * @endcode
  */
 template <class Iterator, class UnaryOperation>
-auto convert_iterator(Iterator it, UnaryOperation f) {
-  return range::ConvertIterator<Iterator, UnaryOperation>(it, f);
+auto transform_iterator(Iterator it, UnaryOperation f) {
+  return range::TransformIterator<Iterator, UnaryOperation>(it, f);
 }
 
 template <class Iterator, class UnaryOperation>
-auto convert_iterator(Iterator first, Iterator last, UnaryOperation f) {
-  return std::make_pair(convert_iterator(first, f), convert_iterator(last, f));
+auto transform_iterator(Iterator first, Iterator last, UnaryOperation f) {
+  return std::make_pair(transform_iterator(first, f), transform_iterator(last, f));
 }
 
 /**
