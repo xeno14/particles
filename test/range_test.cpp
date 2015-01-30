@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include <typeinfo>
+#include <algorithm>
 #include <iostream>
 #include <functional>
 #include <vector>
@@ -98,14 +98,14 @@ TEST_F(ZipTest, zip) {
   EXPECT_EQ(5, v[2]);
 }
 
-TEST(RangeTest, XRange) {
-  XRange<int> xrange(1, 4); // 1, 2, 3
-  auto it = xrange.begin();
-
-  EXPECT_EQ(1, *it); ++it;
-  EXPECT_EQ(2, *(it++));
-  EXPECT_EQ(3, *it); ++it;
-  EXPECT_EQ(xrange.end(), it);
+TEST(RangeTest, suite_last_test) {
+  EXPECT_EQ( 3, suite_last(0,  3, 1));
+  EXPECT_EQ( 6, suite_last(0,  5, 3));
+  EXPECT_EQ( 6, suite_last(0,  6, 3));
+  EXPECT_EQ( 9, suite_last(0,  7, 3));
+  EXPECT_EQ( 9, suite_last(0,  8, 3));
+  EXPECT_EQ( 9, suite_last(0,  9, 3));
+  EXPECT_EQ(12, suite_last(0, 10, 3));
 }
 
 class xrangeTest : public ::testing::Test {
@@ -115,6 +115,16 @@ class xrangeTest : public ::testing::Test {
   }
   std::vector<int> result;
 };
+
+TEST_F(xrangeTest, iterator) {
+  XRange<int> rng(1, 4); // 1, 2, 3
+  auto it = rng.begin();
+
+  EXPECT_EQ(1, *it); ++it;
+  EXPECT_EQ(2, *it++);
+  EXPECT_EQ(3, *it); ++it;
+  EXPECT_EQ(rng.end(), it);
+}
 
 TEST_F(xrangeTest, last_only) {
   for(auto n : xrange(3)) {
@@ -151,6 +161,21 @@ TEST_F(xrangeTest, step2) {
   EXPECT_EQ(2, result[1]);
   EXPECT_EQ(4, result[2]);
 }
+
+TEST_F(xrangeTest, construct_stl_container) {
+  auto rng = xrange(3);
+  std::vector<int> v(rng.begin(), rng.end());
+  EXPECT_EQ(0, v[0]);
+  EXPECT_EQ(1, v[1]);
+  EXPECT_EQ(2, v[2]);
+}
+
+// Seg fault...
+// TEST_F(xrangeTest, stl_transform) {
+//   auto rng = xrange(3);
+//   std::transform(std::begin(rng), std::end(rng), result.begin(),
+//                  [](int n) { return n*2; });
+// }
 
 class EnumerateTest : public ::testing::Test {
  protected:

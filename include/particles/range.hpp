@@ -139,15 +139,26 @@ class ZipRange {
    iterator_tuple_type ends_;
 };
 
+/**
+ * @brief suite last to make sure counting up by step does not skip over
+ *
+ * @tparam T integral_type
+ */
+template <class T>
+T suite_last(T first, T last, T step) {
+  if ((last - first) % step != 0) {
+    return last + step - (last - first) % step;
+  }
+  return last;
+}
 
 template <class T=int>
 class XRange {
-
   public:
-    class iterator {
+    class iterator : public std::iterator<std::input_iterator_tag, T> {
       public:
         iterator(T i, T step) : count_(i), step_(step) {}
-        iterator(const iterator& it) : count_(it.count_) {}
+        iterator(const iterator& it) : count_(it.count_), step_(it.step_) {}
         iterator& operator++() {
           count_ += step_;
           return *this;
@@ -158,7 +169,7 @@ class XRange {
           return old;
         }
         iterator& operator=(const iterator& it) {
-          count_ = it.count_;
+          count_ = it.count_; step_ = it.step_;
           return *this;
         }
         bool operator==(const iterator& it) const {
@@ -167,17 +178,13 @@ class XRange {
         bool operator!=(const iterator& it) const {
           return count_ != it.count_;
         }
-        T operator*() { return count_; }
+        T operator*() const { return count_; }
       private:
         T count_, step_;
     };
     
-    XRange(T first, T last, T step=1) : first_(first), last_(last), step_(step) {
-      // to make sure incrementing by step does not skip last
-      if ((last - first) % step != 0) {
-        last_ = last_ + step - (last - first) % step;
-      }
-    }
+    XRange(T first, T last, T step=1) :
+        first_(first), last_(suite_last(first, last, step)), step_(step) {}
     auto begin() { return iterator(first_, step_); }
     auto end() { return iterator(last_, step_); }
 
@@ -237,6 +244,8 @@ class EnumerateRange {
 };
 
 /**
+ * @brief wrap a iteretor and operator* calls a function
+ *
  * Comparision (operator==, operator!=) is defined between TransformIterator with
  * other converter and Iterator.
  *
@@ -245,7 +254,6 @@ class EnumerateRange {
  * TODO rename into transform iterator
  *
  * @see transform_iterator
- * @brief convert iterator
  * @tparam Iterator iterator
  * @tparam UnaryOperation aaa;
  */
