@@ -93,11 +93,6 @@ struct Type {
 
 }  // namespace internal
 
-template <class T>
-constexpr internal::Type<T> ref_to_type(T&);
-template <class T>
-constexpr internal::Type<T> ref_to_type(const T&);
-
 /**
  * @brief choose type following condition
  *
@@ -115,7 +110,7 @@ template <bool cond, class T, class F>
 struct type_cond;
 
 template <class T, class F>
-struct type_cond<true, T, F> { typedef T type; };
+struct type_cond<true, T, F>  { typedef T type; };
 
 template <class T, class F>
 struct type_cond<false, T, F> { typedef F type; };

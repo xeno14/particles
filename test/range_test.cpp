@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include <typeinfo>
+#include <algorithm>
 #include <iostream>
 #include <functional>
 #include <vector>
@@ -11,34 +11,6 @@
 using namespace particles;
 using namespace particles::range;
 
-template <class T, class U>
-inline T& pair_first(std::pair<T, U>& p) { return p.first; }
-
-template<class Itr>
-inline auto first_iterator(Itr it) {
-  return convert_iterator(
-      it, [](std::pair<int, int>& u) { return std::ref(u.first); });
-}
-
-TEST(RangeTest, ConvertIterator) {
-  std::vector<std::pair<int, int>> v{{1, 2}, {3, 4}, {5, 6}, {7, 8}};
-
-  auto first = first_iterator(v.begin());
-  auto last = first_iterator(v.end());
-  auto it = first;
-  EXPECT_EQ(1, *it); ++it;
-  EXPECT_EQ(3, *(it++));
-  EXPECT_EQ(5, *(it++));
-  EXPECT_EQ(7, *(it++));
-  EXPECT_TRUE(it == last);
-  EXPECT_TRUE(it == v.end());
-
-  // reference check
-  it = first;
-  (*it) *= -1;
-  EXPECT_EQ(-1, v[0].first);
-  EXPECT_EQ( 2, v[0].second);
-}
 
 TEST(RangeTest, sum) {
   std::vector<int> u = {1, 2, 3};
@@ -48,13 +20,6 @@ TEST(RangeTest, sum) {
   auto s = sum(v.begin(), v.end());
   EXPECT_DOUBLE_EQ(4, s[0]);
   EXPECT_DOUBLE_EQ(6, s[1]);
-
-  std::vector<std::pair<int, int>> w = {{1,2},{3,4}};
-  // auto cvt = [](std::pair<int, int>& p) { return p.first; };
-  auto first = convert_iterator(w.begin(), pair_first<int, int>);
-  auto last = convert_iterator(w.end(), pair_first<int,int>);
-  auto t = sum(first, last);
-  EXPECT_EQ(4, t);
 }
 
 TEST(RangeTest, average) {
@@ -133,14 +98,14 @@ TEST_F(ZipTest, zip) {
   EXPECT_EQ(5, v[2]);
 }
 
-TEST(RangeTest, XRange) {
-  XRange<int> xrange(1, 4); // 1, 2, 3
-  auto it = xrange.begin();
-
-  EXPECT_EQ(1, *it); ++it;
-  EXPECT_EQ(2, *(it++));
-  EXPECT_EQ(3, *it); ++it;
-  EXPECT_EQ(xrange.end(), it);
+TEST(RangeTest, suite_last_test) {
+  EXPECT_EQ( 3, suite_last(0,  3, 1));
+  EXPECT_EQ( 6, suite_last(0,  5, 3));
+  EXPECT_EQ( 6, suite_last(0,  6, 3));
+  EXPECT_EQ( 9, suite_last(0,  7, 3));
+  EXPECT_EQ( 9, suite_last(0,  8, 3));
+  EXPECT_EQ( 9, suite_last(0,  9, 3));
+  EXPECT_EQ(12, suite_last(0, 10, 3));
 }
 
 class xrangeTest : public ::testing::Test {
@@ -150,6 +115,16 @@ class xrangeTest : public ::testing::Test {
   }
   std::vector<int> result;
 };
+
+TEST_F(xrangeTest, iterator) {
+  XRange<int> rng(1, 4); // 1, 2, 3
+  auto it = rng.begin();
+
+  EXPECT_EQ(1, *it); ++it;
+  EXPECT_EQ(2, *it++);
+  EXPECT_EQ(3, *it); ++it;
+  EXPECT_EQ(rng.end(), it);
+}
 
 TEST_F(xrangeTest, last_only) {
   for(auto n : xrange(3)) {
@@ -186,6 +161,21 @@ TEST_F(xrangeTest, step2) {
   EXPECT_EQ(2, result[1]);
   EXPECT_EQ(4, result[2]);
 }
+
+TEST_F(xrangeTest, construct_stl_container) {
+  auto rng = xrange(3);
+  std::vector<int> v(rng.begin(), rng.end());
+  EXPECT_EQ(0, v[0]);
+  EXPECT_EQ(1, v[1]);
+  EXPECT_EQ(2, v[2]);
+}
+
+// Seg fault...
+// TEST_F(xrangeTest, stl_transform) {
+//   auto rng = xrange(3);
+//   std::transform(std::begin(rng), std::end(rng), result.begin(),
+//                  [](int n) { return n*2; });
+// }
 
 class EnumerateTest : public ::testing::Test {
  protected:
@@ -263,4 +253,50 @@ TEST(RangeTest, push_back_iterator) {
   EXPECT_EQ(2, res[2]);
   EXPECT_EQ(3, res[3]);
   EXPECT_EQ(4, res[4]);
+}
+
+class ConvertIteratorTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    v = {{1, 2}, {3, 4}, {5, 6}};  
+  }
+  std::vector<std::pair<int, int>> v;
+};
+
+TEST_F(ConvertIteratorTest, increments) {
+  auto it = transform_iterator(v.begin(), [](auto& p) { return p.first; });
+  EXPECT_EQ(1, *it); it++;
+  EXPECT_EQ(3, *it++);
+  EXPECT_EQ(5, *it);
+}
+
+TEST_F(ConvertIteratorTest, compare) {
+  auto it1 = transform_iterator(v.begin(), [](auto& p) { return p.first; });
+  auto it2 = transform_iterator(v.begin(), [](auto&) { return 0; });
+  auto it3 = transform_iterator(v.end(),   [](auto&) { return 0; });
+
+  EXPECT_TRUE (it1 == it2);
+  EXPECT_FALSE(it1 != it2);
+  EXPECT_FALSE(it1 == it3);
+  EXPECT_TRUE (it1 != it3);
+  EXPECT_FALSE(it2 == it3);
+  EXPECT_TRUE (it2 != it3);
+}
+
+TEST_F(ConvertIteratorTest, reference) {
+  auto it1 = transform_iterator(v.begin(),
+                              [](auto& p) { return std::ref(p.first); });
+  (*it1)--;
+  EXPECT_EQ(0, v.begin()->first);
+  EXPECT_EQ(2, v.begin()->second);
+}
+
+TEST_F(ConvertIteratorTest, copy) {
+  std::vector<int> result(3);
+  auto iter =
+      transform_iterator(v.begin(), v.end(), [](auto& p) {return p.first;});
+  std::copy(iter.first, iter.second, result.begin());
+  EXPECT_EQ(1, result[0]);
+  EXPECT_EQ(3, result[1]);
+  EXPECT_EQ(5, result[2]);
 }

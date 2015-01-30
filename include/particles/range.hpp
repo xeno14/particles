@@ -139,15 +139,26 @@ class ZipRange {
    iterator_tuple_type ends_;
 };
 
+/**
+ * @brief suite last to make sure counting up by step does not skip over
+ *
+ * @tparam T integral_type
+ */
+template <class T>
+T suite_last(T first, T last, T step) {
+  if ((last - first) % step != 0) {
+    return last + step - (last - first) % step;
+  }
+  return last;
+}
 
 template <class T=int>
 class XRange {
-
   public:
-    class iterator {
+    class iterator : public std::iterator<std::input_iterator_tag, T> {
       public:
         iterator(T i, T step) : count_(i), step_(step) {}
-        iterator(const iterator& it) : count_(it.count_) {}
+        iterator(const iterator& it) : count_(it.count_), step_(it.step_) {}
         iterator& operator++() {
           count_ += step_;
           return *this;
@@ -158,7 +169,7 @@ class XRange {
           return old;
         }
         iterator& operator=(const iterator& it) {
-          count_ = it.count_;
+          count_ = it.count_; step_ = it.step_;
           return *this;
         }
         bool operator==(const iterator& it) const {
@@ -167,17 +178,13 @@ class XRange {
         bool operator!=(const iterator& it) const {
           return count_ != it.count_;
         }
-        T operator*() { return count_; }
+        T operator*() const { return count_; }
       private:
         T count_, step_;
     };
     
-    XRange(T first, T last, T step=1) : first_(first), last_(last), step_(step) {
-      // to make sure incrementing by step does not skip last
-      if ((last - first) % step != 0) {
-        last_ = last_ + step - (last - first) % step;
-      }
-    }
+    XRange(T first, T last, T step=1) :
+        first_(first), last_(suite_last(first, last, step)), step_(step) {}
     auto begin() { return iterator(first_, step_); }
     auto end() { return iterator(last_, step_); }
 
@@ -237,46 +244,55 @@ class EnumerateRange {
 };
 
 /**
- * Comparision (operator==, operator!=) is defined between ConvertIterator with
+ * @brief wrap a iteretor and operator* calls a function
+ *
+ * Comparision (operator==, operator!=) is defined between TransformIterator with
  * other converter and Iterator.
  *
- * Use this through convert_iterator.
+ * Use this through transform_iterator.
+ *  
+ * TODO rename into transform iterator
  *
- * @see convert_iterator
- * @brief convert iterator
+ * @see transform_iterator
  * @tparam Iterator iterator
- * @tparam Converter rule to convert iterator
+ * @tparam UnaryOperation aaa;
  */
-template <class Iterator, class Converter>
-class ConvertIterator {
+template <class Iterator, class UnaryOperation,
+          class ValueType = expression::return_type<
+                                UnaryOperation, typename Iterator::value_type>>
+class TransformIterator : public std::iterator<std::input_iterator_tag, ValueType> 
+{
  public:
-  typedef Converter converter_type;
-  ConvertIterator(Iterator it, Converter f) : it_(it), converter_(f) {}
+  TransformIterator(Iterator it, UnaryOperation op) : it_(it), op_(op) {}
+  TransformIterator(const TransformIterator& cit) : it_(cit.it_), op_(cit.op_) {}
+  TransformIterator& operator++() { ++it_; return *this; }
+  TransformIterator  operator++(int) { auto res = *this; operator++(); return res; }
 
-  auto operator*() { return converter_(*it_); }
+  auto operator*() { return op_(*it_); }
 
-  auto operator++() { ++it_; return *this; }
-  auto operator++(int) { auto res = *this; ++it_; return res; }
+  bool operator==(const TransformIterator& cit) const { return it_ == cit.it_; }
+  bool operator!=(const TransformIterator& cit) const { return it_ != cit.it_; }
 
-  ConvertIterator& operator=(const ConvertIterator<Iterator, Converter>& cit) {
-    it_ = cit.it_;
-    return *this;
+  template <class F>
+  bool operator==(const TransformIterator<Iterator, F>& cit) const {
+    return it_ == cit.it();
   }
   template <class F>
-  bool operator==(const ConvertIterator<Iterator, F>& cit) const {
-    return it_ == cit.it_;
-  }
-  template <class F>
-  bool operator!=(const ConvertIterator<Iterator, F>& cit) const {
-    return it_ != cit.it_;
+  bool operator!=(const TransformIterator<Iterator, F>& cit) const {
+    return it_ != cit.it();
   }
   bool operator==(const Iterator& it) const { return it_ == it; }
   bool operator!=(const Iterator& it) const { return it_ != it; }
-  auto operator-(const ConvertIterator& it) const { return it_ - it.it_; }
+
+  template <class F>
+  auto operator-(const TransformIterator<Iterator, F>& it) const {
+    return std::distance(it_, it.it_);
+  }
+  const Iterator& it() const { return it_; }
 
  private:
   Iterator it_;
-  Converter converter_;
+  UnaryOperation op_;
 };
 
 
@@ -331,7 +347,7 @@ class PushBackIterator
  */
 template <class InputIterator>
 inline auto sum(InputIterator first, InputIterator last) {
-  typedef typename decltype(util::ref_to_type(*first))::type value_type;
+  typedef typename std::remove_reference<decltype(*first)>::type value_type;
   // get value type
   // avoid uninitialized warning
   auto res = value_type();
@@ -359,7 +375,7 @@ inline auto sum(InputIterator first, InputIterator last) {
  */
 template<class InputIterator>
 inline auto average(InputIterator first, InputIterator last) {
-  typedef typename decltype(util::ref_to_type(*first))::type value_type;
+  typedef typename std::remove_reference<decltype(*first)>::type value_type;
   typedef typename util::type_cond<
                       std::is_integral<value_type>::value,
                       double, value_type>::type result_type;
@@ -452,9 +468,9 @@ inline auto enumerate(Range& range, std::size_t start=0) {
 }
 
 /**
- * @brief wrap ConvertIterator to expect type inference
+ * @brief wrap TransformIterator to expect type inference
  * @tparam Iterator iterator
- * @tparam Converter rule to convert iterator
+ * @tparam UnaryOperation rule to convert iterator
  * @param it iterator to hold
  * @param f converter
  *
@@ -463,16 +479,21 @@ inline auto enumerate(Range& range, std::size_t start=0) {
  *
  * // Copy. If you want to get reference, use std::ref as return value of
  * // the converter. 
- * auto it convert_iterator(v.begin(), [](pair<int,int>& u){return u.first;});
+ * auto it transform_iterator(v.begin(), [](pair<int,int>& u){return u.first;});
  * // 1, 3, 5, 7
  * while (it != v.end()) 
  *   cout << *(it++) << endl;
  * }
  * @endcode
  */
-template <class Iterator, class Converter>
-auto convert_iterator(Iterator it, Converter f) {
-  return range::ConvertIterator<Iterator, Converter>(it, f);
+template <class Iterator, class UnaryOperation>
+auto transform_iterator(Iterator it, UnaryOperation f) {
+  return range::TransformIterator<Iterator, UnaryOperation>(it, f);
+}
+
+template <class Iterator, class UnaryOperation>
+auto transform_iterator(Iterator first, Iterator last, UnaryOperation f) {
+  return std::make_pair(transform_iterator(first, f), transform_iterator(last, f));
 }
 
 /**

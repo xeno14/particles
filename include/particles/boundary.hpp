@@ -26,7 +26,7 @@ namespace internal {
 template<class Iterator>
 auto position_iterator(Iterator it) {
   static auto cvt = [](decltype(*it)& p) { return p.position(); };
-  return ::particles::convert_iterator(it, cvt);
+  return ::particles::transform_iterator(it, cvt);
 }
 
 /**
