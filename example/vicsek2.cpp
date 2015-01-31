@@ -26,7 +26,6 @@ using namespace particles;
 
 typedef Particle<double, 2> P;
 
-const auto& get_v(const Particle<double ,2>* p) { return p->velocity(); }
 
 const int N = 128;          // Number of particles
 const double v0 = 0.1;      // Velocity of particles
@@ -51,7 +50,7 @@ void initial_condition(std::vector<P>& particles) {
   vel_gen.seed_dev();
 
   for (auto& p : particles) {
-    p.position() = pos_gen;
+    p.position() = pos_gen();
     p.velocity() = vel_gen();
   }
 }
@@ -67,8 +66,8 @@ int main() {
   // Search: interaction with particles within distamce r0
   search::KdTreeSearcher<double, 2> searcher(r0);
 
-  // List of pointers to particles interact with
-  typename decltype(searcher)::adjacency_list_type adjacency_list;
+  // List of pointers to particles within the interect range
+  auto adjacency_list = searcher.create_adjacency_list();
 
   std::vector<P> particles(N);
   std::vector<P> new_particles(N);  // Store next step
@@ -104,11 +103,10 @@ int main() {
       nx = x + v;
 
       // Velocity at next step
-      // Get average velocity among neighbors
+      // Get average velocity over neighbors
       auto iter = transform_iterator(neighbors.begin(), neighbors.end(),
                                      [](auto* p) { return p->velocity(); });
-      nv = average(iter.first, iter.second);
-           eta_gen();
+      nv = average(iter.first, iter.second) + eta_gen();
       nv.normalize(v0);
     };
 

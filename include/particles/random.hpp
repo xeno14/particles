@@ -88,6 +88,7 @@ struct UniformDistributionType<T, false, true> {
 
 
 /**
+ * @deprecated
  * @brief generates random numbers in a certain range
  * @tparam T real type
  * @tparam Engine engine
@@ -231,10 +232,23 @@ class UniformGenerator : public GeneratorBase<Engine> {
   UniformGenerator() : distribution_() {}
   UniformGenerator(T a, T b) : distribution_(a, b) {}
 
+  value_type get() const { return distribution_(Base::engine_); }
+
   /** @brief get a random number */
-  value_type operator()() const { return distribution_(Base::engine_); }
+  // value_type operator()() const { return distribution_(Base::engine_); }
+  const UniformGenerator& operator()() const { return *this; }
+
+  operator value_type() const { return get(); }
+
+  bool operator == (value_type n) const { return get() == n; }
+  bool operator != (value_type n) const { return get() != n; }
+  bool operator <  (value_type n) const { return get() <  n; }
+  bool operator >  (value_type n) const { return get() >  n; }
+  bool operator <= (value_type n) const { return get() <= n; }
+  bool operator >= (value_type n) const { return get() >= n; }
+
   /** @brief get a random number */
-  value_type operator[](std::size_t) const { return (*this)(); }
+  value_type operator[](std::size_t) const { return get(); }
 
  private:
   mutable typename internal::UniformDistributionType<T>::type distribution_;
@@ -243,8 +257,8 @@ class UniformGenerator : public GeneratorBase<Engine> {
 /**
  * @brief get value on N-dimension sphere)
  *
- * - N=2: edge of a circle
- * - N=3: sphere
+ * - N=2: on S1
+ * - N=3: on S2
  *
  * @code
  * UniformOnSphere<double, 2> circle(1.0);

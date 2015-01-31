@@ -120,28 +120,38 @@ TEST(RandomTest, isotoropic3) {
 
 class UniformGeneratorTest : public ::testing::Test {
  protected:
-  UniformGeneratorTest() : gen_int(0, 10), gen_double(0, 1) {}
+  UniformGeneratorTest() : gen_int(0, 6), gen_double(0, 1) {}
 
   virtual void SetUp() {
     gen_int.seed_dev();
     gen_double.seed_dev();
   }
 
-  random::UniformGenerator<int> gen_int;
+  random::UniformGenerator<int>    gen_int;
   random::UniformGenerator<double> gen_double;
 };
 
+TEST_F(UniformGeneratorTest, operators) {
+  EXPECT_TRUE(gen_int <  1000);
+  EXPECT_TRUE(gen_int <= 1000);
+  EXPECT_TRUE(gen_int >  -100);
+  EXPECT_TRUE(gen_int >= -100);
+  EXPECT_TRUE(gen_int != 1000);
+}
+
 TEST_F(UniformGeneratorTest, gen_int) {
   loop([&]() {
-    EXPECT_GE(10, gen_int());
-    EXPECT_LE(0, gen_int());
+    int n = gen_int();
+    EXPECT_GE(6, n);
+    EXPECT_LE(0,  n);
   });
 }
 
 TEST_F(UniformGeneratorTest, gen_double) {
   loop([&]() {
-    EXPECT_GT(1, gen_double());
-    EXPECT_LE(0, gen_double());
+    double n = gen_double;
+    EXPECT_GT(1, n);
+    EXPECT_LE(0, n);
   });
 }
 
@@ -149,10 +159,10 @@ TEST_F(UniformGeneratorTest, hoge) {
   loop([&]() {
     Vec<int, 2> v{1, 2};
     v = v + v + gen_int;
-    EXPECT_GE(12, v[0]);
-    EXPECT_LE(2, v[0]);
-    EXPECT_GE(14, v[1]);
-    EXPECT_LE(4, v[1]);
+    EXPECT_GE(8,  v[0]);
+    EXPECT_LE(2,  v[0]);
+    EXPECT_GE(10, v[1]);
+    EXPECT_LE(4,  v[1]);
   });
 }
 
