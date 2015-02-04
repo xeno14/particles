@@ -54,4 +54,4 @@ add_subdirectory(example)
 ###########################################################
 install(DIRECTORY include/
    DESTINATION /usr/local/include
-   FILES_MATCHING PATTERN "*.hpp")
+   FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h")
