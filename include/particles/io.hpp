@@ -150,6 +150,41 @@ std::ostream& output_particles(std::ostream& os, Iterator first, Iterator last,
 }
 
 }  // namespace io
+
+
+/**
+ * @brief output in csv-like format
+ *
+ * @code
+ * vector<int> v {1, 2, 3};
+ * csv_out(v, ",", v.begin(), v.end()) << std::endl;
+ * // 1,2,3
+ * @endcode
+ *
+ * @tparam InputIterator iterator
+ * @param os output stream
+ * @param sep separator
+ * @param first, last range
+ */
+template <class InputIterator>
+std::ostream& csv_out(std::ostream& os, const std::string& sep,
+                      InputIterator first, InputIterator last) {
+  while (first != last) {
+    os << *first;
+    ++first;
+    if (first != last) {
+      os << sep;
+    }
+  }
+  return os;
+}
+
+template <class Range>
+inline std::ostream& csv_out(std::ostream& os, const std::string& sep,
+                             const Range& range) {
+  return csv_out(os, sep, std::begin(range), std::end(range));
+}
+
 }  // namespace particles
 
 // Global overloading

@@ -106,3 +106,21 @@ TEST_F(IOTest, vec_istream2) {
   EXPECT_EQ(4, v[1]);
   EXPECT_EQ(5, v[2]);
 }
+
+TEST_F(IOTest, csv_out_size3) {
+  auto v = {1, 2, 3};
+  csv_out(ss, ",", v.begin(), v.end()) << "@";
+  EXPECT_EQ("1,2,3@", ss.str());
+}
+
+TEST_F(IOTest, csv_out_size1) {
+  auto v = {1};
+  csv_out(ss, ",", v.begin(), v.end());
+  EXPECT_EQ("1", ss.str());
+}
+
+TEST_F(IOTest, csv_out_range) {
+  auto v = {1, 2, 3};
+  csv_out(ss, ",", v) << "@@";
+  EXPECT_EQ("1,2,3@@", ss.str());
+}
