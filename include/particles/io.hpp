@@ -8,6 +8,7 @@
 
 #include "vec.hpp"
 #include "particle.hpp"
+#include "range.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -193,6 +194,23 @@ template <class Range>
 inline std::ostream& csv_out(std::ostream& os, const std::string& sep,
                              const Range& range) {
   return csv_out(os, sep, std::begin(range), std::end(range));
+}
+
+/**
+ * @brief csv_out for tuple
+ * 
+ * Use make_cref_tuple in case you want to output some variables.
+ * @see make_cref_tuple
+ * @code
+ * csv_out(cout, " ", std::make_tuple(1, 2, 3));  //1 2 3
+ * int a=0, b=1;
+ * csv_out(cout, " ", make_cref_tuple(a, b));     //0 1
+ * @endcode
+ */
+template <class... Args>
+inline std::ostream& csv_out(std::ostream& os, const std::string& sep,
+                      const std::tuple<Args...>& tup) {
+  return io::output<sizeof...(Args)>(os, tup, sep);
 }
 
 }  // namespace particles

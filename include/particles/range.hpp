@@ -259,14 +259,22 @@ class EnumerateRange {
  */
 template <class Iterator, class UnaryOperation,
           class ValueType = expression::return_type<
-                                UnaryOperation, typename Iterator::value_type>>
-class TransformIterator : public std::iterator<std::input_iterator_tag, ValueType> 
-{
+              UnaryOperation, typename Iterator::value_type>>
+class TransformIterator
+    : public std::iterator<std::input_iterator_tag, ValueType> {
  public:
   TransformIterator(Iterator it, UnaryOperation op) : it_(it), op_(op) {}
-  TransformIterator(const TransformIterator& cit) : it_(cit.it_), op_(cit.op_) {}
-  TransformIterator& operator++() { ++it_; return *this; }
-  TransformIterator  operator++(int) { auto res = *this; operator++(); return res; }
+  TransformIterator(const TransformIterator& cit)
+      : it_(cit.it_), op_(cit.op_) {}
+  TransformIterator& operator++() {
+    ++it_;
+    return *this;
+  }
+  TransformIterator operator++(int) {
+    auto res = *this;
+    operator++();
+    return res;
+  }
 
   auto operator*() { return op_(*it_); }
 
@@ -452,9 +460,26 @@ auto transform_iterator(Iterator it, UnaryOperation f) {
   return range::TransformIterator<Iterator, UnaryOperation>(it, f);
 }
 
+/**
+ * @brief pair of transform_iterator
+ * @code
+ * vector<int> v{1, 2, 3};
+ * auto p = transform_iterator(v.begin(), v.end(), [](int n){return 2*n});
+ * std::copy(p.first, p.second, result);
+ * @endcode
+ */
 template <class Iterator, class UnaryOperation>
 auto transform_iterator(Iterator first, Iterator last, UnaryOperation f) {
-  return std::make_pair(transform_iterator(first, f), transform_iterator(last, f));
+  return std::make_pair(transform_iterator(first, f),
+                        transform_iterator(last, f));
+}
+
+/**
+ * @bried make tuple of const reference
+ */
+template <class... Args>
+auto make_cref_tuple(const Args&... args) {
+  return std::make_tuple(std::cref(args)...);
 }
 
 }  // namespace particles

@@ -124,3 +124,14 @@ TEST_F(IOTest, csv_out_range) {
   csv_out(ss, ",", v) << "@@";
   EXPECT_EQ("1,2,3@@", ss.str());
 }
+
+TEST_F(IOTest, csv_out_tuple) {
+  csv_out(ss, ",", std::make_tuple(1, 2, 3)) << "@";
+  EXPECT_EQ("1,2,3@", ss.str());
+}
+
+TEST_F(IOTest, csv_out_tuple2) {
+  int a=1, b=2, c=3;
+  csv_out(ss, ",", make_cref_tuple(a, b, c)) << "@";
+  EXPECT_EQ("1,2,3@", ss.str());
+}
