@@ -295,45 +295,6 @@ class TransformIterator : public std::iterator<std::input_iterator_tag, ValueTyp
   UnaryOperation op_;
 };
 
-
-/**
- * @brief call push_back instead of assigning.
- *
- * This class has a reference to a list such as std::vector. When assigning to
- * the value this iterator is pointing, push_back is called.
- */
-template <class L>
-class PushBackIterator
-    : public std::iterator<std::output_iterator_tag, typename L::value_type> {
- private:
-  /**
-   * @brief Assigning operator is used for push_back
-   */
-  class PushBackImpl {
-   public:
-    PushBackImpl(L& l) : l_(l) {}
-    template <class T>
-    void operator=(const T& x) { this->l_.push_back(x); }
-
-   private:
-    L& l_;
-  };
-
- public:
-  PushBackIterator(L& l) : l_(l) {}
-  PushBackIterator(const PushBackIterator& it) : l_(it.l_) {}
-  PushBackIterator& operator=(const PushBackIterator& it) {
-    l_ = it.l_;
-    return *this;
-  }
-  PushBackIterator& operator++() { return *this; }
-  PushBackIterator& operator++(int) { return *this; }
-  PushBackImpl operator*() { return PushBackImpl(l_); }
-
- private:
-  L& l_;
-};
-
 }  // namespace range
 
 
@@ -495,23 +456,6 @@ template <class Iterator, class UnaryOperation>
 auto transform_iterator(Iterator first, Iterator last, UnaryOperation f) {
   return std::make_pair(transform_iterator(first, f), transform_iterator(last, f));
 }
-
-/**
- * @brief create PushBackIterator
- *
- * @code
- * std::vector<int> v {1, 2, 3, 4};
- * std::vector<int> res {0};
- * // res: {0, 1, 2, 3, 4}
- * std::copy(v.begin(), v.end(), range::push_back_iterator(res));
- * @endcode
- * 
- * @pre type L has member function push_back and member type value_type
- * @tparam L list type (e.g. std::vector)
- * @param l list
- */
-template <class L>
-auto push_back_iterator(L& l) { return range::PushBackIterator<L>(l); }
 
 }  // namespace particles
 

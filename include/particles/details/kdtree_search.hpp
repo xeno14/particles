@@ -72,7 +72,7 @@ struct KdTreeSearchImpl {
       adjacency_list[i].clear();
 
       Fuzzy_sphere query(VecToPoint_d(particles[i].position()), r);
-      tree.search(push_back_iterator(result), query);
+      tree.search(std::back_inserter(result), query);
 
       for (const auto& t : result) {
         adjacency_list[i].push_back(&particles[t.get<1>()]);
