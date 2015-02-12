@@ -96,6 +96,16 @@ std::ostream& output(std::ostream& os, const T& t,
   return os << suffix;
 }
 
+template <std::size_t N, class T>
+std::ostream& output(std::ostream& os, const Vec<T, N>& v,
+                     const std::string& delimiter = " ",
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") {
+  os << prefix;
+  internal::ToOStreamImpl<N>::apply(os, v, delimiter);
+  return os << suffix;
+}
+
 /**
  * @brief output position and velocity of a particle  to std::ostream
  *

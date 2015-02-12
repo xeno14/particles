@@ -37,7 +37,7 @@ TEST_F(IOTest, output_3) {
 
 TEST_F(IOTest, output_vec) {
   Vec<int, 3> v {1, 2, 3};
-  io::output<3>(ss, v);
+  io::output(ss, v);
   EXPECT_EQ("1 2 3", ss.str());
 }
 
