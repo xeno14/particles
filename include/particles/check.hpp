@@ -8,19 +8,31 @@
 #include <tuple>
 #include <type_traits>
 
+
 namespace particles {
 namespace check {
 namespace internal {
+
+#define CHECK_FALSE \
+  template <class T> \
+  static auto check(...) -> std::false_type \
 
 struct IsTupleLikeImpl {
   template <class T>
   static auto check(T* t) -> decltype(
     std::get<0>(*t), std::tuple_size<T>::value, std::true_type());
 
-  template <class T>
-  static auto check(...) -> std::false_type;
+  CHECK_FALSE;
 };
 
+struct HasAccessOperator {
+  template <class T>
+  static auto check(T* t) -> decltype((*t)[std::size_t(0)], std::true_type());
+
+  CHECK_FALSE;
+};
+
+#undef CHECK_FALSE
 }  // namespace internal
 
 
@@ -38,6 +50,13 @@ struct IsTupleLikeImpl {
 template <class T>
 struct is_tuple_like
     : public decltype(internal::IsTupleLikeImpl::check<T>(nullptr)) {};
+
+/**
+ * @brief Check if a class has operator[]
+ */
+template <class T>
+struct has_access_operator
+    : public decltype(internal::HasAccessOperator::check<T>(nullptr)) {};
 
 }  // namespace check
 }  // namespace particles
