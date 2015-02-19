@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "check.hpp"
 #include "decl_overloads.h"
 #include "ET.hpp"
 
@@ -248,6 +249,8 @@ return_type<F, Arg> return_type_inferenece(F f, Arg arg);
 /**
  * @brief inner product
  *
+ * @todo use tag dispatch
+ *
  * Calculate inner product between tuple-like objects. All operations are
  * expanded at compiling.
  *
@@ -302,7 +305,9 @@ auto euclidean_norm(const T& x) {
  */
 template <class Tuple, class Function>
 Function tuple_for_each(Tuple& t, Function fn) {
-  expression::internal::
+  static_assert(check::is_tuple_like<Tuple>{}, "Requires tuple-like object.");
+
+  using expression::internal::tuple_for_each_impl;
   tuple_for_each_impl<0, std::tuple_size<Tuple>::value>(t, fn);
   return std::move(fn);
 }

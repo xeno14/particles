@@ -13,26 +13,23 @@ namespace particles {
 namespace check {
 namespace internal {
 
-#define CHECK_FALSE \
-  template <class T> \
-  static auto check(...) -> std::false_type \
-
 struct IsTupleLikeImpl {
   template <class T>
   static auto check(T* t) -> decltype(
     std::get<0>(*t), std::tuple_size<T>::value, std::true_type());
 
-  CHECK_FALSE;
+  template <class T>
+  static auto check(...) -> std::false_type;
 };
 
 struct HasAccessOperator {
   template <class T>
   static auto check(T* t) -> decltype((*t)[std::size_t(0)], std::true_type());
 
-  CHECK_FALSE;
+  template <class T>
+  static auto check(...) -> std::false_type;
 };
 
-#undef CHECK_FALSE
 }  // namespace internal
 
 
