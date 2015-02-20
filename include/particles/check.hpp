@@ -24,7 +24,7 @@ struct Conditional {
 struct IsStdGetOverloadedImpl {
   template <class T>
   static auto check(T* t) -> decltype(
-    std::get<static_cast<std::size_t>(0)>(*t),
+    std::get<0>(*t),
     // TODO check for ref(*t).get(), cref(*t).get(), move(*t)
     std::true_type());
 

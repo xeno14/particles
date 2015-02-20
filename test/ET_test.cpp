@@ -157,6 +157,11 @@ TEST_F(CrossTest, std_get) {
   // static_assert(check::is_get_overloaded<decltype(result)>{}, "");
 }
 
+TEST_F(CrossTest, tuple_size) {
+  auto result = cross(e0, e1);
+  static_assert(std::tuple_size<decltype(result)>{} == 3, "");
+}
+
 TEST(CrossOperatorTest, use_operator) {
   std::vector<int> e0 {1, 0, 0};
   std::vector<int> e1 {0, 1, 0};
