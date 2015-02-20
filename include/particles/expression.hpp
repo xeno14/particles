@@ -265,7 +265,8 @@ return_type<F, Arg> return_type_inferenece(F f, Arg arg);
  */
 template <std::size_t N, class L, class R>
 inline auto inner_prod(const L& l, const R& r) {
-  static_assert(
+  static_assert(check::is_get_overloaded<L>{} && check::is_get_overloaded<R>{},
+                "Requires that std::get is overloaded");
   return expression::internal::InnerProdImpl<N, L, R>::apply(l, r);
 }
 
