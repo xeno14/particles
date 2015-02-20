@@ -153,6 +153,8 @@ TEST_F(CrossTest, std_get) {
   EXPECT_EQ(0, std::get<0>(result));
   EXPECT_EQ(0, std::get<1>(result));
   EXPECT_EQ(1, std::get<2>(result));
+  /** @todo why static_assert fails?? */
+  // static_assert(check::is_get_overloaded<decltype(result)>{}, "");
 }
 
 TEST(CrossOperatorTest, use_operator) {
@@ -163,3 +165,13 @@ TEST(CrossOperatorTest, use_operator) {
   EXPECT_EQ(0, result[1]);
   EXPECT_EQ(1, result[2]);
 }
+
+TEST(Exp, tuple_size){
+  typedef std::tuple<int, int> T2;
+  static_assert(std::tuple_size<Exp<T2, void, T2>>{} == 2, "");
+  static_assert(check::has_tuple_size<Exp<T2, void, T2>>{}, "");
+ 
+  // error
+  // typedef std::tuple<int, int, int> T3;
+  // static_assert(std::tuple_size<Exp<T3, void, T2>>{} == 2, "");
+};

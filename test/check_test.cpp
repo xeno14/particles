@@ -18,6 +18,18 @@ TEST(check_test, conditional) {
       "false");
 }
 
+TEST(check, is_get_overloaded) {
+  static_assert(!is_get_overloaded<int>{}, "");
+  static_assert( is_get_overloaded<std::tuple<int>>{}, "");
+  static_assert( is_get_overloaded<std::array<int, 100>>{}, "");
+}
+
+TEST(check, has_tuple_size) {
+  static_assert(!has_tuple_size<int>{}, "");
+  static_assert( has_tuple_size<std::tuple<int>>{}, "");
+  static_assert( has_tuple_size<std::array<int, 100>>{}, "");
+}
+
 TEST(check_test, is_tuple_like) {
   static_assert(!is_tuple_like<int>{}, "");
   static_assert( is_tuple_like<std::tuple<int>>{}, "");

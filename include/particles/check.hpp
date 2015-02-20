@@ -9,6 +9,7 @@
 #include <tuple>
 #include <type_traits>
 
+#include "decl_overloads.h"
 
 namespace particles {
 namespace check {
@@ -23,10 +24,8 @@ struct Conditional {
 struct IsStdGetOverloadedImpl {
   template <class T>
   static auto check(T* t) -> decltype(
-    std::get<0>(std::ref(*t).get()),
-    std::get<0>(std::cref(*t).get()),
-    // TODO move
-    // std::get<0>(std::move(*t)),
+    std::get<static_cast<std::size_t>(0)>(*t),
+    // TODO check for ref(*t).get(), cref(*t).get(), move(*t)
     std::true_type());
 
   template <class T>
