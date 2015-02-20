@@ -9,6 +9,15 @@
 using namespace particles;
 using namespace particles::check;
 
+TEST(check_test, conditional) {
+  static_assert(
+      std::is_same<std::true_type, internal::Conditional<true>::type>::value,
+      "true_type");
+  static_assert(
+      std::is_same<std::false_type, internal::Conditional<false>::type>::value,
+      "false");
+}
+
 TEST(check_test, is_tuple_like) {
   static_assert(!is_tuple_like<int>{}, "");
   static_assert( is_tuple_like<std::tuple<int>>{}, "");
