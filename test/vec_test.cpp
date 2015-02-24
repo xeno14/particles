@@ -244,3 +244,16 @@ TEST_F(CrossTest, ET) {
   EXPECT_EQ(2, result[0]);
   EXPECT_EQ(1, std::get<2>(result));
 }
+
+TEST(VecTest, accessor) {
+  Vec<int, 3> a(1, 2, 3);
+  EXPECT_EQ(1, a.x());
+  EXPECT_EQ(2, a.y());
+  EXPECT_EQ(3, a.z());
+  a.x() = -1;
+  EXPECT_EQ(-1, a.x());
+
+  [](const Vec<int, 3>& b) {
+    EXPECT_EQ(2, b.y());
+  }(a);
+}

@@ -56,6 +56,25 @@ class Vec {
   void fill(const T val) { value_.fill(val); }
   void swap(Vec& v) { value_.swap(v.value_); }
 
+  value_type& x() {
+    static_assert(N >= 1, "Requires dim >= 1"); return (*this)[0];
+  }
+  const value_type& x() const {
+    static_assert(N >= 1, "Requires dim >= 1"); return (*this)[0];
+  }
+  value_type& y() {
+    static_assert(N >= 2, "Requires dim >= 2"); return (*this)[1];
+  }
+  const value_type& y() const {
+    static_assert(N >= 2, "Requires dim >= 2"); return (*this)[1];
+  }
+  value_type& z() {
+    static_assert(N >= 3, "Requires dim >= 3"); return (*this)[2];
+  }
+  const value_type& z() const {
+    static_assert(N >= 3, "Requires dim >= 3"); return (*this)[2];
+  }
+
   template <class E>
   Vec& operator=(const E& r);
   template <class E>
