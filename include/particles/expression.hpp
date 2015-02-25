@@ -243,6 +243,14 @@ using return_type = typename internal::ReturnType<F, Arg, IsReference>::type;
 template <class F, class Arg>
 return_type<F, Arg> return_type_inferenece(F f, Arg arg);
 
+/**
+ * @brief Pick head of variadic template arguments
+ */
+template <class T, class... Ts>
+struct PickHead {
+  typedef T type;
+};
+
 }  // namespace expression
 
 

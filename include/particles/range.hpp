@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "check.hpp"
 #include "expression.hpp"
 #include "util.hpp"
 #include "io.hpp"
@@ -301,6 +302,41 @@ class TransformIterator
  private:
   Iterator it_;
   UnaryOperation op_;
+};
+
+/**
+ * @tparam ValueType value_type
+ * @tparam Iterator... iterator
+ * @pre Iterator... have same value_type as ValueType
+ */
+template <class Iterator>
+class JoinedIterator
+  : public std::iterator<
+      std::forward_iterator,
+      std::iterator_traits<Iterator>::value_type> {
+ private:
+  std::size_t pos_;
+};
+
+/**
+ * @tparam Args... type of ranges
+ */
+template <class... Args>
+class JoinedRange {
+  static_assert(check::has_same_iterator<Args...>{},
+                "Requires same iterator type");
+  typedef typename expression::PickHead<
+                       typename Args::iterator...>::type actual_iterator;
+ public:
+  typedef JoinedIterator<actual_iterator> iterator;
+
+  // JoinedRange(Args&... ranges) : begins_(), ends_() {
+    
+  // }
+
+ private:
+  std::array<actual_iterator, sizeof...(Args)> begins_;
+  std::array<actual_iterator, sizeof...(Args)> ends_;
 };
 
 }  // namespace range

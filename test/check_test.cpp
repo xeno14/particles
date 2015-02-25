@@ -30,14 +30,32 @@ TEST(check, has_tuple_size) {
   static_assert( has_tuple_size<std::array<int, 100>>{}, "");
 }
 
-TEST(check_test, is_tuple_like) {
+TEST(check, is_tuple_like) {
   static_assert(!is_tuple_like<int>{}, "");
   static_assert( is_tuple_like<std::tuple<int>>{}, "");
   static_assert( is_tuple_like<std::array<int, 100>>{}, "");
 }
 
-TEST(check_test, has_access_operator) {
+TEST(check, has_access_operator) {
   static_assert(!has_access_operator<int>{}, "");
   static_assert( has_access_operator<std::vector<int>>{}, "");
   static_assert( has_access_operator<std::array<int, 100>>{}, "");
+}
+
+TEST(check, has_same_value_type) {
+  std::vector<int> u, v;
+  std::vector<double> w;
+
+  static_assert( has_same_value_type<decltype(u), decltype(v)>{}, "");
+  static_assert(!has_same_value_type<decltype(u), decltype(v), decltype(w)>{},
+                "");
+  // error
+  // auto x = has_same_value_type<decltype(u)>{};
+}
+
+TEST(check, has_same_iterator) {
+  typedef std::vector<int> vi;
+  typedef std::vector<float> vf;
+  EXPECT_TRUE((has_same_iterator<vi, vi, vi>{}));
+  EXPECT_FALSE((has_same_iterator<vi, vf, vi>{}));
 }

@@ -50,6 +50,36 @@ struct HasAccessOperatorImpl {
   static auto check(...) -> std::false_type;
 };
 
+template <template <class, class> class F, class T,  class Head, class... Tail>
+struct HasSameImpl {
+  static const bool value
+      = F<T, Head>::value && HasSameImpl<F, T, Tail...>::value;
+};
+
+template <template <class, class> class F, class T, class U>
+struct HasSameImpl<F, T, U> {
+  static const bool value = F<T, U>::value;
+};
+
+/**
+ * @tparam F binary meta function that has boolean value 
+ */
+template <template <class, class> class F, class Head, class... Tail>
+struct HasSame
+  : public std::conditional<
+      HasSameImpl<F, Head, Head, Tail...>::value,
+      std::true_type,
+      std::false_type>::type {};
+
+template <class T, class U>
+struct HasSameValueType {
+  static const bool value =
+    std::is_same<
+      typename T::value_type,
+      typename U::value_type
+    >::value;
+};
+
 }  // namespace internal
 
 /**
@@ -88,6 +118,27 @@ struct is_tuple_like
 template <class T>
 struct has_access_operator
     : public decltype(internal::HasAccessOperatorImpl::check<T>(nullptr)) {};
+
+/**
+ * @brief Check if all arguments have same value_type
+ */
+template <class... Args>
+struct has_same_value_type
+  : public internal::HasSame<
+    internal::HasSameValueType,
+    Args...
+  > {
+  static_assert(sizeof...(Args)>=2, "Requires at least 2 template arguments");  
+};
+
+template <class... Args>
+struct has_same_iterator
+  : public internal::HasSame<
+      std::is_same,
+      typename Args::iterator...
+    > {
+  static_assert(sizeof...(Args)>=2, "Requires at least 2 template arguments");  
+};
 
 }  // namespace check
 }  // namespace particles

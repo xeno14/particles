@@ -298,3 +298,21 @@ TEST(RangeTest, make_cref_tuple) {
   EXPECT_EQ(0, d);
   EXPECT_EQ(1, e);
 }
+
+class JoinTest : public ::testing::Test {
+ protected:
+  typedef std::vector<int> vi;
+  vi u, v, w;
+
+  virtual void SetUp() {
+    u = {1, 2, 3};
+    v = {4, 5, 6};
+    w = {7, 8, 9};
+  }
+  virtual void TearDown() {}
+};
+
+TEST_F(JoinTest, static_assert) {
+  // typedef std::vector<float> vf;
+  JoinedRange<vi, vi> a(u, v);
+}
