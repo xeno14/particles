@@ -1,8 +1,16 @@
 #include "particles/vec.hpp"
+#include "particles/check.hpp"
 
 #include <gtest/gtest.h>
 
 using particles::Vec;
+
+class TraitsTest : public ::testing::Test {};
+
+TEST_F(TraitsTest, tuple_like) {
+  static_assert(check::is_tuple_like<Vec<int, 2>>{}, "");
+  static_assert(check::is_tuple_like<Vec<double, 3>>{}, "");
+}
 
 class OperatorTest : public ::testing::Test {
  protected:

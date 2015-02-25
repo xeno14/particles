@@ -88,6 +88,14 @@ TEST_F(TupleForEachTest, sum) {
   EXPECT_EQ(6, sum);
 }
 
+TEST_F(TupleForEachTest, use_auto) {
+  std::tuple<int, double, char> u(0, 0, 0);
+  tuple_for_each(u, [](auto& x) { x += 1; });
+  EXPECT_EQ(1, std::get<0>(u));
+  EXPECT_DOUBLE_EQ(1.0, std::get<1>(u));
+  EXPECT_EQ(1, std::get<2>(u));
+}
+
 TEST(ExpressionTest, element_at) {
   int x,y,z;
   element_at<0>(x, y, z) = 100;
@@ -98,7 +106,7 @@ class ReturnTypeTest : public ::testing::Test {
   protected:
     static int  f(int n)  { return n; }
     static int& g(int& n) { return std::ref(n); }
-    static auto h(std::tuple<int,int>& t) { return std::ref(t); }
+    static auto h(std::tuple<int, int>& t) { return std::ref(t); }
 };
 
 TEST_F(ReturnTypeTest, value) {
