@@ -305,9 +305,10 @@ class TransformIterator
 };
 
 /**
- * @tparam ValueType value_type
- * @tparam Iterator... iterator
- * @pre Iterator... have same value_type as ValueType
+ * @tparam Iterator actual_iterator
+ *
+ * @pre Iterator should be forward_iterator
+ * @todo change iterator_tag up to Iterator's tag
  */
 template <class Iterator, std::size_t N>
 class JoinedIterator
@@ -356,20 +357,21 @@ class JoinedIterator
 };
 
 /**
- * @tparam Args... type of ranges
+ * @tparam Range... type of ranges
+ * @pre Range... have same iterator
  */
-template <class... Args>
+template <class... Range>
 class JoinedRange {
-  static_assert(check::has_same_iterator<Args...>{},
+  static_assert(check::has_same_iterator<Range...>{},
                 "Requires same iterator type");
   typedef typename expression::PickHead<
-                       typename Args::iterator...>::type actual_iterator;
+            typename Range::iterator...>::type actual_iterator;
  public:
-  typedef JoinedIterator<actual_iterator, sizeof...(Args)> iterator;
+  typedef JoinedIterator<actual_iterator, sizeof...(Range)> iterator;
 
-  JoinedRange(Args&... ranges)
+  JoinedRange(Range&... ranges)
     : begin_({std::begin(ranges)...}, {std::end(ranges)...}, 0),
-      end_({std::end(ranges)...}, {std::end(ranges)...}, sizeof...(Args)) {}
+      end_({std::end(ranges)...}, {std::end(ranges)...}, sizeof...(Range)) {}
 
   iterator begin() const { return begin_; }
   iterator end() const { return end_; }
@@ -549,6 +551,24 @@ auto transform_iterator(Iterator first, Iterator last, UnaryOperation f) {
                         transform_iterator(last, f));
 }
 
+/**
+ * @brief Make joined range
+ * @pre All containers have same iterator type
+ *
+ * For everytime the iterator is incremented, checks if it reaches the end or
+ * not. Therefore, iteration has an inevitable overhead.
+ *
+ * @code
+ * vector<int> u {1, 2, 3};
+ * vector<int> v {4, 5, 6};
+ * vector<int> result;
+ *
+ * // result: 1 2 3 4 5 6
+ * for (int n : make_joined(u, v)) {
+ *   result.push_back(n);
+ * }
+ * @endcode
+ */
 template <class... Range>
 auto make_joined(Range&... ranges) {
   return range::JoinedRange<Range...>(ranges...);
@@ -568,3 +588,4 @@ using namespace particles;
 OVERLOAD_STD_BEGIN_AND_END(class... Range,
                            range::ZipRange<Range...>);
 OVERLOAD_STD_BEGIN_AND_END(class T, range::XRange<T>);
+OVERLOAD_STD_BEGIN_AND_END(class... Range, range::JoinedRange<Range...>);
