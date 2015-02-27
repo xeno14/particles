@@ -309,13 +309,50 @@ class TransformIterator
  * @tparam Iterator... iterator
  * @pre Iterator... have same value_type as ValueType
  */
-template <class Iterator>
+template <class Iterator, std::size_t N>
 class JoinedIterator
   : public std::iterator<
-      std::forward_iterator,
-      std::iterator_traits<Iterator>::value_type> {
+      std::forward_iterator_tag,
+      typename std::iterator_traits<Iterator>::value_type> {
+ public:
+  JoinedIterator(std::initializer_list<Iterator> firsts,
+                 std::initializer_list<Iterator> lasts,
+                 std::size_t pos = 0) : pos_(pos) {
+    auto it1 = std::begin(firsts);
+    auto it2 = std::begin(lasts);
+    std::size_t i = 0;
+    while (it1 != std::end(firsts) && it2 != std::end(lasts)) {
+      iterators_[i].first  = *it1;
+      iterators_[i].second = *it2;
+      ++it1; ++it2; ++i;
+    }
+  }
+
+  JoinedIterator(const JoinedIterator& it)
+    : pos_(it.pos_), iterators_(it.iterators_){}
+
+  JoinedIterator& operator++() {
+    ++iterators_[pos_].first;
+    if (iterators_[pos_].first == iterators_[pos_].second) ++pos_;
+    return *this;
+  }
+
+  JoinedIterator operator++(int) {
+    JoinedIterator<Iterator, N> res = *this;
+    operator++();
+    return res;
+  }
+
+  auto& operator*() { return *iterators_[pos_].first; }
+
+  bool operator==(const JoinedIterator& it) const {
+    return pos_ == it.pos_ && iterators_ == it.iterators_;
+  }
+  bool operator!=(const JoinedIterator& it) const { return !(*this == it); }
+
  private:
   std::size_t pos_;
+  std::array<std::pair<Iterator, Iterator>, N> iterators_;
 };
 
 /**
@@ -328,15 +365,17 @@ class JoinedRange {
   typedef typename expression::PickHead<
                        typename Args::iterator...>::type actual_iterator;
  public:
-  typedef JoinedIterator<actual_iterator> iterator;
+  typedef JoinedIterator<actual_iterator, sizeof...(Args)> iterator;
 
-  // JoinedRange(Args&... ranges) : begins_(), ends_() {
-    
-  // }
+  JoinedRange(Args&... ranges)
+    : begin_({std::begin(ranges)...}, {std::end(ranges)...}, 0),
+      end_({std::end(ranges)...}, {std::end(ranges)...}, sizeof...(Args)) {}
+
+  iterator begin() const { return begin_; }
+  iterator end() const { return end_; }
 
  private:
-  std::array<actual_iterator, sizeof...(Args)> begins_;
-  std::array<actual_iterator, sizeof...(Args)> ends_;
+  iterator begin_, end_;
 };
 
 }  // namespace range
@@ -508,6 +547,11 @@ template <class Iterator, class UnaryOperation>
 auto transform_iterator(Iterator first, Iterator last, UnaryOperation f) {
   return std::make_pair(transform_iterator(first, f),
                         transform_iterator(last, f));
+}
+
+template <class... Range>
+auto make_joined(Range&... ranges) {
+  return range::JoinedRange<Range...>(ranges...);
 }
 
 /**
