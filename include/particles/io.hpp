@@ -13,12 +13,6 @@
 #include <fstream>
 #include <string>
 
-namespace {
-
-constexpr auto kNullString = "";
-
-}  // anonymous namespace
-
 namespace particles {
 namespace io {
 namespace internal {
@@ -190,6 +184,14 @@ std::ostream& csv_out(std::ostream& os, const std::string& sep,
   return os;
 }
 
+/**
+ * @brief csv_out with range
+ *
+ * This function is equivalent to
+ * @code
+ * csv_out(os, sep, std::begin(range), std::end(range))
+ * @endcode
+ */
 template <class Range>
 inline std::ostream& csv_out(std::ostream& os, const std::string& sep,
                              const Range& range) {
@@ -199,12 +201,13 @@ inline std::ostream& csv_out(std::ostream& os, const std::string& sep,
 /**
  * @brief csv_out for tuple
  * 
- * Use make_cref_tuple in case you want to output some variables.
- * @see make_cref_tuple
+ * std::tie is useful to output multiple variables.
  * @code
  * csv_out(cout, " ", std::make_tuple(1, 2, 3));  //1 2 3
+ *
+ * // Use std::tie to output multiple variables
  * int a=0, b=1;
- * csv_out(cout, " ", make_cref_tuple(a, b));     //0 1
+ * csv_out(cout, " ", std::tie(a, b));            //0 1
  * @endcode
  */
 template <class... Args>

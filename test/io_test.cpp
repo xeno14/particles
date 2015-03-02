@@ -130,8 +130,8 @@ TEST_F(IOTest, csv_out_tuple) {
   EXPECT_EQ("1,2,3@", ss.str());
 }
 
-TEST_F(IOTest, csv_out_tuple2) {
+TEST_F(IOTest, csv_out_tie) {
   int a=1, b=2, c=3;
-  csv_out(ss, ",", make_cref_tuple(a, b, c)) << "@";
+  csv_out(ss, ",", std::tie(a, b, c)) << "@";
   EXPECT_EQ("1,2,3@", ss.str());
 }
