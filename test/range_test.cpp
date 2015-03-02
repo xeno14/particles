@@ -289,16 +289,6 @@ TEST_F(ConvertIteratorTest, copy) {
   EXPECT_EQ(5, result[2]);
 }
 
-TEST(RangeTest, make_cref_tuple) {
-  int a=0, b=1;
-  auto tup = make_cref_tuple(a, b);
-  int d, e;
-  d = std::get<0>(tup);
-  e = std::get<1>(tup);
-  EXPECT_EQ(0, d);
-  EXPECT_EQ(1, e);
-}
-
 class JoinTest : public ::testing::Test {
  protected:
   typedef std::vector<int> vi;

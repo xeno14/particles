@@ -574,14 +574,6 @@ auto make_joined(Range&... ranges) {
   return range::JoinedRange<Range...>(ranges...);
 }
 
-/**
- * @bried make tuple of const reference
- */
-template <class... Args>
-auto make_cref_tuple(const Args&... args) {
-  return std::make_tuple(std::cref(args)...);
-}
-
 }  // namespace particles
 
 using namespace particles;
