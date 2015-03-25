@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "check.hpp"
 #include "decl_overloads.h"
 #include "ET.hpp"
 
@@ -242,31 +243,50 @@ using return_type = typename internal::ReturnType<F, Arg, IsReference>::type;
 template <class F, class Arg>
 return_type<F, Arg> return_type_inferenece(F f, Arg arg);
 
+/**
+ * @brief Pick head of variadic template arguments
+ */
+template <class T, class... Ts>
+struct PickHead {
+  typedef T type;
+};
+
 }  // namespace expression
 
 
 /**
  * @brief inner product
  *
- * Calculate inner product between tuple-like objects. All operations are
- * expanded at compiling.
+ * @todo use tag dispatch
+ *
+ * Calculate inner product between classes that std::get is overloaded. In case
+ * the size must be specified, use this function otherwise use
+ * template<L,R> inner_prod if std::tuple_size is specialized.
  *
  * @code
- * std::vector<int> t {1, 2, 3};
- * std::vector<int> u {2, 3, 4};
+ * auto t = std::make_tuple(1, 2, 3);
+ * auto u = std::make_tuple(2, 3, 4);
  * int n = inner_prod(t, u);  // 20
  * @endcode
  *
- * @pre std::tuple_size and std::get both are available
+ * @pre std::get both are available
  */
 template <std::size_t N, class L, class R>
 inline auto inner_prod(const L& l, const R& r) {
+  static_assert(check::is_get_overloaded<L>{} && check::is_get_overloaded<R>{},
+                "Requires that std::get is overloaded");
   return expression::internal::InnerProdImpl<N, L, R>::apply(l, r);
 }
 
-// Recover me after implemention for tuple
+/**
+ * @brief inner product
+ *
+ * Calculate inner product between tuple-like classes.
+ */
 template <class L, class R>
 inline auto inner_prod(const L& l, const R& r) {
+  static_assert(check::is_tuple_like<L>{}, "Requires tuple-like object.");
+  static_assert(check::is_tuple_like<R>{}, "Requires tuple-like object.");
   static_assert(std::tuple_size<L>::value == std::tuple_size<R>::value,
                 "size of tuple must be same." );
   return inner_prod<std::tuple_size<L>::value>(l, r);
@@ -302,7 +322,9 @@ auto euclidean_norm(const T& x) {
  */
 template <class Tuple, class Function>
 Function tuple_for_each(Tuple& t, Function fn) {
-  expression::internal::
+  static_assert(check::is_tuple_like<Tuple>{}, "Requires tuple-like object.");
+
+  using expression::internal::tuple_for_each_impl;
   tuple_for_each_impl<0, std::tuple_size<Tuple>::value>(t, fn);
   return std::move(fn);
 }

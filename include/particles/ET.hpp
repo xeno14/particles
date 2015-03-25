@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "check.hpp"
+
 extern void* enabler;
 
 #define ET_OPERATOR_PLUS(THIS) \
@@ -225,8 +227,19 @@ inline auto cross(const L& l, const R& r) {
 namespace std {
 using namespace particles;
 
+template <class L, class Op, class R>
+struct tuple_size<ET::Exp<L, Op, R>> : public std::enable_if<
+    std::tuple_size<L>{} == std::tuple_size<R>{},
+    std::integral_constant<std::size_t, std::tuple_size<L>{}>>::type {};
+
+template <class L, class R>
+struct tuple_size<ET::Cross<L, R>>
+    : public std::integral_constant<std::size_t, 3> {};
+
 template <size_t I, class L, class Op, class R>
 inline auto get(const ET::Exp<L, Op, R>& e) {
+  static_assert(check::is_get_overloaded<L>{} && check::is_get_overloaded<R>{},
+                "Requires that std::get is overloaded");
   return Op::apply(get<I>(e.l), get<I>(e.r));
 }
 
@@ -234,4 +247,5 @@ template <size_t I, class L, class R>
 inline auto get(const ET::Cross<L, R>& e) {
   return e.get<I>();
 }
+
 }  // namespace std

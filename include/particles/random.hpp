@@ -318,12 +318,12 @@ class UniformOnSphere<T, 3, Engine> : public GeneratorBase<Engine> {
   value_type operator[](std::size_t i) const {
     typedef std::function<value_type(value_type, value_type, value_type)> func_t;
     static func_t funcs[] =
-        {[](value_type r, value_type phi,
-            value_type theta) { return r * sin(theta) * cos(phi); },
-         [](value_type r, value_type phi,
-            value_type theta) { return r * sin(theta) * sin(phi); },
-         [](value_type r, value_type phi,
-            value_type theta) { return r * cos(theta); }};
+        {[](value_type r, value_type phi, value_type theta)
+           { return r * sin(theta) * cos(phi); },
+         [](value_type r, value_type phi, value_type theta)
+           { return r * sin(theta) * sin(phi); },
+         [](value_type r, value_type phi, value_type theta)
+           { return r * cos(theta); }};
     return funcs[i](r_, phi_, theta_);
   }
 
