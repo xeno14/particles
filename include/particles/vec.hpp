@@ -77,6 +77,7 @@ class Vec {
 
   template <class E>
   Vec& operator=(const E& r);
+
   template <class E>
   bool operator==(const E& r) const;
   template <class E>
@@ -125,6 +126,20 @@ class Vec {
  private:
   /** @brief Container to hold values */
   array_t value_;
+
+  template <class U, bool IsArithmetic = std::is_arithmetic<U>{}>
+  struct AssignImpl_;
+
+  template <class U>
+  struct AssignImpl_<U, true> {
+    static void apply(Vec& v, U u) { v.fill(u); }
+  };
+  template <class U>
+  struct AssignImpl_<U, false> {
+    static void apply(Vec& v, const U& u) {
+      for (std::size_t i=0; i<N; i++) v[i] = u[i];
+    }
+  };
 };
 
 template <class T, std::size_t N>
@@ -146,7 +161,7 @@ template <class E>
 inline Vec<T, N>& Vec<T, N>::operator=(const E& r) {
   /** @todo Use template to expand this loop */
   // expression::Assign<N, array_t, E>::apply(value_, r);
-  for (std::size_t i = 0; i < N; i++) (*this)[i] = r[i];
+  Vec<T, N>::AssignImpl_<E>::apply(*this, r);
   return *this;
 }
 
