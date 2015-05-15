@@ -436,7 +436,5 @@ auto make_joined(Range&... ranges) {
 }  // namespace particles
 
 using namespace particles;
-OVERLOAD_STD_BEGIN_AND_END(class... Range,
-                           range::ZipRange<Range...>);
 OVERLOAD_STD_BEGIN_AND_END(class T, range::XRange<T>);
 OVERLOAD_STD_BEGIN_AND_END(class... Range, range::JoinedRange<Range...>);
