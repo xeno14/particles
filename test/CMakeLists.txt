@@ -9,6 +9,7 @@ add_gtest(range_test range_test.cpp "")
 add_gtest(zip_test range/zip_test.cpp "")
 add_gtest(enumerate_test range/enumerate_test.cpp "")
 add_gtest(xrange_test range/xrange_test.cpp "")
+add_gtest(join_test range/join_test.cpp "")
 
 add_gtest(particle_test particle_test.cpp "")
 add_gtest(io_test io_test.cpp "")

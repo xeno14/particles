@@ -5,6 +5,7 @@
 #pragma once
 
 #include "../expression.hpp"
+#include "../util.hpp"
 
 #include <iterator>
 #include <functional>
