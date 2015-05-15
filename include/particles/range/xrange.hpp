@@ -88,6 +88,22 @@ inline auto xrange(T first, T last, T step=1) {
   return range::XRange<T>(first, last, step);
 }
 
+/**
+ * @brief python-line xrange
+ *
+ * @code
+ * int sum=0;
+ * for (auto n : xrange(1, 10)) {  // 1, 2,..., 9
+ *   sum+=n;
+ * }
+ * cout << n << endl;   // 45
+ * @endcode
+ */
+template <class T=std::size_t>
+inline auto xrange(T last) {
+  return xrange<T>(0, last);
+}
+
 }  // namespace particles
 
 using namespace particles;
