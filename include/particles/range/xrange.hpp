@@ -88,3 +88,6 @@ inline auto xrange(T first, T last, T step=1) {
 }
 
 }  // namespace particles
+
+using namespace particles;
+OVERLOAD_STD_BEGIN_AND_END(class T, range::XRange<T>);
