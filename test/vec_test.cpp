@@ -43,6 +43,18 @@ TEST_F(OperatorTest, fill) {
   EXPECT_DOUBLE_EQ(1, result[2]);
 }
 
+TEST_F(OperatorTest, assign_scalar) {
+  result = 1.2;
+  EXPECT_DOUBLE_EQ(1.2, result[0]);
+  EXPECT_DOUBLE_EQ(1.2, result[1]);
+  EXPECT_DOUBLE_EQ(1.2, result[2]);
+
+  result = 0;
+  EXPECT_DOUBLE_EQ(0, result[0]);
+  EXPECT_DOUBLE_EQ(0, result[1]);
+  EXPECT_DOUBLE_EQ(0, result[2]);
+}
+
 TEST_F(OperatorTest, assign) {
   result = v1;
   EXPECT_DOUBLE_EQ(0, result[0]);
